@@ -1,13 +1,13 @@
 # 25CapstoneDesign
 25년 1학기 캡스톤디자인
 
-Travel Scheduler & Recommender
+# Travel Scheduler & Recommender
 
-프로젝트 개요
+## 프로젝트 개요
 이 프로젝트는 사용자가 여행 일정을 요일별로 계획할 수 있도록 지원하며, 지도, 날씨, 경비, 후기 등 여행에 필요한 정보를 한 곳에서 제공하는 웹 서비스입니다.  
 또한, AI 기반 챗봇 기능을 통해 사용자가 설정한 시나리오(지역, 동행자 유형, 여행 성향 등)에 맞춰 맞춤 여행지를 추천하고, 생성된 여행 일정을 구글 캘린더에 연동하는 기능을 포함합니다.
 
-주요 기능
+## 주요 기능
 - **회원가입/로그인:** 구글 소셜 로그인 활용
 - **여행 일정 관리:** 여행 일정 생성, 수정, 삭제 및 Day별 관리 (드래그 앤 드롭 인터페이스)
 - **지도 연동:** KakaoMap API를 이용한 지도 및 스트리트 뷰 표시
@@ -39,3 +39,7 @@ Travel Scheduler & Recommender
   - 버전 관리: GitHub  
   - 소통: KakaoTalk, Discord  
   - 회의록: Notion
+
+## Design
+- **UI/UX 디자인:**  
+  - Figma 디자인 참고: [Figma Design](https://www.figma.com/design/43bODe77hYu02GHCPcvaD1/2025-1-%EC%BA%A1%EC%8A%A4%ED%86%A4-%EB%94%94%EC%9E%90%EC%9D%B8?node-id=0-1&t=JjS8VRgIPhXlqtoS-1)
