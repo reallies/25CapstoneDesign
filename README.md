@@ -31,6 +31,7 @@
   - 날씨: 기상청 API  
   - AI 기능: Open AI API  
   - 캘린더 연동: Google Calendar API
+  - 로그인: OAuth 2.0 api
 - **인증:** Google 소셜 로그인
 - **배포:**  
   - 서버: AWS EC2  
