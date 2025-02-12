@@ -1,0 +1,159 @@
+//npx prisma generate
+//.env파일에서 DATABASE_URL="postgresql://postgres:개인비밀번호@localhost:5432/postgres?schema=trip_planner" 입력
+//npx prisma migrate dev --name init -> prisma/migrations폴더와 테이블 생성완료
+//npx prisma studio -> 테이블 생성확인
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProviderType {
+  GOOGLE
+  KAKAO
+  NAVER
+}
+
+model User {
+  user_id     Int          @id @default(autoincrement())
+  provider    ProviderType // 로그인 제공자 (Google, Kakao, Naver)
+  provider_id String       @unique @db.VarChar(255) // 같은 사용자가 여러개 소셜 로그인을 원할경우
+  nickname    String
+  image_url   String?
+  created_at  DateTime     @default(now())
+
+  trips    Trip[]
+  likes    Like[]
+  comments Comment[]
+  posts    Post[]
+}
+
+enum TripVisibility {
+  PRIVATE
+  FRIENDS_ONLY
+  PUBLIC
+}
+
+model Trip {
+  trip_id    String         @id @default(uuid())
+  user_id    Int
+  title      String
+  start_date DateTime
+  end_date   DateTime
+  is_shared  TripVisibility @default(PRIVATE) // 기본값 private
+
+  user      User        @relation(fields: [user_id], references: [user_id])
+  days      Day[]
+  expenses  Expense[]
+  posts     Post[]
+  checklist Checklist[]
+}
+
+model Day {
+  day_id  Int      @id @default(autoincrement()) //여행 일차
+  trip_id String
+  date    DateTime @db.Date //해당 여행 일자 (2025-02-11 이런식)
+
+  trip     Trip       @relation(fields: [trip_id], references: [trip_id])
+  places   DayPlace[]
+  expenses Expense[]
+}
+
+model DayPlace {
+  day_id   Int
+  place_id String
+
+  day   Day   @relation(fields: [day_id], references: [day_id])
+  place Place @relation(fields: [place_id], references: [place_id])
+
+  @@id([day_id, place_id]) // 복합 PK 설정 (Many-to-Many)
+}
+
+model Place {
+  place_id        String  @id //DB의 장소 id
+  google_place_id String  @unique //구글 플레이스 api의 고유장소 id
+  place_name      String
+  place_address   String?
+  place_latitude  Float
+  place_longitude Float
+  place_image_url String?
+  place_star      Float?
+  place_call_num  String?
+  review_count    Int?    @default(0)
+
+  days    DayPlace[]
+  Expense Expense[]
+}
+
+enum ExpenseType {
+  FOOD
+  TRANSPORT
+  ACCOMMODATION
+  TICKET
+  OTHER
+}
+
+model Expense {
+  expense_id Int         @id @default(autoincrement())
+  trip_id    String
+  day_id     Int?
+  place_id   String?
+  type       ExpenseType
+  title      String
+  price      Int
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  trip  Trip   @relation(fields: [trip_id], references: [trip_id])
+  day   Day?   @relation(fields: [day_id], references: [day_id])
+  place Place? @relation(fields: [place_id], references: [place_id], map: "place_id")
+}
+
+model Like {
+  like_id    Int      @id @default(autoincrement())
+  user_id    Int
+  post_id    Int
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [user_id])
+  post Post @relation(fields: [post_id], references: [post_id])
+}
+
+model Comment {
+  comment_id Int      @id @default(autoincrement())
+  user_id    Int
+  post_id    Int
+  content    String
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [user_id])
+  post Post @relation(fields: [post_id], references: [post_id])
+}
+
+model Post {
+  post_id    Int      @id @default(autoincrement())
+  trip_id    String
+  user_id    Int
+  title      String?
+  content    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  trip     Trip      @relation(fields: [trip_id], references: [trip_id])
+  user     User      @relation(fields: [user_id], references: [user_id])
+  comments Comment[]
+  likes    Like[]
+}
+
+model Checklist {
+  checklist_id Int     @id @default(autoincrement())
+  trip_id      String
+  item         String
+  is_checked   Boolean @default(false)
+
+  trip Trip @relation(fields: [trip_id], references: [trip_id])
+}
