@@ -1,24 +1,25 @@
-// server.js
-const express = require('express');
+//메인 서버
+
+//전역 미들웨어
+const app = require("./app");
 const dotenv = require('dotenv');
+const session = require("express-session");
+const passport = require("./config/passport");
+const cookieParser = require("cookie-parser");
 
 // 환경변수 로딩 (.env 파일 사용)
 dotenv.config();
 
-const app = express();
 const PORT = process.env.PORT || 8080;
 
 // JSON 요청 파싱 미들웨어
-app.use(express.json());
-
-// 기본 라우터 (예: API 라우트 모듈을 사용할 경우)
-app.get('/', (req, res) => {
-  res.send('Server is running');
-});
-
-// 예시: API 라우터 사용 (src/routes/index.js 등)
-// const apiRoutes = require('./src/routes');
-// app.use('/api', apiRoutes);
+app.use(cookieParser());
+app.use(session({ 
+  secret: process.env.SESSION_SECRET, 
+  resave: false, 
+  saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // 간단한 에러 핸들링 미들웨어 (필요 시 확장 가능)
 app.use((err, req, res, next) => {
