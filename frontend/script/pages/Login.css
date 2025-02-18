@@ -1,0 +1,87 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background: white;
+    height: calc(100vh - 80px);
+    margin-top: -50px;
+  }
+  
+  .login-header {
+    display: flex;
+    align-items: center;
+  }
+  
+  .login-logo {
+    width: 70px;
+    height: 70px;
+    padding-left: 50px;
+  }
+  
+  h1 {
+    font-family: "SUITE";
+    font-size: 48px;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+  
+  h1 .bold {
+    font-weight: 800;
+  }
+  
+  h1 .small {
+    font-size: 30px;
+    font-weight: 400;
+  }
+  
+  .login-description {
+    text-align: center;
+    padding-left: 50px;
+    margin-bottom: 50px;
+  }
+  
+  .login-description p {
+    font-family: "SUITE";
+    font-size: 18px;
+    font-weight: 600;
+    color: black;
+    margin: 5px 0;
+  }
+  
+  .login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 460px;
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 15px 30px;
+    border-radius: 31px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .google {
+    border: 1px solid #ccc;
+    background: white;
+  }
+  
+  .kakao {
+    background: #fee500;
+  }
+  
+  .naver {
+    background: #03c75a;
+    color: white;
+  }
