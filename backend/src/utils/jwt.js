@@ -1,7 +1,7 @@
 //JWT 생성 & 검증 함수
 
 const jwt = require("jsonwebtoken");
-const prisma = require("../prisma/prismaClient");
+const prisma = require("../../prisma/prismaClient");
 
 //Access Token 생성
 const generateAccessToken = (user) => {

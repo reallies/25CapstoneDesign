@@ -1,7 +1,7 @@
 //토큰 해독&검증 미들웨어
 
 const jwt = require("jsonwebtoken");
-const prisma = require("../prisma/prismaClient");
+const prisma = require("../../prisma/prismaClient");
 const {verifyAccessToken}=require("../utils/jwt");
 
 const authenticateJWT = async (req, res, next) => {

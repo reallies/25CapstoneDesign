@@ -2,7 +2,9 @@
 
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const prisma = require("../prisma/prismaClient");
+const NaverStrategy = require("passport-naver-v2").Strategy;
+const KakaoStrategy = require("passport-kakao").Strategy;
+const prisma = require("../../prisma/prismaClient");
 const jwtUtils = require("../utils/jwt");
 
 // (공통) 직렬화 / 역직렬화
@@ -84,12 +86,56 @@ passport.use(
     }
   )
 );
-//네이버 로그인 전략
 
+//네이버 로그인 전략
+passport.use(
+  new NaverStrategy(
+    {
+      clientID: process.env.NAVER_CLIENT_ID,
+      clientSecret: process.env.NAVER_CLIENT_SECRET,
+      callbackURL: process.env.NAVER_CALLBACK_URL || "http://localhost:8080/auth/naver/callback",
+      authorizationParams: { auth_type: "reprompt" }
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        profile.displayName = profile._json.nickname || "Unknown";
+        profile.photos = [{ value: profile._json.profile_image || null }];
+        
+        return findOrCreateUser("NAVER", profile, done);
+      } catch (error) {
+        console.error("❌ Naver 로그인 처리 중 오류 발생:", error);
+        return done(error, null);
+      }
+    }
+  )
+);
 
 
 //카카오 로그인 전략
+passport.use(
+  new KakaoStrategy(
+    {
+      clientID: process.env.KAKAO_CLIENT_ID,
+      callbackURL: process.env.KAKAO_CALLBACK_URL || "http://localhost:8080/auth/kakao/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        console.log("1. 카카오 전략 실행");
+        const json = profile._json;
+        const properties = json.properties || {};
+        const account = json.kakao_account || {};
 
+        profile.displayName = properties.nickname || account.profile?.nickname || "Unknown";
+        profile.photos = [{ value: properties.profile_image || account.profile?.profile_image_url || null }];
+
+        return findOrCreateUser("KAKAO", profile, done);
+      } catch (error) {
+        console.error("❌ Kakao 로그인 처리 중 오류 발생:", error);
+        return done(error, null);
+      }
+    }
+  )
+);
 
 
 module.exports = passport;
