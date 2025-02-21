@@ -1,0 +1,95 @@
+.navbar {
+    width: 100%;
+    height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 100;
+}
+
+/* 메뉴 */
+.nav-menu {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-evenly;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-family: "SUITE";
+    font-weight: 400;
+    flex-wrap: wrap;
+    padding-left: 20px;
+}
+
+.nav-menu span {
+    cursor: pointer;
+    user-select: none;
+  }  
+
+.nav-logo {
+    width: 50px;
+    height: 50px;
+    padding-left: 20px;
+}
+
+/* 검색창 */
+.search-container {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    padding: 0 15px;
+    width: 100%;
+    max-width: 500px;
+    height: 47px;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.search-container input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: "SUITE";
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.search-container img {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+/* 프로필 및 다국어 지원 */
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.nav-icons img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+/* 반응형 */
+@media screen and (max-width: 768px) {
+    .nav-menu {
+        gap: 20px;
+        font-size: 12px;
+    }
+    .search-container {
+        max-width: 300px;
+    }
+    .nav-icons img {
+        width: 35px;
+        height: 35px;
+    }
+}
