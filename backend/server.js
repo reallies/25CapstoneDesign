@@ -1,25 +1,21 @@
 //메인 서버
-
-//전역 미들웨어
-const app = require("./app");
+const express = require("express");
 const dotenv = require('dotenv');
-const session = require("express-session");
-const passport = require("./config/passport");
-const cookieParser = require("cookie-parser");
+const passport = require("./src/config/passport");
+const cors = require("cors");
 
 // 환경변수 로딩 (.env 파일 사용)
 dotenv.config();
 
+const app = express();
 const PORT = process.env.PORT || 8080;
 
-// JSON 요청 파싱 미들웨어
-app.use(cookieParser());
-app.use(session({ 
-  secret: process.env.SESSION_SECRET, 
-  resave: false, 
-  saveUninitialized: false }));
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true, //쿠키 허용
+}));
+
+app.use(require("./app"));
 
 // 간단한 에러 핸들링 미들웨어 (필요 시 확장 가능)
 app.use((err, req, res, next) => {

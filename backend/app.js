@@ -1,23 +1,24 @@
 //미들웨어나 라우트 정의
 const express = require("express");
+const cookieParser = require("cookie-parser");
+const {authenticateJWT}= require("./src/middleware/auth");
 const app = express();
-const {authenticateJWT}= require("./middleware/auth");
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-app.get('/', (req, res) => {
-  res.send('Server is running');
-});
+app.get('/', (req, res) => { res.send('Server is running');});
 
-//구글 라우트
-const authRoutes=require("./routes/auth/google");
+//소셜 로그인 & 로그아웃
+const authRoutes=require("./src/routes/auth/auth");
 app.use("/auth",authRoutes);
 
 //로그인된 유저 프로필
 app.get("/profile",authenticateJWT,(req,res)=>{
-    if(!req.user) return res.redirect("/login"); //프론트 로그인 페이지로 리디렉트
+    if(!req.user) return res.status(401).json({message: "로그인이 필요합니다."});
+    res.json( req.user);
+});
 
-    res.json(req.user);
-})
 
 module.exports=app;
