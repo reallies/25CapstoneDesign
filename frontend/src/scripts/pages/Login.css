@@ -1,0 +1,72 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background: white;
+    height: calc(100vh - 80px);
+    margin-top: -90px;
+  }
+  
+  .login-header {
+    display: flex;
+    align-items: center;
+  }
+  
+  .login-logo {
+    width: 500px;
+    height: 500px;
+    padding-left: 40px;
+  }
+  
+  .login-description {
+    margin-top: -130px;
+    text-align: center;
+    padding-left: 50px;
+    margin-bottom: 50px;
+  }
+  
+  .login-description p {
+    font-family: "SUITE";
+    font-size: 18px;
+    font-weight: 600;
+    color: black;
+    margin: 5px 0;
+  }
+  
+  .login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 460px;
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 15px 30px;
+    border-radius: 31px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .google {
+    border: 1px solid #ccc;
+    background: white;
+  }
+  
+  .kakao {
+    background: #fee500;
+  }
+  
+  .naver {
+    background: #03c75a;
+    color: white;
+  }

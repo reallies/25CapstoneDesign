@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.410010d5.css",
+    "main.js": "/static/js/main.5ca48388.js",
+    "static/js/317.d60c904a.chunk.js": "/static/js/317.d60c904a.chunk.js",
+    "static/media/google.svg": "/static/media/google.bf2c8923b270157885bd62cfe6fd21ec.svg",
+    "static/media/login_logo.svg": "/static/media/login_logo.646c41acb7ddd0e7c8f152c2bdc5851e.svg",
+    "static/media/logo.svg": "/static/media/logo.f173de555e0e8e7973bc57ba0d3c73d1.svg",
+    "static/media/user.svg": "/static/media/user.f9dd788fff0b86209c51333e8059a2e3.svg",
+    "static/media/global.svg": "/static/media/global.74164b8d5c0507dcc45159c83ccb1478.svg",
+    "static/media/search2.svg": "/static/media/search2.7c8b919141d407e1915fe2f955fa7a12.svg",
+    "static/media/naver.svg": "/static/media/naver.7ead422a833616135de867a294421b18.svg",
+    "static/media/kakao.svg": "/static/media/kakao.23e82d7e4e93c5727c21b6fc7688abea.svg",
+    "static/media/more.svg": "/static/media/more.d44819d9ae56b3aa3fc0a6b8aaa88e43.svg",
+    "static/media/plus.svg": "/static/media/plus.b3a780f0cb2e376499164bdaffd8601d.svg",
+    "index.html": "/index.html",
+    "main.410010d5.css.map": "/static/css/main.410010d5.css.map",
+    "main.5ca48388.js.map": "/static/js/main.5ca48388.js.map",
+    "317.d60c904a.chunk.js.map": "/static/js/317.d60c904a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.410010d5.css",
+    "static/js/main.5ca48388.js"
+  ]
+}
