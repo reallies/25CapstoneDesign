@@ -3,19 +3,21 @@
     "version": "1.0.0",
     "private": true,
     "workspaces": [
-      "frontend",
-      "backend"
+        "frontend",
+        "backend"
     ],
     "scripts": {
-      "setup": "npm install",
-      "start": "concurrently \"npm start --workspace=backend\" \"npm start --workspace=frontend\"",
-      "build": "npm run build --workspace=frontend",
-      "client": "cd frontend && npm run build",
-      "server": "cd backend && node server.js",
-      "dev": "concurrently \"npm run server\" \"npm run client\""
+        "setup": "npm install",
+        "start": "concurrently \"npm start --workspace=backend\" \"npm start --workspace=frontend\"",
+        "build": "npm run build --workspace=frontend",
+        "client": "cd frontend && npm start",
+        "server": "cd backend && npm start",
+        "dev": "concurrently \"npm run server\" \"npm run client\""
     },
     "devDependencies": {
-      "concurrently": "^8.2.0"
+        "concurrently": "^8.2.0"
+    },
+    "dependencies": {
+        "passport-naver-v2": "^2.0.8"
     }
-  }
-  
+}

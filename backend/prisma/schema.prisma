@@ -41,13 +41,32 @@ enum TripVisibility {
   PUBLIC
 }
 
+enum CompanionType {
+  FRIENDS
+  COUPLE
+  FAMILY
+  SOLO
+}
+
+enum ThemeType {
+  ADVENTURE
+  SNS_HOTSPOT
+  NATURE
+  LANDMARK
+}
+
 model Trip {
   trip_id    String         @id @default(uuid())
   user_id    Int
   title      String
   start_date DateTime
   end_date   DateTime
+  destinations String[]
+
+  //추가
   is_shared  TripVisibility @default(PRIVATE) // 기본값 private
+  companion_type CompanionType @default(SOLO) //기본값 SOLO
+  theme ThemeType 
 
   user      User        @relation(fields: [user_id], references: [user_id])
   days      Day[]

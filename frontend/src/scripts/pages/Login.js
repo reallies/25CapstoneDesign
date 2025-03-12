@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState  } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 import login_logo from "../../assets/images/login_logo.svg";
@@ -8,6 +9,7 @@ import naver from "../../assets/images/naver.svg";
 
 const Login = () => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogin = (provider) => {
     window.location.href = `http://localhost:8080/auth/${provider}`;
@@ -15,16 +17,36 @@ const Login = () => {
 
   // 백엔드에서 로그인된 사용자 정보 가져오기
   useEffect(() => {
-    const token = document.cookie.split("=")[1]; // JWT 토큰 가져오기
-    if (token) {
-      fetch("http://localhost:8080/auth/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setUser(data))
-        .catch(() => setUser(null)); // 오류 발생 시 로그아웃 처리
-    }
-  }, []);
+    const fetchUserProfile = async () =>{
+      try {
+        const res = await fetch("http://localhost:8080/profile", {
+          method: "GET",
+          credentials: "include",
+      });
+            if (res.status === 401) {
+                setUser(null);
+                return;
+            }
+
+            const data = await res.json();
+            setUser(data);
+          } catch (error) {
+            console.error("사용자 정보 불러오기 실패:", error);
+        }
+    };
+    fetchUserProfile();
+}, []);
+
+ //로그아웃
+  const handleLogout = async () => {
+    await fetch("http://localhost:8080/auth/logout", {
+        method: "POST",
+        credentials: "include"
+    });
+
+    setUser(null);
+    navigate("/");
+  };
 
   return (
     <div className="login-container">
@@ -41,11 +63,9 @@ const Login = () => {
        {/* 로그인 상태 확인 */}
        {user ? (
         <div className="welcome-message">
-          <h3>환영합니다, {user.name}님!</h3>
-          <button className="logout-button" onClick={() => (window.location.href = "http://localhost:8080/logout")}>
-            로그아웃
-          </button>
-        </div>
+        <h3>환영합니다, {user.nickname}님!</h3>
+        <button className="logout-button" onClick={handleLogout}>로그아웃</button>
+      </div>
       ) : (
         <div className="login-buttons">
           <div className="login-button google" onClick={() => handleLogin("google")}>
