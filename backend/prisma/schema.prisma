@@ -1,38 +1,165 @@
-//npx prisma generate
-//.env파일에서 DATABASE_URL="postgresql://postgres:개인비밀번호@localhost:5432/postgres?schema=trip_planner" 입력
-//npx prisma migrate dev --name init -> prisma/migrations폴더와 테이블 생성완료
-//npx prisma studio -> 테이블 생성확인
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+model User {
+  user_id                                  Int              @id @default(autoincrement())
+  provider                                 ProviderType
+  provider_id                              String           @unique @db.VarChar(255)
+  nickname                                 String           @unique
+  image_url                                String?
+  created_at                               DateTime         @default(now())
+  refresh_token                            String?
+  comments                                 Comment[]
+  Friendship_Friendship_recipient_idToUser Friendship[]     @relation("Friendship_recipient_idToUser")
+  Friendship_Friendship_requester_idToUser Friendship[]     @relation("Friendship_requester_idToUser")
+  likes                                    Like[]
+  posts                                    Post[]
+  trips                                    Trip[]
+  TripInvitation                           TripInvitation[]
+}
+
+model Trip {
+  trip_id        String           @id @default(uuid())
+  user_id        Int
+  title          String
+  start_date     DateTime
+  end_date       DateTime
+  is_shared      TripVisibility   @default(PRIVATE)
+  companion_type CompanionType    @default(SOLO)
+  destinations   String[]
+  theme          ThemeType
+  version        Int              @default(0)
+  checklist      Checklist[]
+  days           Day[]
+  expenses       Expense[]
+  posts          Post[]
+  user           User             @relation(fields: [user_id], references: [user_id])
+  TripInvitation TripInvitation[]
+}
+
+model Day {
+  day_id   Int        @id @default(autoincrement())
+  trip_id  String
+  date     DateTime   @db.Date
+  trip     Trip       @relation(fields: [trip_id], references: [trip_id])
+  places   DayPlace[]
+  expenses Expense[]
+}
+
+model DayPlace {
+  day_id   Int
+  place_id String
+  day      Day    @relation(fields: [day_id], references: [day_id])
+  place    Place  @relation(fields: [place_id], references: [place_id])
+
+  @@id([day_id, place_id])
+}
+
+model Place {
+  place_id        String     @id
+  google_place_id String     @unique
+  place_name      String
+  place_address   String?
+  place_latitude  Float
+  place_longitude Float
+  place_image_url String?
+  place_star      Float?
+  place_call_num  String?
+  review_count    Int?       @default(0)
+  days            DayPlace[]
+  Expense         Expense[]
+}
+
+model Expense {
+  expense_id Int         @id @default(autoincrement())
+  trip_id    String
+  day_id     Int?
+  place_id   String?
+  type       ExpenseType
+  title      String
+  price      Int
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  day        Day?        @relation(fields: [day_id], references: [day_id])
+  trip       Trip        @relation(fields: [trip_id], references: [trip_id])
+  place      Place?      @relation(fields: [place_id], references: [place_id], map: "place_id")
+}
+
+model Like {
+  like_id    Int      @id @default(autoincrement())
+  user_id    Int
+  post_id    Int
+  created_at DateTime @default(now())
+  post       Post     @relation(fields: [post_id], references: [post_id])
+  user       User     @relation(fields: [user_id], references: [user_id])
+}
+
+model Comment {
+  comment_id Int      @id @default(autoincrement())
+  user_id    Int
+  post_id    Int
+  content    String
+  created_at DateTime @default(now())
+  post       Post     @relation(fields: [post_id], references: [post_id])
+  user       User     @relation(fields: [user_id], references: [user_id])
+}
+
+model Post {
+  post_id    Int       @id @default(autoincrement())
+  trip_id    String
+  user_id    Int
+  title      String?
+  content    String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  comments   Comment[]
+  likes      Like[]
+  trip       Trip      @relation(fields: [trip_id], references: [trip_id])
+  user       User      @relation(fields: [user_id], references: [user_id])
+}
+
+model Checklist {
+  checklist_id Int     @id @default(autoincrement())
+  trip_id      String
+  item         String
+  is_checked   Boolean @default(false)
+  trip         Trip    @relation(fields: [trip_id], references: [trip_id])
+}
+
+model Friendship {
+  id                                 Int              @id @default(autoincrement())
+  requester_id                       Int
+  recipient_id                       Int
+  status                             FriendshipStatus @default(PENDING)
+  created_at                         DateTime         @default(now())
+  User_Friendship_recipient_idToUser User             @relation("Friendship_recipient_idToUser", fields: [recipient_id], references: [user_id])
+  User_Friendship_requester_idToUser User             @relation("Friendship_requester_idToUser", fields: [requester_id], references: [user_id])
+
+  @@unique([requester_id, recipient_id])
+}
+
+model TripInvitation {
+  invitation_id   String           @id
+  trip_id         String
+  invited_user_id Int
+  status          InvitationStatus @default(PENDING)
+  permission      String           @default("editor")
+  created_at      DateTime         @default(now())
+  User            User             @relation(fields: [invited_user_id], references: [user_id])
+  Trip            Trip             @relation(fields: [trip_id], references: [trip_id])
 }
 
 enum ProviderType {
   GOOGLE
   KAKAO
   NAVER
-}
-
-model User {
-  user_id     Int          @id @default(autoincrement())
-  provider    ProviderType // 로그인 제공자 (Google, Kakao, Naver)
-  provider_id String       @unique @db.VarChar(255) // 같은 사용자가 여러개 소셜 로그인을 원할경우
-  nickname    String
-  image_url   String?
-  created_at  DateTime     @default(now())
-
-  refresh_token String?
-
-  trips    Trip[]
-  likes    Like[]
-  comments Comment[]
-  posts    Post[]
 }
 
 enum TripVisibility {
@@ -55,62 +182,6 @@ enum ThemeType {
   LANDMARK
 }
 
-model Trip {
-  trip_id    String         @id @default(uuid())
-  user_id    Int
-  title      String
-  start_date DateTime
-  end_date   DateTime
-  destinations String[]
-
-  //추가
-  is_shared  TripVisibility @default(PRIVATE) // 기본값 private
-  companion_type CompanionType @default(SOLO) //기본값 SOLO
-  theme ThemeType 
-
-  user      User        @relation(fields: [user_id], references: [user_id])
-  days      Day[]
-  expenses  Expense[]
-  posts     Post[]
-  checklist Checklist[]
-}
-
-model Day {
-  day_id  Int      @id @default(autoincrement()) //여행 일차
-  trip_id String
-  date    DateTime @db.Date //해당 여행 일자 (2025-02-11 이런식)
-
-  trip     Trip       @relation(fields: [trip_id], references: [trip_id])
-  places   DayPlace[]
-  expenses Expense[]
-}
-
-model DayPlace {
-  day_id   Int
-  place_id String
-
-  day   Day   @relation(fields: [day_id], references: [day_id])
-  place Place @relation(fields: [place_id], references: [place_id])
-
-  @@id([day_id, place_id]) // 복합 PK 설정 (Many-to-Many)
-}
-
-model Place {
-  place_id        String  @id //DB의 장소 id
-  google_place_id String  @unique //구글 플레이스 api의 고유장소 id
-  place_name      String
-  place_address   String?
-  place_latitude  Float
-  place_longitude Float
-  place_image_url String?
-  place_star      Float?
-  place_call_num  String?
-  review_count    Int?    @default(0)
-
-  days    DayPlace[]
-  Expense Expense[]
-}
-
 enum ExpenseType {
   FOOD
   TRANSPORT
@@ -119,63 +190,14 @@ enum ExpenseType {
   OTHER
 }
 
-model Expense {
-  expense_id Int         @id @default(autoincrement())
-  trip_id    String
-  day_id     Int?
-  place_id   String?
-  type       ExpenseType
-  title      String
-  price      Int
-  created_at DateTime    @default(now())
-  updated_at DateTime    @updatedAt
-
-  trip  Trip   @relation(fields: [trip_id], references: [trip_id])
-  day   Day?   @relation(fields: [day_id], references: [day_id])
-  place Place? @relation(fields: [place_id], references: [place_id], map: "place_id")
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
-model Like {
-  like_id    Int      @id @default(autoincrement())
-  user_id    Int
-  post_id    Int
-  created_at DateTime @default(now())
-
-  user User @relation(fields: [user_id], references: [user_id])
-  post Post @relation(fields: [post_id], references: [post_id])
-}
-
-model Comment {
-  comment_id Int      @id @default(autoincrement())
-  user_id    Int
-  post_id    Int
-  content    String
-  created_at DateTime @default(now())
-
-  user User @relation(fields: [user_id], references: [user_id])
-  post Post @relation(fields: [post_id], references: [post_id])
-}
-
-model Post {
-  post_id    Int      @id @default(autoincrement())
-  trip_id    String
-  user_id    Int
-  title      String?
-  content    String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  trip     Trip      @relation(fields: [trip_id], references: [trip_id])
-  user     User      @relation(fields: [user_id], references: [user_id])
-  comments Comment[]
-  likes    Like[]
-}
-
-model Checklist {
-  checklist_id Int     @id @default(autoincrement())
-  trip_id      String
-  item         String
-  is_checked   Boolean @default(false)
-
-  trip Trip @relation(fields: [trip_id], references: [trip_id])
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

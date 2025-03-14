@@ -44,8 +44,8 @@ app.use("/auth",authRoutes);
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
 //여행&일정 추가
-const scheduleRoutes = require("./src/routes/scheduleRoutes");
-app.use("/schedule",scheduleRoutes);
+// const scheduleRoutes = require("./src/routes/scheduleRoutes");
+// app.use("/schedule",scheduleRoutes);
 
 
 

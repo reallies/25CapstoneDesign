@@ -1,4 +1,3 @@
-//구글, 네이버, 카카오 로그인 Strategy
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const NaverStrategy = require("passport-naver-v2").Strategy;
@@ -23,21 +22,12 @@ passport.deserializeUser(async (user_id, done) => {
 // (공통) 사용자 찾기/생성 및 JWT 발급
 const findOrCreateUser = async (provider, profile, done) => {
   try {
-    console.log(`${provider} 로그인 시도`);
-  
     const response = profile._json.response || profile._json || {};
     const properties = profile._json.properties || {}; 
-    const displayNamePaths = {
-      GOOGLE: profile.displayName?.trim(),
-      NAVER: response.nickname?.trim(),
-      KAKAO: properties.nickname?.trim(),
-    }
-    const displayName = displayNamePaths[provider] || "Unknown";
-
     const imagePaths = {
-      GOOGLE:profile.photos?.[0]?.value,
-      NAVER:response.profile_image,
-      KAKAO:properties.profile_image ,
+      GOOGLE: profile.photos?.[0]?.value,
+      NAVER: response.profile_image,
+      KAKAO: properties.profile_image,
     };
     const imageUrl = imagePaths[provider] || null;
 
@@ -45,15 +35,18 @@ const findOrCreateUser = async (provider, profile, done) => {
       where: { provider_id: profile.id.toString() },
     });
 
-    if (!user) { //새로운 유저 생성
+    let isNewUser = false; // 신규 회원 여부 플래그
+    if (!user) { 
+      // 새로운 유저 생성
       user = await prisma.user.create({
         data: {
           provider,
           provider_id: profile.id.toString(),
-          nickname: displayName,
+          nickname: `temp_${Date.now()}`, // 임시 닉네임
           image_url: imageUrl,
         },
       });
+      isNewUser = true; // 신규 회원으로 표시
     }
 
     //accessToken은 /refresh 라우트에서 발급
@@ -61,18 +54,18 @@ const findOrCreateUser = async (provider, profile, done) => {
 
     //Refresh Token이 있는지 확인 (발급이 되어있는경우는 기존토큰 그대로)
     let refreshToken = user.refresh_token;
-    if (!refreshToken){
+    if (!refreshToken) {
       refreshToken = jwtUtils.generateRefreshToken(user);
-      
-      //Refresh Token DB에 저장 - 자동 로그인을 위함
-        await prisma.user.update({
-          where: { user_id: user.user_id },
-          data: { refresh_token: refreshToken },
-        });
-      }
-      const authInfo = {accessToken, refreshToken};
 
-      return done(null,user,authInfo); //passport.authenticate()에 데이터 전달
+      //Refresh Token DB에 저장 - 자동 로그인을 위함
+      await prisma.user.update({
+        where: { user_id: user.user_id },
+        data: { refresh_token: refreshToken },
+      });
+    }
+    
+    const authInfo = { accessToken, refreshToken, isNewUser };
+    return done(null, user, authInfo); //passport.authenticate()에 데이터 전달
   } catch (error) {
     return done(error,null);
   }
@@ -112,16 +105,17 @@ passport.use(new NaverStrategy({
 
 //카카오 로그인 전략
 passport.use(new KakaoStrategy({
-  clientID: process.env.KAKAO_CLIENT_ID,
-  callbackURL: "http://localhost:8080/auth/kakao/callback"
-},async (accessToken, refreshToken, profile, done) => {
-  try {
-    return findOrCreateUser("KAKAO", profile, done);
-  } catch (error) {
-    console.error("Naver 로그인 처리 중 오류 발생:", error);
-    return done(error, null);
-  }
-}
-));
+      clientID: process.env.KAKAO_CLIENT_ID,
+      callbackURL: "http://localhost:8080/auth/kakao/callback",
+    }, async (accessToken, refreshToken, profile, done) => {
+      try {
+        return findOrCreateUser("KAKAO", profile, done);
+      } catch (error) {
+        console.error("Kakao 로그인 처리 중 오류 발생:", error);
+        return done(error, null);
+      }
+    }
+  )
+);
 
 module.exports = passport;

@@ -1,14 +1,15 @@
 //로그인 & 로그아웃 라우트
 
 const express = require("express");
-const passport = require("passport");
+const passport = require("../config/passport");
 const router = express.Router();
 const prisma = require("../../prisma/prismaClient");
+const { authenticateJWT } = require("../middleware/authMiddleware");
 
 // (공통) 로그인 처리 함수
-const handleAuthCallback = async (req,res)=>{
-    try {
-        const { accessToken, refreshToken} = req.authInfo;
+const handleAuthCallback = async (req, res) => {
+  try {
+    const { accessToken, refreshToken, isNewUser = false } = req.authInfo || {};
 
         // AccessToken & RefreshToken을 쿠키로 저장
         res.cookie("accessToken", accessToken, {
@@ -23,11 +24,17 @@ const handleAuthCallback = async (req,res)=>{
             sameSite: "Lax"
         });
 
-        res.redirect("http://localhost:3000/"); //로그인 성공후 home으로 이동
-    } catch (error) {
-        console.error("콜백 처리 중 오류:", error);
-        res.status(500).json({ message: "서버 오류" });
+    if (isNewUser) {
+      // 신규 회원이면 강제로 닉네임 설정 페이지로 이동
+      res.redirect("http://localhost:3000/set-nickname");
+    } else {
+      // 기존 회원이면 홈으로 이동
+      res.redirect("http://localhost:3000/");
     }
+  } catch (error) {
+    console.error("콜백 처리 중 오류:", error);
+    res.status(500).json({ message: "서버 오류" });
+  }
 };
 
 //구글 로그인
@@ -104,6 +111,59 @@ router.post("/refresh",async(req,res)=>{
       } catch (error) {
         res.status(403).json({ message: "Refresh Token 검증 실패" });
       }
+});
+
+// 닉네임 설정 라우트
+router.post("/set-nickname", authenticateJWT, async (req, res) => {
+  try {
+    const { nickname } = req.body;
+    const user = req.user;
+
+    // 요청값 유효성 검사
+    if (!nickname || typeof nickname !== "string") {
+      return res.status(400).json({ message: "닉네임은 문자열로 입력해야 합니다." });
+    }
+
+    const trimmedNickname = nickname.trim();
+    if (!trimmedNickname) {
+      return res.status(400).json({ message: "닉네임을 입력해주세요." });
+    }
+
+    // 닉네임 형식 검사
+    if (!/^[a-z0-9]+$/.test(trimmedNickname)) {
+      return res.status(400).json({
+        message: "닉네임은 영어 소문자와 숫자만 포함할 수 있습니다.",
+      });
+    }
+
+    if (trimmedNickname.length < 3 || trimmedNickname.length > 15) {
+      return res.status(400).json({
+        message: "닉네임은 3자 이상 15자 이하여야 합니다.",
+      });
+    }
+
+    // 중복 검사
+    const existingUser = await prisma.user.findFirst({
+      where: { nickname: trimmedNickname },
+    });
+    if (existingUser) {
+      return res.status(400).json({ message: "이미 존재하는 닉네임입니다." });
+    }
+
+    // 사용자 정보 업데이트
+    await prisma.user.update({
+      where: { user_id: user.user_id },
+      data: { nickname: trimmedNickname },
+    });
+
+    res.json({ message: "닉네임이 성공적으로 설정되었습니다." });
+  } catch (error) {
+    console.error("닉네임 설정 중 오류:", error);
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "인증 토큰이 유효하지 않습니다." });
+    }
+    res.status(500).json({ message: "서버 오류가 발생했습니다. 다시 시도해주세요." });
+  }
 });
 
 module.exports = router;
