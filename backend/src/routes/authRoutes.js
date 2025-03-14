@@ -8,23 +8,22 @@ const prisma = require("../../prisma/prismaClient");
 // (공통) 로그인 처리 함수
 const handleAuthCallback = async (req,res)=>{
     try {
-        const { accessToken, refreshToken, user_id, nickname, image_url } = req.authInfo;
+        const { accessToken, refreshToken} = req.authInfo;
 
-        //기존 Access Token 쿠키 삭제
-        res.clearCookie("accessToken");
-
+        // AccessToken & RefreshToken을 쿠키로 저장
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: false,
             sameSite: "Lax"
         });
+
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: false,
             sameSite: "Lax"
         });
 
-        res.redirect("http://localhost:3000/login");
+        res.redirect("http://localhost:3000/"); //로그인 성공후 home으로 이동
     } catch (error) {
         console.error("콜백 처리 중 오류:", error);
         res.status(500).json({ message: "서버 오류" });
@@ -68,7 +67,8 @@ router.post("/logout",async (req,res)=>{
             return res.status(400).json({message:"이미 로그아웃된 유저입니다."});
         }
 
-        res.clearCookie("refreshToken",{ httpOnly: true, secure: false, sameSite: "Strict" }); //refreshToken 삭제
+        res.clearCookie("accessToken",{ httpOnly: true, secure: false, sameSite: "Lax" }); //accessToken 삭제
+        res.clearCookie("refreshToken",{ httpOnly: true, secure: false, sameSite: "Lax" }); //refreshToken 삭제
         return res.json({message:"로그아웃 성공"});
     }catch(error){
         res.status(500).json({message:"서버 오류"});
@@ -77,30 +77,29 @@ router.post("/logout",async (req,res)=>{
 
 //AccessToken 재발급
 router.post("/refresh",async(req,res)=>{
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return res.status(401).json({message:"Refresh Token 없음"});
-
     try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) return res.status(401).json({message:"Refresh Token 없음"});
+
         const decoded = verifyRefreshToken(refreshToken);
         const user = await prisma.user.findUnique({ where: { user_id: decoded.user_id } });
+
         if (!user || user.refresh_token !== refreshToken) {
           return res.status(403).json({ message: "유효하지 않은 Refresh Token" });
         }
-    
-        //기존 refreshToken 폐기
-        await prisma.user.update({
-            where: { user_id: user.user_id },
-            data: { refresh_token: null },
-          });
-
+        
         const newAccessToken = generateAccessToken(user);
-        const newRefreshToken = generateRefreshToken(user);
-        await prisma.user.update({
-          where: { user_id: user.user_id },
-          data: { refresh_token: newRefreshToken },
+
+        if (!newAccessToken) {
+            return res.status(500).json({ message: "AccessToken 생성 실패" });
+        }
+
+        res.cookie("accessToken", newAccessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "Lax"
         });
-    
-        res.cookie("refreshToken", newRefreshToken, { httpOnly: true, secure: false, sameSite: "Strict" });
+
         res.json({ accessToken: newAccessToken });
       } catch (error) {
         res.status(403).json({ message: "Refresh Token 검증 실패" });

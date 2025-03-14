@@ -1,16 +1,22 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState,useContext  } from "react";
+import { useNavigate }from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import "./NavigationBar.css";
 
 import logo from "../../assets/images/logo.svg";
-import user from "../../assets/images/user.svg";
+import defaultUser  from "../../assets/images/user.svg";
 import global from "../../assets/images/global.svg";
 import search2 from "../../assets/images/search2.svg";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
+  const { isLoggedIn, user } = useContext(AuthContext);
   const [searchText, setSearchText] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+
+  const handleProfileClick = () => {
+    navigate(isLoggedIn ? "/profile" : "/login");
+  };
 
   return (
     <div className="navbar">
@@ -44,7 +50,7 @@ const NavigationBar = () => {
 
       {/* 프로필 및 다국어 지원 */}
       <div className="nav-icons">
-        <img src={user} alt="profile" onClick={() => navigate("/login")} />
+        <img src={isLoggedIn && user?.image_url ? user.image_url : defaultUser} alt="profile" onClick={handleProfileClick} style={{ width: "40px", height: "40px", borderRadius: "50%", cursor: "pointer" }}/>
         <img src={global} alt="global" />
       </div>
     </div>

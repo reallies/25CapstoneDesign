@@ -56,8 +56,8 @@ const findOrCreateUser = async (provider, profile, done) => {
       });
     }
 
-    //AccessToken은 요청마다 매번 발급 (유효시간이 짧으니까)
-    const accessToken = jwtUtils.generateAccessToken(user);
+    //accessToken은 /refresh 라우트에서 발급
+    let accessToken = jwtUtils.generateAccessToken(user);
 
     //Refresh Token이 있는지 확인 (발급이 되어있는경우는 기존토큰 그대로)
     let refreshToken = user.refresh_token;
