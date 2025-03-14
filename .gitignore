@@ -14,7 +14,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-frontend/build/
+/frontend/build/
 
 #일정관리 (개발 중인 파일
 /backend/src/routes/scheduleRoutes.js
