@@ -449,4 +449,192 @@ router.post("/trip/invite", authenticateJWT, async (req, res) => {
   }
 });
 
+// 일정 초대 보내기
+router.post("/trip/invite", authenticateJWT, async (req, res) => {
+  try {
+    const { trip_id, invited_nickname } = req.body;
+    const inviter = req.user; // 초대하는 사용자
+
+    // 요청값 유효성 검사
+    if (!trip_id || typeof trip_id !== "string") {
+      return res.status(400).json({ message: "유효한 일정 ID를 입력해주세요." });
+    }
+    if (!invited_nickname || typeof invited_nickname !== "string") {
+      return res.status(400).json({ message: "초대할 사용자의 닉네임을 입력해주세요." });
+    }
+
+    // 자신에게 초대 방지
+    if (invited_nickname === inviter.nickname) {
+      return res.status(400).json({ message: "자신을 일정에 초대할 수 없습니다." });
+    }
+
+    // 일정 존재 여부 및 소유자 확인
+    const trip = await prisma.trip.findUnique({
+      where: { trip_id },
+    });
+    if (!trip) {
+      return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
+    }
+    if (trip.user_id !== inviter.user_id) {
+      return res.status(403).json({ message: "이 일정을 초대할 권한이 없습니다." });
+    }
+
+    // 초대받을 사용자 찾기
+    const invitedUser = await prisma.user.findUnique({
+      where: { nickname: invited_nickname },
+    });
+    if (!invitedUser) {
+      return res.status(404).json({ message: "해당 닉네임의 사용자를 찾을 수 없습니다." });
+    }
+
+    // 기존 초대 확인
+    const existingInvitation = await prisma.tripInvitation.findFirst({
+      where: {
+        trip_id,
+        invited_user_id: invitedUser.user_id,
+      },
+    });
+    if (existingInvitation) {
+      return res.status(400).json({ message: "이미 이 사용자를 초대했습니다." });
+    }
+
+    // 일정 초대 생성
+    const invitation = await prisma.tripInvitation.create({
+      data: {
+        trip_id,
+        invited_user_id: invitedUser.user_id,
+        status: "PENDING",
+        permission: "editor", // 기본 권한: 편집자
+      },
+    });
+
+    res.status(201).json({ message: "일정 초대가 성공적으로 전송되었습니다.", invitation });
+  } catch (error) {
+    console.error("일정 초대 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 일정 초대 수락
+router.put("/trip/invite/accept", authenticateJWT, async (req, res) => {
+  try {
+    const { invitation_id } = req.body;
+    const user = req.user;
+
+    if (!invitation_id || typeof invitation_id !== "string") {
+      return res.status(400).json({ message: "유효한 초대 ID를 입력해주세요." });
+    }
+
+    // 초대 찾기
+    const invitation = await prisma.tripInvitation.findUnique({
+      where: { invitation_id },
+    });
+    if (!invitation) {
+      return res.status(404).json({ message: "초대를 찾을 수 없습니다." });
+    }
+
+    // 초대 수신자 확인
+    if (invitation.invited_user_id !== user.user_id) {
+      return res.status(403).json({ message: "이 초대를 수락할 권한이 없습니다." });
+    }
+
+    // 이미 처리된 초대 확인
+    if (invitation.status !== "PENDING") {
+      return res.status(400).json({ message: "이미 처리된 초대입니다." });
+    }
+
+    // 초대 수락
+    const updatedInvitation = await prisma.tripInvitation.update({
+      where: { invitation_id },
+      data: { status: "ACCEPTED" },
+    });
+
+    res.json({ message: "일정 초대가 수락되었습니다.", invitation: updatedInvitation });
+  } catch (error) {
+    console.error("일정 초대 수락 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 일정 초대 거절
+router.put("/trip/invite/reject", authenticateJWT, async (req, res) => {
+  try {
+    const { invitation_id } = req.body;
+    const user = req.user;
+
+    if (!invitation_id || typeof invitation_id !== "string") {
+      return res.status(400).json({ message: "유효한 초대 ID를 입력해주세요." });
+    }
+
+    // 초대 찾기
+    const invitation = await prisma.tripInvitation.findUnique({
+      where: { invitation_id },
+    });
+    if (!invitation) {
+      return res.status(404).json({ message: "초대를 찾을 수 없습니다." });
+    }
+
+    // 초대 수신자 확인
+    if (invitation.invited_user_id !== user.user_id) {
+      return res.status(403).json({ message: "이 초대를 거절할 권한이 없습니다." });
+    }
+
+    // 이미 처리된 초대 확인
+    if (invitation.status !== "PENDING") {
+      return res.status(400).json({ message: "이미 처리된 초대입니다." });
+    }
+
+    // 초대 거절
+    const updatedInvitation = await prisma.tripInvitation.update({
+      where: { invitation_id },
+      data: { status: "REJECTED" },
+    });
+
+    res.json({ message: "일정 초대가 거절되었습니다.", invitation: updatedInvitation });
+  } catch (error) {
+    console.error("일정 초대 거절 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 받은 PENDING 초대 목록 조회
+router.get("/trip/invite/pending", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user;
+
+    // 사용자가 invited_user_id인 PENDING 상태의 초대 조회
+    const pendingInvitations = await prisma.tripInvitation.findMany({
+      where: {
+        invited_user_id: user.user_id,
+        status: "PENDING",
+      },
+      include: {
+        Trip: { // 초대된 일정 정보
+          select: { trip_id: true, title: true, user_id: true },
+        },
+        User: { // 초대한 사용자 정보
+          select: { user_id: true, nickname: true, image_url: true },
+        },
+      },
+    });
+
+    // 초대 목록 정리
+    const invitations = pendingInvitations.map(invitation => ({
+      invitation_id: invitation.invitation_id,
+      trip_id: invitation.trip_id,
+      trip_title: invitation.Trip.title,
+      inviter_id: invitation.Trip.user_id,
+      inviter_nickname: invitation.User.nickname,
+      inviter_image_url: invitation.User.image_url,
+      permission: invitation.permission,
+      created_at: invitation.created_at,
+    }));
+
+    res.json({ message: "받은 초대 목록 조회 성공", pendingInvitations: invitations });
+  } catch (error) {
+    console.error("받은 초대 목록 조회 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
