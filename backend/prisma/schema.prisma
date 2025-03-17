@@ -146,7 +146,7 @@ model Friendship {
 }
 
 model TripInvitation {
-  invitation_id   String           @id
+  invitation_id   String           @id @default(uuid())
   trip_id         String
   invited_user_id Int
   status          InvitationStatus @default(PENDING)

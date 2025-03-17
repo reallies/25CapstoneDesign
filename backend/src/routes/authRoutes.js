@@ -11,9 +11,12 @@ const handleAuthCallback = async (req, res) => {
   try {
     const { accessToken, refreshToken, isNewUser = false } = req.authInfo || {};
 
+    // 토큰 콘솔 출력 추가 (삭제)
+    console.log("AccessToken:", accessToken);
+
         // AccessToken & RefreshToken을 쿠키로 저장
         res.cookie("accessToken", accessToken, {
-            httpOnly: true,
+            httpOnly: false,//배포 시 변경
             secure: false,
             sameSite: "Lax"
         });
@@ -163,6 +166,286 @@ router.post("/set-nickname", authenticateJWT, async (req, res) => {
       return res.status(401).json({ message: "인증 토큰이 유효하지 않습니다." });
     }
     res.status(500).json({ message: "서버 오류가 발생했습니다. 다시 시도해주세요." });
+  }
+});
+
+// 친구 요청 보내기
+router.post("/friendship/request", authenticateJWT, async (req, res) => {
+  try {
+    const { recipient_nickname } = req.body;
+    const requester = req.user; // 현재 로그인한 사용자
+
+    if (!recipient_nickname || typeof recipient_nickname !== "string") {
+      return res.status(400).json({ message: "수신자 닉네임을 입력해주세요." });
+    }
+
+    // 자신에게 요청 방지
+    if (recipient_nickname === requester.nickname) {
+      return res.status(400).json({ message: "자신에게 친구 요청을 보낼 수 없습니다." });
+    }
+
+    // 수신자 찾기
+    const recipient = await prisma.user.findUnique({
+      where: { nickname: recipient_nickname },
+    });
+    if (!recipient) {
+      return res.status(404).json({ message: "해당 닉네임의 사용자를 찾을 수 없습니다." });
+    }
+
+    // 기존 요청 확인
+    const existingRequest = await prisma.friendship.findFirst({
+      where: {
+        requester_id: requester.user_id,
+        recipient_id: recipient.user_id,
+      },
+    });
+    if (existingRequest) {
+      return res.status(400).json({ message: "이미 친구 요청을 보냈습니다." });
+    }
+
+    // 친구 요청 생성
+    const friendship = await prisma.friendship.create({
+      data: {
+        requester_id: requester.user_id,
+        recipient_id: recipient.user_id,
+        status: "PENDING",
+      },
+    });
+
+    res.status(201).json({ message: "친구 요청이 성공적으로 전송되었습니다.", friendship });
+  } catch (error) {
+    console.error("친구 요청 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 친구 요청 수락
+router.put("/friendship/accept", authenticateJWT, async (req, res) => {
+  try {
+    const { friendship_id } = req.body;
+    const user = req.user;
+
+    if (!friendship_id || isNaN(friendship_id)) {
+      return res.status(400).json({ message: "유효한 친구 요청 ID를 입력해주세요." });
+    }
+
+    // 요청 찾기
+    const friendship = await prisma.friendship.findUnique({
+      where: { id: parseInt(friendship_id) },
+    });
+    if (!friendship) {
+      return res.status(404).json({ message: "친구 요청을 찾을 수 없습니다." });
+    }
+
+    // 요청 수신자 확인
+    if (friendship.recipient_id !== user.user_id) {
+      return res.status(403).json({ message: "이 요청을 수락할 권한이 없습니다." });
+    }
+
+    // 이미 처리된 요청 확인
+    if (friendship.status !== "PENDING") {
+      return res.status(400).json({ message: "이미 처리된 요청입니다." });
+    }
+
+    // 요청 수락
+    const updatedFriendship = await prisma.friendship.update({
+      where: { id: parseInt(friendship_id) },
+      data: { status: "ACCEPTED" },
+    });
+
+    res.json({ message: "친구 요청이 수락되었습니다.", friendship: updatedFriendship });
+  } catch (error) {
+    console.error("친구 요청 수락 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 친구 요청 거절
+router.put("/friendship/reject", authenticateJWT, async (req, res) => {
+  try {
+    const { friendship_id } = req.body;
+    const user = req.user;
+
+    if (!friendship_id || isNaN(friendship_id)) {
+      return res.status(400).json({ message: "유효한 친구 요청 ID를 입력해주세요." });
+    }
+
+    // 요청 찾기
+    const friendship = await prisma.friendship.findUnique({
+      where: { id: parseInt(friendship_id) },
+    });
+    if (!friendship) {
+      return res.status(404).json({ message: "친구 요청을 찾을 수 없습니다." });
+    }
+
+    // 요청 수신자 확인
+    if (friendship.recipient_id !== user.user_id) {
+      return res.status(403).json({ message: "이 요청을 거절할 권한이 없습니다." });
+    }
+
+    // 이미 처리된 요청 확인
+    if (friendship.status !== "PENDING") {
+      return res.status(400).json({ message: "이미 처리된 요청입니다." });
+    }
+
+    // 요청 거절
+    const updatedFriendship = await prisma.friendship.update({
+      where: { id: parseInt(friendship_id) },
+      data: { status: "REJECTED" },
+    });
+
+    res.json({ message: "친구 요청이 거절되었습니다.", friendship: updatedFriendship });
+  } catch (error) {
+    console.error("친구 요청 거절 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 친구 목록 조회
+router.get("/friendship/list", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user;
+
+    // 사용자가 requester_id 또는 recipient_id인 ACCEPTED 상태의 친구 관계 조회
+    const friendships = await prisma.friendship.findMany({
+      where: {
+        OR: [
+          { requester_id: user.user_id },
+          { recipient_id: user.user_id },
+        ],
+        status: "ACCEPTED",
+      },
+      include: {
+        User_Friendship_requester_idToUser: { // 요청자 정보
+          select: { user_id: true, nickname: true, image_url: true }
+        },
+        User_Friendship_recipient_idToUser: { // 수신자 정보
+          select: { user_id: true, nickname: true, image_url: true }
+        },
+      },
+    });
+
+    // 친구 목록 정리
+    const friends = friendships.map(friendship => {
+      if (friendship.requester_id === user.user_id) {
+        return {
+          user_id: friendship.recipient_id,
+          nickname: friendship.User_Friendship_recipient_idToUser.nickname,
+          image_url: friendship.User_Friendship_recipient_idToUser.image_url,
+        };
+      } else {
+        return {
+          user_id: friendship.requester_id,
+          nickname: friendship.User_Friendship_requester_idToUser.nickname,
+          image_url: friendship.User_Friendship_requester_idToUser.image_url,
+        };
+      }
+    });
+
+    res.json({ message: "친구 목록 조회 성공", friends });
+  } catch (error) {
+    console.error("친구 목록 조회 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 받은 PENDING 친구 요청 목록 조회
+router.get("/friendship/pending", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user;
+
+    // 사용자가 recipient_id인 PENDING 상태의 친구 요청 조회
+    const pendingRequests = await prisma.friendship.findMany({
+      where: {
+        recipient_id: user.user_id,
+        status: "PENDING",
+      },
+      include: {
+        User_Friendship_requester_idToUser: { // 요청자 정보 포함
+          select: { user_id: true, nickname: true, image_url: true },
+        },
+      },
+    });
+
+    // 요청 목록 정리
+    const requests = pendingRequests.map(request => ({
+      friendship_id: request.id,
+      requester_id: request.requester_id,
+      requester_nickname: request.User_Friendship_requester_idToUser.nickname,
+      requester_image_url: request.User_Friendship_requester_idToUser.image_url,
+      created_at: request.created_at,
+    }));
+
+    res.json({ message: "받은 친구 요청 목록 조회 성공", pendingRequests: requests });
+  } catch (error) {
+    console.error("받은 친구 요청 목록 조회 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 일정 초대 보내기
+router.post("/trip/invite", authenticateJWT, async (req, res) => {
+  try {
+    const { trip_id, invited_nickname } = req.body;
+    const inviter = req.user; // 초대하는 사용자
+
+    // 요청값 유효성 검사
+    if (!trip_id || typeof trip_id !== "string") {
+      return res.status(400).json({ message: "유효한 일정 ID를 입력해주세요." });
+    }
+    if (!invited_nickname || typeof invited_nickname !== "string") {
+      return res.status(400).json({ message: "초대할 사용자의 닉네임을 입력해주세요." });
+    }
+
+    // 자신에게 초대 방지
+    if (invited_nickname === inviter.nickname) {
+      return res.status(400).json({ message: "자신을 일정에 초대할 수 없습니다." });
+    }
+
+    // 일정 존재 여부 및 소유자 확인
+    const trip = await prisma.trip.findUnique({
+      where: { trip_id },
+    });
+    if (!trip) {
+      return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
+    }
+    if (trip.user_id !== inviter.user_id) {
+      return res.status(403).json({ message: "이 일정을 초대할 권한이 없습니다." });
+    }
+
+    // 초대받을 사용자 찾기
+    const invitedUser = await prisma.user.findUnique({
+      where: { nickname: invited_nickname },
+    });
+    if (!invitedUser) {
+      return res.status(404).json({ message: "해당 닉네임의 사용자를 찾을 수 없습니다." });
+    }
+
+    // 기존 초대 확인
+    const existingInvitation = await prisma.tripInvitation.findFirst({
+      where: {
+        trip_id,
+        invited_user_id: invitedUser.user_id,
+      },
+    });
+    if (existingInvitation) {
+      return res.status(400).json({ message: "이미 이 사용자를 초대했습니다." });
+    }
+
+    // 일정 초대 생성
+    const invitation = await prisma.tripInvitation.create({
+      data: {
+        trip_id,
+        invited_user_id: invitedUser.user_id,
+        status: "PENDING",
+        permission: "editor", // 기본 권한: 편집자
+      },
+    });
+
+    res.status(201).json({ message: "일정 초대가 성공적으로 전송되었습니다.", invitation });
+  } catch (error) {
+    console.error("일정 초대 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
 
