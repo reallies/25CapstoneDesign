@@ -87,6 +87,7 @@ model Expense {
   price      Int
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
+  user_id    Int
   day        Day?        @relation(fields: [day_id], references: [day_id])
   trip       Trip        @relation(fields: [trip_id], references: [trip_id])
   place      Place?      @relation(fields: [place_id], references: [place_id], map: "place_id")
@@ -187,6 +188,8 @@ enum ExpenseType {
   TRANSPORT
   ACCOMMODATION
   TICKET
+  ACTIVITY
+  SHOPPING
   OTHER
 }
 

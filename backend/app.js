@@ -40,6 +40,12 @@ app.use(express.json());
 const authRoutes=require("./src/routes/authRoutes");
 app.use("/auth",authRoutes);
 
+//친구추가 & 일정 초대
+const friendshipRoutes = require("./src/routes/friendshipRoutes");
+const tripRoutes = require("./src/routes/tripRoutes");
+app.use("/friendship", friendshipRoutes);
+app.use("/trip", tripRoutes);
+
 // 인증된 사용자만 프로필 접근 가능
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
