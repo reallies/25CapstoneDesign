@@ -637,4 +637,107 @@ router.get("/trip/invite/pending", authenticateJWT, async (req, res) => {
   }
 });
 
+// 일정 조회 API
+router.get("/trip/:trip_id", authenticateJWT, async (req, res) => {
+  try {
+    const { trip_id } = req.params;
+    const user = req.user;
+
+    const trip = await prisma.trip.findUnique({
+      where: { trip_id },
+    });
+    if (!trip) {
+      return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
+    }
+
+    // 소유자 또는 초대받은 사용자만 접근 가능
+    const isOwner = trip.user_id === user.user_id;
+    const invitation = await prisma.tripInvitation.findFirst({
+      where: {
+        trip_id,
+        invited_user_id: user.user_id,
+        status: "ACCEPTED",
+      },
+    });
+    if (!isOwner && !invitation) {
+      return res.status(403).json({ message: "이 일정에 접근할 권한이 없습니다." });
+    }
+
+    res.json({ message: "일정 조회 성공", trip });
+  } catch (error) {
+    console.error("일정 조회 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 일정 수정 (version 관리, 낙관적 락으로 동시 편집 시 덮어쓰기 방지)
+router.put("/trip/update", authenticateJWT, async (req, res) => {
+  try {
+    const { trip_id, title, start_date, end_date, destinations, is_shared, companion_type, theme, version } = req.body;
+    const user = req.user;
+
+    if (!trip_id || typeof trip_id !== "string") {
+      return res.status(400).json({ message: "유효한 일정 ID를 입력해주세요." });
+    }
+    if (typeof version !== "number") {
+      return res.status(400).json({ message: "현재 버전을 입력해주세요." });
+    }
+
+    // 일정 존재 여부 확인
+    const trip = await prisma.trip.findUnique({
+      where: { trip_id },
+    });
+    if (!trip) {
+      return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
+    }
+
+    // 권한 체크
+    const isOwner = trip.user_id === user.user_id;
+    let hasEditorPermission = false;
+    if (!isOwner) {
+      const invitation = await prisma.tripInvitation.findFirst({
+        where: {
+          trip_id,
+          invited_user_id: user.user_id,
+          status: "ACCEPTED",
+        },
+      });
+      hasEditorPermission = invitation && invitation.permission === "editor";
+      if (!hasEditorPermission) {
+        return res.status(403).json({ message: "이 일정을 수정할 권한이 없습니다." });
+      }
+    }
+
+    // 버전 체크
+    if (trip.version !== version) {
+      return res.status(409).json({
+        message: "일정이 다른 사용자에 의해 수정되었습니다.",
+        currentVersion: trip.version,
+        trip: trip // 현재 상태 반환
+      });
+    }
+
+    // 수정 데이터 준비
+    const updateData = { version: trip.version + 1 };
+    if (title) updateData.title = title;
+    if (start_date) updateData.start_date = new Date(start_date);
+    if (end_date) updateData.end_date = new Date(end_date);
+    if (destinations) updateData.destinations = destinations;
+    if (is_shared) updateData.is_shared = is_shared;
+    if (companion_type) updateData.companion_type = companion_type;
+    if (theme) updateData.theme = theme;
+
+    // 일정 수정
+    const updatedTrip = await prisma.trip.update({
+      where: { trip_id },
+      data: updateData,
+    });
+
+    res.json({ message: "일정이 성공적으로 수정되었습니다.", trip: updatedTrip });
+  } catch (error) {
+    console.error("일정 수정 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
