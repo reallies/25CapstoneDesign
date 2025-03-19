@@ -5,7 +5,7 @@ import { AuthProvider } from "./scripts/context/AuthContext";
 import Home from "./scripts/pages/Home";
 import Login from "./scripts/pages/Login";
 import Profile from "./scripts/pages/Profile";
-import SetNickname from "./scripts/components/SetNickname";
+import SetNickname from "./scripts/components/SetNickname"; // test 용
 
 const App = () => {
   return (
