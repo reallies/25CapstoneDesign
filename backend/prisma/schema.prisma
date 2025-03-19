@@ -23,6 +23,7 @@ model User {
   posts                                    Post[]
   trips                                    Trip[]
   TripInvitation                           TripInvitation[]
+  expenses                                 Expense[]        @relation
 }
 
 model Trip {
@@ -89,6 +90,7 @@ model Expense {
   updated_at DateTime    @updatedAt
   user_id    Int
   day        Day?        @relation(fields: [day_id], references: [day_id])
+  user       User        @relation(fields: [user_id], references: [user_id])
   trip       Trip        @relation(fields: [trip_id], references: [trip_id])
   place      Place?      @relation(fields: [place_id], references: [place_id], map: "place_id")
 }
