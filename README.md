@@ -19,7 +19,7 @@
 ## 기술 스택
 - **Front-end:**  
   - 프레임워크: React  
-  - 디자인 도구: Pigma
+  - 디자인 도구: <img src="https://img.shields.io/badge/figma-%23F24E1E.svg?&style=for-the-badge&logo=figma&logoColor=white" />
 - **Back-end:**  
   - 플랫폼: Node.js  
   - 개발 환경: VSCode
