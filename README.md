@@ -1,5 +1,5 @@
-# 25CapstoneDesign
-25년 1학기 캡스톤디자인
+# 2025년 1학기 캡스톤디자인
+# Team SLAY
 
 # Travel Scheduler & Recommender
 
