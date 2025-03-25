@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavigationBar from "./scripts/components/NavigationBar";
 import Home from "./scripts/pages/Home";
 import Login from "./scripts/pages/Login";
+import Schedule from './scripts/pages/Schedule';
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} /> {/* 메인 페이지 */}
         <Route path="/login" element={<Login />} /> {/* 로그인 페이지 */}
+        <Route path="/schedule" element={<Schedule />} /> {/* 일정 페이지 */}
       </Routes>
     </Router>
   );
