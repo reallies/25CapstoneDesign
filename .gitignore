@@ -15,8 +15,3 @@ node_modules/
 Thumbs.db
 
 /frontend/build/
-
-#일정관리 (개발 중인 파일
-/backend/src/routes/scheduleRoutes.js
-/backend/src/services/scheduleService.js
-/backend/src/controller/scheduleController.js

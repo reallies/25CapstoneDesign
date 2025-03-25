@@ -17,6 +17,7 @@ model User {
   created_at                               DateTime         @default(now())
   refresh_token                            String?
   comments                                 Comment[]
+  expenses                                 Expense[]
   Friendship_Friendship_recipient_idToUser Friendship[]     @relation("Friendship_recipient_idToUser")
   Friendship_Friendship_requester_idToUser Friendship[]     @relation("Friendship_requester_idToUser")
   likes                                    Like[]
@@ -26,15 +27,15 @@ model User {
 }
 
 model Trip {
-  trip_id        String           @id @default(uuid())
+  trip_id        String           @id @unique
   user_id        Int
   title          String
-  start_date     DateTime
-  end_date       DateTime
+  start_date     DateTime         @db.Date
+  end_date       DateTime         @db.Date
   is_shared      TripVisibility   @default(PRIVATE)
-  companion_type CompanionType    @default(SOLO)
+  companion_type CompanionType[]
   destinations   String[]
-  theme          ThemeType
+  theme          ThemeType[]
   version        Int              @default(0)
   checklist      Checklist[]
   days           Day[]
@@ -56,6 +57,7 @@ model Day {
 model DayPlace {
   day_id   Int
   place_id String
+  order    Int
   day      Day    @relation(fields: [day_id], references: [day_id])
   place    Place  @relation(fields: [place_id], references: [place_id])
 
@@ -64,7 +66,7 @@ model DayPlace {
 
 model Place {
   place_id        String     @id
-  google_place_id String     @unique
+  kakao_place_id String     @unique
   place_name      String
   place_address   String?
   place_latitude  Float
@@ -87,8 +89,10 @@ model Expense {
   price      Int
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
+  user_id    Int
   day        Day?        @relation(fields: [day_id], references: [day_id])
   trip       Trip        @relation(fields: [trip_id], references: [trip_id])
+  user       User        @relation(fields: [user_id], references: [user_id])
   place      Place?      @relation(fields: [place_id], references: [place_id], map: "place_id")
 }
 
@@ -146,7 +150,7 @@ model Friendship {
 }
 
 model TripInvitation {
-  invitation_id   String           @id
+  invitation_id   String           @id @default(uuid())
   trip_id         String
   invited_user_id Int
   status          InvitationStatus @default(PENDING)
@@ -169,17 +173,28 @@ enum TripVisibility {
 }
 
 enum CompanionType {
-  FRIENDS
-  COUPLE
-  FAMILY
   SOLO
+  COUPLE
+  FRIENDS
+  SPOUSE
+  FAMILY
+  SIBLINGS
+  COLLEAGUES
+  PET
+  HOBBY_GROUP
+  OTHER
 }
 
 enum ThemeType {
   ADVENTURE
   SNS_HOTSPOT
-  NATURE
   LANDMARK
+  CULTURE_HISTORY
+  FESTIVAL_EVENT
+  NATURE
+  SHOPPING
+  HEALING
+  FOOD_TOUR
 }
 
 enum ExpenseType {
@@ -188,6 +203,8 @@ enum ExpenseType {
   ACCOMMODATION
   TICKET
   OTHER
+  ACTIVITY
+  SHOPPING
 }
 
 enum FriendshipStatus {

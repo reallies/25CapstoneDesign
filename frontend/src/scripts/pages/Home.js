@@ -4,18 +4,43 @@ import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
-
+import { useNavigate } from "react-router-dom";
 
 const Main = () => {
   const [activeModal, setActiveModal] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState(""); 
+  const [selectedDestination, setSelectedDestination] = useState([]); 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState({ 성인: 0, 청소년: 0, 어린이: 0, 동행유형: [] });
-  const [peopleStep, setPeopleStep] = useState(1);
   const [calendarDate, setCalendarDate] = useState(null);
   const [selectedMode, setSelectedMode] = useState("ai");
   const searchFieldRefs = useRef({});
+  const navigate = useNavigate();
+
+  const themeMap = {
+    "모험·액티비티": "ADVENTURE",
+    "SNS 핫플": "SNS_HOTSPOT",
+    "랜드마크": "LANDMARK",
+    "문화·역사": "CULTURE_HISTORY",
+    "이벤트·축제": "FESTIVAL_EVENT",
+    "감성·자연": "NATURE",
+    "쇼핑": "SHOPPING",
+    "여유·힐링": "HEALING",
+    "맛집": "FOOD_TOUR",
+  };
+
+  const companionMap = {
+    "혼자": "SOLO",
+    "연인": "COUPLE",
+    "친구": "FRIENDS",
+    "배우자": "SPOUSE",
+    "부모님": "FAMILY",
+    "형제·자매": "SIBLINGS",
+    "회사·동료": "COLLEAGUES",
+    "반려동물": "PET",
+    "동호회·취미": "HOBBY_GROUP",
+    "기타": "OTHER",
+  };
 
   // AI / 직접 일정 핸들러
   const handleModeChange = (mode) => {
@@ -28,9 +53,18 @@ const Main = () => {
   const [themeModalPosition, setThemeModalPosition] = useState({ top: 350, left: 300 });
   const [peopleModalPosition, setPeopleModalPosition] = useState({ top: 400, left: 400 });
 
-  // 여행지 선택 핸들러
+  // 여행지 선택 핸들러 - 최대 3개까지 선택
   const handleSelectDestination = (region) => {
-    setSelectedDestination((prev) => (prev === region ? "" : region));
+    setSelectedDestination((prev) => {
+      if (prev.includes(region)){
+        return prev.filter((r)=>r!==region);
+      }else if (prev.length < 3){
+        return [...prev,region];
+      }else{
+        alert("최대 3개의 여행지만 선택할 수 있습니다.");
+        return prev;
+      }
+    });
   };
 
   // 여행 테마 토글 핸들러
@@ -105,7 +139,6 @@ const Main = () => {
   
   const closeModal = () => {
     setActiveModal(null);
-    setPeopleStep(1);
   };
 
   /* 여행 갤러리 데이터 */
@@ -137,6 +170,45 @@ const Main = () => {
       isLast: true,
     }
   ];
+
+  //여정 추가
+  const createTrip = async () =>{
+    if(!selectedDestination || !calendarDate  || selectedTheme.length === 0 || !selectedPeople){
+      alert("여행지, 날짜, 테마를 모두 선택해주세요!");
+      return;
+    }
+
+    const toDateString = (date) => date.toISOString().split("T")[0];
+    const startDate = toDateString(calendarDate[0]);
+    const endDate = toDateString(calendarDate[1]);  
+    
+    const tripData ={
+      destinations: selectedDestination,
+      startDate: startDate,
+      endDate: endDate,
+      theme: selectedTheme.map((t) => themeMap[t]),
+      companionType: selectedPeople.동행유형.map((c) => companionMap[c]),
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/schedule",{
+        method: "POST",
+        headers: {"Content-Type" : "application/json"},
+        body : JSON.stringify(tripData),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.trip) {
+          navigate(`/schedule/${data.trip.trip_id}`);
+      } else {
+          console.error("tripData가 존재하지 않음:", data);
+      }
+  } catch (error) {
+      console.error("에러 발생:", error);
+    }
+  };
 
   return (
     <div className="main-container">
@@ -188,21 +260,13 @@ const Main = () => {
           </div>
           <div className="search-field" onClick={(e) => openModal("people", e)}>
             <span className="placeholder-text">동행 인원</span>
-            {Object.values(selectedPeople).some((count) => count > 0) && (
+            {selectedPeople.동행유형.length > 0 && (
               <span className="selected-text">
-                {selectedPeople.성인 > 0 ? `성인 ${selectedPeople.성인}명 ` : ""}
-                {selectedPeople.청소년 > 0 ? ` 청소년 ${selectedPeople.청소년}명 ` : ""}
-                {selectedPeople.어린이 > 0 ? ` 어린이 ${selectedPeople.어린이}명 ` : ""}
-                {selectedPeople.동행유형?.length > 0 && (
-                  <>
-                    <br />
-                    ({selectedPeople.동행유형.join(", ")})
-                  </>
-                )}
+                {selectedPeople.동행유형.join(", ")}
               </span>
             )}
           </div>
-          <div className="schedule-button">일정 만들기</div>
+          <div className="schedule-button" onClick={createTrip}>일정 만들기</div>
         </div>
       </div>
 
@@ -322,7 +386,7 @@ const Main = () => {
             <h2>여행 테마를 선택해 주세요</h2>
             <h5 className="theme-subtitle">다중 선택 가능</h5>
             <div className="theme-buttons">
-              {["모험·액티비티", "SNS 핫플", "랜드마크", "문화·역사", "이벤트·축제", "감성·자연", "쇼핑", "여유·힐링", "맛집"].map((theme) => (
+              {Object.keys(themeMap).map((theme) => (
                 <button key={theme} className={`theme-btn ${selectedTheme.includes(theme) ? "active" : ""}`} onClick={() => toggleTheme(theme)}>
                   {theme}
                 </button>
@@ -337,35 +401,16 @@ const Main = () => {
       {activeModal === "people" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...peopleModalPosition }} onClick={(e) => e.stopPropagation()}>
-            {peopleStep === 1 ? (
-              <>
-                <h2>동행 인원을 선택해 주세요</h2>
-                <div className="people-counter">
-                  {["성인", "청소년", "어린이"].map((type) => (
-                    <div key={type} className="people-row">
-                      <span className="people-type">{type}</span>
-                      <button className="counter-btn" onClick={() => setSelectedPeople((prev) => ({ ...prev, [type]: Math.max(0, prev[type] - 1) }))}>-</button>
-                      <span className="people-count">{selectedPeople[type]}</span>
-                      <button className="counter-btn" onClick={() => setSelectedPeople((prev) => ({ ...prev, [type]: prev[type] + 1 }))}>+</button>
-                    </div>
-                  ))}
-                </div>
-                <button className="next-btn" onClick={() => setPeopleStep(2)}>다음</button>
-              </>
-            ) : (
-              <>
                 <h2>동행 유형을 선택해 주세요</h2>
                 <h5 className="theme-subtitle">다중 선택 가능</h5>
                 <div className="people-options">
-                  {["혼자", "연인", "친구", "배우자", "부모님", "형제·자매", "회사·동료", "반려동물", "동호회·취미", "기타"].map((companion) => (
+                  {Object.keys(companionMap).map((companion) => (
                     <button key={companion} className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`} onClick={() => toggleCompanion(companion)}>
                       {companion}
                     </button>
                   ))}
                 </div>
                 <button className="close-btn" onClick={closeModal}>완료</button>
-              </>
-            )}
           </div>
         </div>
       )}

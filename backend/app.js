@@ -7,7 +7,6 @@ require("dotenv").config();
 const passport = require("./src/config/passport");
 const { authenticateJWT } = require("./src/middleware/authMiddleware");
 
-
 const app = express();
 
 app.use(cors({
@@ -44,10 +43,8 @@ app.use("/auth",authRoutes);
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
 //여행&일정 추가
-// const scheduleRoutes = require("./src/routes/scheduleRoutes");
-// app.use("/schedule",scheduleRoutes);
-
-
+const scheduleRoutes = require("./src/routes/scheduleRoutes");
+app.use("/schedule",scheduleRoutes);
 
 
 // 글로벌 에러 핸들러

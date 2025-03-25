@@ -6,6 +6,7 @@ import Home from "./scripts/pages/Home";
 import Login from "./scripts/pages/Login";
 import Profile from "./scripts/pages/Profile";
 import SetNickname from "./scripts/components/SetNickname";
+import Schedule from "./scripts/pages/Schedule";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/login" element={<Login />} /> {/* 로그인 페이지 */}
           <Route path="/profile" element={<Profile  />} /> {/* 프로필 페이지 */}
           <Route path="/set-nickname" element={<SetNickname />} /> {/* 닉네임 설정 페이지 */}
+          <Route path="/schedule/:trip_id" element={<Schedule />} />
         </Routes>
       </Router>
     </AuthProvider>

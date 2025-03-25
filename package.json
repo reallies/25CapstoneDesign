@@ -18,6 +18,8 @@
         "concurrently": "^8.2.0"
     },
     "dependencies": {
-        "passport-naver-v2": "^2.0.8"
+        "axios": "^1.8.3",
+        "passport-naver-v2": "^2.0.8",
+        "short-uuid": "^5.2.0"
     }
 }
