@@ -4,7 +4,7 @@ import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
-
+import {useNavigate } from 'react-router-dom';
 
 const Main = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -16,6 +16,7 @@ const Main = () => {
   const [calendarDate, setCalendarDate] = useState(null);
   const [selectedMode, setSelectedMode] = useState("ai");
   const searchFieldRefs = useRef({});
+  const navigate = useNavigate(); 
 
   // AI / 직접 일정 핸들러
   const handleModeChange = (mode) => {
@@ -202,7 +203,12 @@ const Main = () => {
               </span>
             )}
           </div>
-          <div className="schedule-button">일정 만들기</div>
+          <div 
+            className="schedule-button" 
+            onClick={() => navigate("/schedule")}
+          >
+            일정 만들기
+          </div>
         </div>
       </div>
 
