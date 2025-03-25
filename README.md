@@ -8,7 +8,7 @@
 또한, AI 기반 챗봇 기능을 통해 사용자가 설정한 시나리오(지역, 동행자 유형, 여행 성향 등)에 맞춰 맞춤 여행지를 추천하고, 생성된 여행 일정을 구글 캘린더에 연동하는 기능을 포함합니다.
 
 ## 주요 기능
-- **회원가입/로그인:** <img src="https://img.shields.io/badge/google-%234285F4.svg?&style=for-the-badge&logo=google&logoColor=white" />/<img src="https://img.shields.io/badge/naver-%2303C75A.svg?&style=for-the-badge&logo=naver&logoColor=white" />/<img src="https://img.shields.io/badge/kakao-%23FFCD00.svg?&style=for-the-badge&logo=kakao&logoColor=black" /> 소셜 로그인 활용 / JWT 인증 방식
+- **회원가입/로그인:** <img src="https://img.shields.io/badge/google-%234285F4.svg?&style=for-the-badge&logo=google&logoColor=white" /><img src="https://img.shields.io/badge/naver-%2303C75A.svg?&style=for-the-badge&logo=naver&logoColor=white" /><img src="https://img.shields.io/badge/kakao-%23FFCD00.svg?&style=for-the-badge&logo=kakao&logoColor=black" /> 소셜 로그인 활용 / JWT 인증 방식
 - **여행 일정 관리:** 여행 일정 생성, 수정, 삭제 및 Day별 관리 (드래그 앤 드롭 인터페이스)
 - **지도 연동:** KakaoMap API를 이용한 지도 및 스트리트 뷰 표시
 - **날씨 정보:** OpenWeather API를 활용한 예보 확인
@@ -38,7 +38,7 @@
   - 웹서버: <img src="https://img.shields.io/badge/nginx-%23269539.svg?&style=for-the-badge&logo=nginx&logoColor=white" /> (리버스 프록시 및 정적 파일 서빙)
 - **프로젝트 관리 및 커뮤니케이션:**  
   - 버전 관리: <img src="https://img.shields.io/badge/github-%23181717.svg?&style=for-the-badge&logo=github&logoColor=white" /> 
-  - 소통: <img src="https://img.shields.io/badge/kakaotalk-%23FFCD00.svg?&style=for-the-badge&logo=kakaotalk&logoColor=black" />, <img src="https://img.shields.io/badge/discord-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white" />  
+  - 소통: <img src="https://img.shields.io/badge/kakaotalk-%23FFCD00.svg?&style=for-the-badge&logo=kakaotalk&logoColor=black" /><img src="https://img.shields.io/badge/discord-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white" />  
   - 회의록: <img src="https://img.shields.io/badge/notion-%23000000.svg?&style=for-the-badge&logo=notion&logoColor=white" />
 
 ## Design
