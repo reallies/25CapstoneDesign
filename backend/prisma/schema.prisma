@@ -65,8 +65,7 @@ model DayPlace {
 }
 
 model Place {
-  place_id        String     @id
-  kakao_place_id String     @unique
+  place_id        String     @id @default(cuid())
   place_name      String
   place_address   String?
   place_latitude  Float
@@ -75,6 +74,7 @@ model Place {
   place_star      Float?
   place_call_num  String?
   review_count    Int?       @default(0)
+  kakao_place_id  String     @unique
   days            DayPlace[]
   Expense         Expense[]
 }

@@ -34,7 +34,7 @@ async function getTripIdController(req,res){
 async function addPlaceToDayController(req,res){
     try {
         const {day_id} = req.params;
-        const placeData = req.body.place;
+        const placeData = req.body;
     
         const result = await tripService.addPlaceToDayService(Number(day_id),placeData);
     
