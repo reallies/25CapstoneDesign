@@ -55,13 +55,12 @@ model Day {
 }
 
 model DayPlace {
+  id       Int    @id @default(autoincrement())
   day_id   Int
   place_id String
   order    Int
   day      Day    @relation(fields: [day_id], references: [day_id])
   place    Place  @relation(fields: [place_id], references: [place_id])
-
-  @@id([day_id, place_id])
 }
 
 model Place {

@@ -62,11 +62,9 @@ async function getTripIdService(trip_id) {
             include: {
               places: {
                 include: {
-                  place: true, // 실제 place 정보까지 포함
+                  place: true,
                 },
-                orderBy: {
-                  order: 'asc' // 장소 순서대로 정렬
-                }
+                orderBy: { order: 'asc' }
               }
             }
           }
@@ -84,11 +82,15 @@ async function getTripIdService(trip_id) {
 async function addPlaceToDayService(day_id,placeData){
   const {kakao_place_id, place_name, place_address, place_latitude, place_longitude, place_image_url, place_star, place_call_num} = placeData;
 
+  const numbericDayId = Number(day_id);
+
   // 1. kakao_place_id 중복체크
   let place = await prisma.place.findUnique({
     where: {kakao_place_id},
-  })
-  if(!place){ //kakao_place_id가 없다면 생성
+  });
+
+  //2.없으면 새로등록
+  if(!place){ //kakao_place_id가 없다면 생성 - 후에 카카오 api랑 연결할때 추가가
     place = await prisma.place.create({
       data:{
         kakao_place_id,
@@ -103,18 +105,22 @@ async function addPlaceToDayService(day_id,placeData){
     });
   }
 
-    //count : day_id에 해당하는 place 개수
-    const count = await prisma.dayPlace.count({
-      where: {day_id}
+    //3. 해당날짜 마지막 order확인
+    const maxOrder = await prisma.dayPlace.aggregate({
+      where: { day_id: numbericDayId },
+      _max: { order: true },
     });
-    //2. 장소가 추가될 경우 count+1 -> order 계산을 위함
-    const dayPlace = await prisma.dayPlace.create({
-      data:{
-        day_id,
-        place_id : place.place_id,
-        order: count +1
-      }
-    });
+
+    const nextOrder = (maxOrder._max.order || 0) + 1;
+
+    // 4. dayPlace 추가
+  const dayPlace = await prisma.dayPlace.create({
+    data: {
+      day_id: numbericDayId,
+      place_id: place.place_id,
+      order: nextOrder,
+    },
+  });
 
     return {place, dayPlace};
 }
@@ -122,45 +128,51 @@ async function addPlaceToDayService(day_id,placeData){
 //4. 장소 순서 변경 서비스
 // previous : 장소가 있었던 위치, present: 이 장소를 옮기고 싶은 위치
 async function reorderPlaceService(previous,present){
-  const {day_id : previousDayId, place_id} = previous;
-  const {day_id : presentDayId, order: newOrder } = present;
+  const {dayPlace_id} = previous;
+  const {day_id : newDayId, order: newOrder } = present;
+
+  if (!dayPlace_id) throw new Error("dayPlace_id가 없습니다");
 
   return await prisma.$transaction(async (tx)=>{
-    //1. previous의 dayPlace 삭제
-    const deleted = await tx.dayPlace.delete({
-      where : {
-        day_id_place_id: {
-          day_id: previousDayId,
-          place_id: place_id,
-        },
-      }
+    const existing = await tx.dayPlace.findUnique({
+      where: { id: dayPlace_id  },
     });
+  
+    if (!existing) throw new Error(`dayPlace_id ${dayPlace_id}가 존재하지 않습니다`);
+    
 
-    //2. present의 order 조정
+    // 1. 현재 위치에서 order 조정 (order 채우기)
     await tx.dayPlace.updateMany({
       where: {
-        day_id: presentDayId,
-        order: {
-          gte: newOrder,
-        },
+        day_id: existing.day_id,
+        order: { gt: existing.order },
       },
       data: {
-        order: {
-          increment: 1,
-        },
+        order: { decrement: 1 },
       },
     });
 
-    // 3. 새로운 위치에 삽입
-    const newDayPlace = await tx.dayPlace.create({
+    // 2. 새 위치에서 order 밀어주기
+    await tx.dayPlace.updateMany({
+      where: {
+        day_id: newDayId,
+        order: { gte: newOrder },
+      },
       data: {
-        day_id: presentDayId,
-        place_id,
+        order: { increment: 1 },
+      },
+    });
+
+    // 3. 실제 이동
+    const updated = await tx.dayPlace.update({
+      where: { id: dayPlace_id },
+      data: {
+        day_id: newDayId,
         order: newOrder,
       },
     });
 
-    return newDayPlace;
+    return updated;
   });
 }
 

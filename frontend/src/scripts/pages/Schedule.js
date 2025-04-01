@@ -3,54 +3,56 @@ import { useParams } from "react-router-dom";
 import map from "../../assets/images/map.svg";
 import back from "../../assets/images/back.svg";
 import search2 from "../../assets/images/search2.svg";
-import "./Schedule.css";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import "./Schedule.css";
 
 const Schedule = () => {
-  const { trip_id } = useParams();
+  const {trip_id} = useParams();
   const [days, setDays] = useState([]);
   const [trip, setTrip] = useState(null);
   const [activeDay, setActiveDay] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
 
   const toggleWeatherDropdown = () => {
     setIsWeatherDropdownOpen((prev) => !prev);
   };
 
-  useEffect(() => {
-    const fetchTrip = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
-          credentials: "include",
-        });
-        const data = await res.json();
-        if (res.ok && data.trip) {
-          setTrip(data.trip);
-          const convertedDays = data.trip.days.map((day, index) => ({
-            id: `day-${index + 1}`,
-            date: `| ${new Date(day.date).toLocaleDateString("ko-KR", {
-              month: "2-digit",
-              day: "2-digit",
-              weekday: "short",
-            })}`,
+  const fetchTrip = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.trip) {
+        setTrip(data.trip);
+        const convertedDays = data.trip.days.map((day, index) => {
+          const d = new Date(day.date);
+        
+          return {
+            id: `day-${day.day_id}`,
+            date: `| ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} - ${d.toLocaleDateString("ko-KR", { weekday: "short" })}`,
             color: ["red", "orange", "purple"][index % 3],
-            items: day.places.map((p, idx) => ({
+            items: day.places.map((p) => ({
               id: `item-${p.place.place_id}`,
+              dayPlaceId: p.id,
               type: "place",
               placeType: p.place_type || "관광명소",
               name: p.place.place_name,
             })),
-          }));
-          setDays(convertedDays);
-        } else {
-          console.error("여행 정보를 불러오지 못함:", data);
-        }
-      } catch (err) {
-        console.error("에러 발생:", err);
+          };
+        });
+        setDays(convertedDays);
       }
-    };
+    } catch (err) {
+      console.error("여행 정보를 불러오지 못함:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchTrip();
   }, [trip_id]);
 
@@ -70,41 +72,71 @@ const Schedule = () => {
     setDays(newDays);
   };
 
-  const onDragEnd = (result) => {
+  //드래그해서 이동
+  const onDragEnd = async(result) => {
     if (!result.destination) return;
 
-    if (result.type === "DAY") {
+    const { source, destination, type } = result;
+
+    //Day 순서 변경
+    if (type === "DAY") {
       const newDays = [...days];
       const [movedDay] = newDays.splice(result.source.index, 1);
-      newDays.splice(result.destination.index, 0, movedDay);
-
-      const originalDates = days.map(d => d.date); 
-      const updatedDays = newDays.map((day, idx) => ({
-        ...day,
-        date: originalDates[idx],
-      }));
-
-      setDays(updatedDays);
-    } else {
-      const sourceDayIndex = days.findIndex((day) => day.id === result.source.droppableId);
-      const destDayIndex = days.findIndex((day) => day.id === result.destination.droppableId);
-      const newDays = [...days];
-      const [movedItem] = newDays[sourceDayIndex].items.splice(result.source.index, 1);
-      newDays[destDayIndex].items.splice(result.destination.index, 0, movedItem);
+      newDays.splice(destination.index, 0, movedDay);
       setDays(newDays);
+      return;
+      }
+
+    //장소,메모 이동처리
+    const sourceDayIndex = days.findIndex((d) => d.id === source.droppableId);
+    const destDayIndex = days.findIndex((d) => d.id === destination.droppableId);
+    const movedItem = days[sourceDayIndex].items[source.index];
+
+    if (movedItem.type === "memo") {
+      const newDays = [...days];
+      const [removed] = newDays[sourceDayIndex].items.splice(source.index, 1);
+      newDays[destDayIndex].items.splice(destination.index, 0, removed);
+      setDays(newDays);
+      return;
+    }
+
+    // 즉시 순서가 바뀜
+    const newDays = [...days];
+    const [moved] = newDays[sourceDayIndex].items.splice(source.index, 1);
+    newDays[destDayIndex].items.splice(destination.index, 0, moved);
+    setDays(newDays);
+
+    try {
+      const res = await fetch(`http://localhost:8080/schedule/${trip_id}/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          previous: {
+            day_id: Number(days[sourceDayIndex].id.replace("day-", "")),
+            dayPlace_id: movedItem.dayPlaceId,
+          },
+          present: {
+            day_id: Number(days[destDayIndex].id.replace("day-", "")),
+            order: destination.index + 1,
+          },
+        }),
+      });
+      if (res.ok) {
+        await fetchTrip();
+
+      } else {
+        console.error("서버 응답 실패");
+      }
+    } catch (error) {
+      console.error("드래그 이동 실패", error);
     }
   };
 
-  const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
-  const handleCloseModal = () => { setIsModalOpen(false); setSelectedDayIndex(null);}
-  const [searchText, setSearchText] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
-  const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
-
-  //장소 선택 핸들러함수
+  //장소 선택 핸들함수
   const handlePlaceSelect = async (dayIndex, place) => {
     const day = days[dayIndex];
-    const dayId = day.id.replace("day-", ""); // 예: day-1 → 1
+    const dayId = Number(day.id.replace("day-", ""));
   
     try {
       const res = await fetch(`http://localhost:8080/schedule/${trip_id}/day/${dayId}/place`, {
@@ -127,18 +159,17 @@ const Schedule = () => {
   
       const data = await res.json();
   
-      if (res.ok && data.place) {
+      if (res.ok && data.data) {
         const newDays = [...days];
         newDays[dayIndex].items.push({
-          id: `item-${data.place.place_id}`,
+          id: `item-${data.data.place.place_id}`,
+          dayPlaceId: data.data.dayPlace.id,
           type: "place",
-          name: data.place.place_name,
+          name: data.data.place.place_name,
           placeType: "관광명소",
         });
         setDays(newDays);
         setIsModalOpen(false);
-      } else {
-        alert("장소 추가 실패");
       }
     } catch (err) {
       console.error("장소 추가 실패:", err);
@@ -146,7 +177,34 @@ const Schedule = () => {
     }
   };
 
+  const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
+  const handleCloseModal = () => { setIsModalOpen(false); setSelectedDayIndex(null);}
   if (!trip) return null;
+
+  //예시 장소 - 카카오 api 연결시 삭제
+  const dummyPlaces = [
+    {
+      kakao_place_id: "kakao-001",
+      place_name: "전주 한옥마을",
+      place_address: "전주시 완산구 교동",
+      latitude: 35.815,
+      longitude: 127.150,
+      image_url: "",
+      place_star: null,
+      call: "063-111-1111",
+    },
+    {
+      kakao_place_id: "kakao-002",
+      place_name: "전주향교",
+      place_address: "전주시 완산구 향교길",
+      latitude: 35.812,
+      longitude: 127.155,
+      image_url: "",
+      place_star: null,
+      call: "063-222-2222",
+    },
+  ];
+
 
   return (
     <div className="schedule">
@@ -320,28 +378,18 @@ const Schedule = () => {
                   </div>
                 </div>
 
+
                 <div className="place-list">
-                  {/* 이곳은 추후 API로 대체할 예정 */}
-                  {["전주 한옥마을", "전주향교", "국립무형유산원", "전동성당"].map((name, idx) => (
+                  {dummyPlaces.map((place, idx) => (
                     <div className="place-item" key={idx}>
                       <div className="place-thumb" />
                       <div className="place-info">
-                        <div className="place-name">{name}</div>
+                        <div className="place-name">{place.place_name}</div>
                         <div className="place-location">전주</div>
                       </div>
-                      <button className="select-btn" onClick={()=>{
-                        handlePlaceSelect(selectedDayIndex, {
-                          kakao_place_id: "123456",
-                          place_name: name,
-                          place_address: "전주시 완산구 교동",
-                          latitude: 35.82,
-                          longitude: 127.15,
-                          image_url: "",
-                          place_star: null,
-                          call: "063-123-4567",
-                          }
-                        )
-                      }}>선택</button>
+                      <button className="select-btn" onClick={() => handlePlaceSelect(selectedDayIndex, place)}>
+                        선택
+                      </button>
                     </div>
                   ))}
                 </div>

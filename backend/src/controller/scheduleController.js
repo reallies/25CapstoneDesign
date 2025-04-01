@@ -51,9 +51,11 @@ async function reorderPlaceController(req,res){
         const {trip_id}=req.params;
         const {previous, present}=req.body;
 
-        const result = await tripService.reor
+        const result = await tripService.reorderPlaceService(previous, present);
+
+        return res.status(201).json({success: true, data: result});
     } catch (error) {
-        
+        console.error("reorderPlaceController 중 에러", error); 
     }
 }
 
