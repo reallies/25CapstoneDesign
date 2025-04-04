@@ -1,8 +1,3 @@
-//npx prisma db pull로 원격에서 prisma/schema.prisma최신화
-//npx prisma migrate dev --name <이름> 로컬 schema.prisma 파일을 기반으로 데이터베이스에 마이그레이션을 적용
-//npx prisma generate 파일을 기반으로 Prisma Client를 생성
-//npx prisma studio db GUI
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,25 +17,25 @@ model User {
   created_at                               DateTime         @default(now())
   refresh_token                            String?
   comments                                 Comment[]
+  expenses                                 Expense[]
   Friendship_Friendship_recipient_idToUser Friendship[]     @relation("Friendship_recipient_idToUser")
   Friendship_Friendship_requester_idToUser Friendship[]     @relation("Friendship_requester_idToUser")
   likes                                    Like[]
   posts                                    Post[]
   trips                                    Trip[]
   TripInvitation                           TripInvitation[]
-  expenses                                 Expense[]        @relation
 }
 
 model Trip {
-  trip_id        String           @id @default(uuid())
+  trip_id        String           @id @unique @default(uuid())
   user_id        Int
   title          String
-  start_date     DateTime
-  end_date       DateTime
+  start_date     DateTime         @db.Date
+  end_date       DateTime         @db.Date
   is_shared      TripVisibility   @default(PRIVATE)
-  companion_type CompanionType    @default(SOLO)
+  companion_type CompanionType[]
   destinations   String[]
-  theme          ThemeType
+  theme          ThemeType[]
   version        Int              @default(0)
   checklist      Checklist[]
   days           Day[]
@@ -62,6 +57,7 @@ model Day {
 model DayPlace {
   day_id   Int
   place_id String
+  order    Int
   day      Day    @relation(fields: [day_id], references: [day_id])
   place    Place  @relation(fields: [place_id], references: [place_id])
 
@@ -70,7 +66,6 @@ model DayPlace {
 
 model Place {
   place_id        String     @id
-  google_place_id String     @unique
   place_name      String
   place_address   String?
   place_latitude  Float
@@ -79,6 +74,7 @@ model Place {
   place_star      Float?
   place_call_num  String?
   review_count    Int?       @default(0)
+  kakao_place_id  String     @unique
   days            DayPlace[]
   Expense         Expense[]
 }
@@ -95,8 +91,8 @@ model Expense {
   updated_at DateTime    @updatedAt
   user_id    Int
   day        Day?        @relation(fields: [day_id], references: [day_id])
-  user       User        @relation(fields: [user_id], references: [user_id])
   trip       Trip        @relation(fields: [trip_id], references: [trip_id])
+  user       User        @relation(fields: [user_id], references: [user_id])
   place      Place?      @relation(fields: [place_id], references: [place_id], map: "place_id")
 }
 
@@ -177,17 +173,28 @@ enum TripVisibility {
 }
 
 enum CompanionType {
-  FRIENDS
-  COUPLE
-  FAMILY
   SOLO
+  COUPLE
+  FRIENDS
+  SPOUSE
+  FAMILY
+  SIBLINGS
+  COLLEAGUES
+  PET
+  HOBBY_GROUP
+  OTHER
 }
 
 enum ThemeType {
   ADVENTURE
   SNS_HOTSPOT
-  NATURE
   LANDMARK
+  CULTURE_HISTORY
+  FESTIVAL_EVENT
+  NATURE
+  SHOPPING
+  HEALING
+  FOOD_TOUR
 }
 
 enum ExpenseType {
@@ -195,9 +202,9 @@ enum ExpenseType {
   TRANSPORT
   ACCOMMODATION
   TICKET
+  OTHER
   ACTIVITY
   SHOPPING
-  OTHER
 }
 
 enum FriendshipStatus {

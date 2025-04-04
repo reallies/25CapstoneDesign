@@ -53,8 +53,9 @@ app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 // const scheduleRoutes = require("./src/routes/scheduleRoutes");
 // app.use("/schedule",scheduleRoutes);
 
-
-
+//챗봇
+const openAIChatbot = require('./src/routes/openAIChat');
+app.use('/chatbot', openAIChatbot);
 
 // 글로벌 에러 핸들러
 app.use((err, req, res, next) => {
