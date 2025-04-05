@@ -1,184 +1,43 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useSchedule } from "../hooks/useSchedule";
 import map from "../../assets/images/map.svg";
 import back from "../../assets/images/back.svg";
 import search2 from "../../assets/images/search2.svg";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./Schedule.css";
 
 const Schedule = () => {
-  const {trip_id} = useParams();
-  const [days, setDays] = useState([]);
-  const [trip, setTrip] = useState(null);
-  const [activeDay, setActiveDay] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const { trip_id } = useParams();
+  const {
+    trip,
+    days,
+    activeDay,
+    setActiveDay,
+    handlePlaceSelect,
+    handleAddMemo,
+    handleMemoChange,
+    onDragEnd,
+  } = useSchedule(trip_id);
+
   const [searchText, setSearchText] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
-
+  
+  //날씨 부분
   const toggleWeatherDropdown = () => {
     setIsWeatherDropdownOpen((prev) => !prev);
   };
 
-  const fetchTrip = async () => {
-    try {
-      const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok && data.trip) {
-        setTrip(data.trip);
-        const convertedDays = data.trip.days.map((day, index) => {
-          const d = new Date(day.date);
-        
-          return {
-            id: `day-${day.day_id}`,
-            date: `| ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} - ${d.toLocaleDateString("ko-KR", { weekday: "short" })}`,
-            color: ["red", "orange", "purple"][index % 3],
-            items: day.places.map((p) => ({
-              id: `item-${p.place.place_id}`,
-              dayPlaceId: p.id,
-              type: "place",
-              placeType: p.place_type || "관광명소",
-              name: p.place.place_name,
-            })),
-          };
-        });
-        setDays(convertedDays);
-      }
-    } catch (err) {
-      console.error("여행 정보를 불러오지 못함:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchTrip();
-  }, [trip_id]);
-
-  const handleAddMemo = (dayIndex) => {
-    const newDays = [...days];
-    newDays[dayIndex].items.push({
-      id: `memo-${Date.now()}`,
-      type: "memo",
-      content: "",
-    });
-    setDays(newDays);
-  };
-
-  const handleMemoChange = (dayIndex, itemIndex, value) => {
-    const newDays = [...days];
-    newDays[dayIndex].items[itemIndex].content = value;
-    setDays(newDays);
-  };
-
-  //드래그해서 이동
-  const onDragEnd = async(result) => {
-    if (!result.destination) return;
-
-    const { source, destination, type } = result;
-
-    //Day 순서 변경
-    if (type === "DAY") {
-      const newDays = [...days];
-      const [movedDay] = newDays.splice(result.source.index, 1);
-      newDays.splice(destination.index, 0, movedDay);
-      setDays(newDays);
-      return;
-      }
-
-    //장소,메모 이동처리
-    const sourceDayIndex = days.findIndex((d) => d.id === source.droppableId);
-    const destDayIndex = days.findIndex((d) => d.id === destination.droppableId);
-    const movedItem = days[sourceDayIndex].items[source.index];
-
-    if (movedItem.type === "memo") {
-      const newDays = [...days];
-      const [removed] = newDays[sourceDayIndex].items.splice(source.index, 1);
-      newDays[destDayIndex].items.splice(destination.index, 0, removed);
-      setDays(newDays);
-      return;
-    }
-
-    // 즉시 순서가 바뀜
-    const newDays = [...days];
-    const [moved] = newDays[sourceDayIndex].items.splice(source.index, 1);
-    newDays[destDayIndex].items.splice(destination.index, 0, moved);
-    setDays(newDays);
-
-    try {
-      const res = await fetch(`http://localhost:8080/schedule/${trip_id}/reorder`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          previous: {
-            day_id: Number(days[sourceDayIndex].id.replace("day-", "")),
-            dayPlace_id: movedItem.dayPlaceId,
-          },
-          present: {
-            day_id: Number(days[destDayIndex].id.replace("day-", "")),
-            order: destination.index + 1,
-          },
-        }),
-      });
-      if (res.ok) {
-        await fetchTrip();
-
-      } else {
-        console.error("서버 응답 실패");
-      }
-    } catch (error) {
-      console.error("드래그 이동 실패", error);
-    }
-  };
-
-  //장소 선택 핸들함수
-  const handlePlaceSelect = async (dayIndex, place) => {
-    const day = days[dayIndex];
-    const dayId = Number(day.id.replace("day-", ""));
-  
-    try {
-      const res = await fetch(`http://localhost:8080/schedule/${trip_id}/day/${dayId}/place`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          kakao_place_id: place.kakao_place_id,
-          place_name: place.place_name,
-          place_address: place.place_address,
-          place_latitude: place.latitude,
-          place_longitude: place.longitude,
-          place_image_url: place.image_url || "",
-          place_star: place.place_star,
-          place_call_num: place.call,
-        }),
-      });
-  
-      const data = await res.json();
-  
-      if (res.ok && data.data) {
-        const newDays = [...days];
-        newDays[dayIndex].items.push({
-          id: `item-${data.data.place.place_id}`,
-          dayPlaceId: data.data.dayPlace.id,
-          type: "place",
-          name: data.data.place.place_name,
-          placeType: "관광명소",
-        });
-        setDays(newDays);
-        setIsModalOpen(false);
-      }
-    } catch (err) {
-      console.error("장소 추가 실패:", err);
-      alert("추가 중 오류 발생!");
-    }
-  };
-
   const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
-  const handleCloseModal = () => { setIsModalOpen(false); setSelectedDayIndex(null);}
+
+  const handleCloseModal = () => { 
+    setIsModalOpen(false); 
+    setSelectedDayIndex(null);
+  };
+
   if (!trip) return null;
 
   //예시 장소 - 카카오 api 연결시 삭제
@@ -292,21 +151,26 @@ const Schedule = () => {
                               <div className="day-date">{day.date}</div>
                               <div className="day-drag">≡</div>
                             </div>
-
-                            <Droppable droppableId={day.id} type="ITEM">
+                            {/*Place 순서 변경 부분*/}
+                            <Droppable droppableId={`${day.id}-place`} type="PLACE">
                               {(provided) => (
                                 <div ref={provided.innerRef} {...provided.droppableProps}>
-                                  {day.items.map((item, itemIndex) => (
-                                    <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
-                                      {(provided) => (
-                                        item.type === "place" ? (
-                                          <div className="schedule-item"
+                                  {day.items.filter(item => item.type === "place").length === 0 && (
+                                    <div className="empty-placeholder" />
+                                  )}
+                                  {day.items
+                                    .filter((item) => item.type === "place")
+                                    .map((item, itemIndex) => (
+                                      <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
+                                        {(provided) => (
+                                          <div
+                                            className="schedule-item"
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                           >
                                             <div className="item-number">
-                                              {day.items.filter(it => it.type === "place").indexOf(item) + 1}
+                                              {itemIndex + 1}
                                             </div>
                                             <div className="item-content">
                                               <div className="place-type">{item.placeType}</div>
@@ -314,8 +178,24 @@ const Schedule = () => {
                                             </div>
                                             <div className="item-drag">≡</div>
                                           </div>
-                                        ) : (
-                                          <div className="memo-item"
+                                        )}
+                                      </Draggable>
+                                    ))}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                            {/*MEMO 순서 변경 부분*/}
+                            <Droppable droppableId={`${day.id}-memo`} type="MEMO">
+                              {(provided) => (
+                                <div ref={provided.innerRef} {...provided.droppableProps}>
+                                  {day.items
+                                    .filter((item) => item.type === "memo")
+                                    .map((item, itemIndex) => (
+                                      <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
+                                        {(provided) => (
+                                          <div
+                                            className="memo-item"
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
@@ -324,24 +204,22 @@ const Schedule = () => {
                                               className="memo-input"
                                               placeholder="메모 입력란"
                                               value={item.content}
-                                              onChange={(e) => handleMemoChange(days.indexOf(day), itemIndex, e.target.value)}
+                                              onChange={(e) =>
+                                                handleMemoChange(dayIndex, itemIndex, e.target.value)
+                                              }
                                             />
                                             <div className="item-drag">≡</div>
                                           </div>
-                                        )
-                                      )}
-                                    </Draggable>
-                                  ))}
+                                        )}
+                                      </Draggable>
+                                    ))}
                                   {provided.placeholder}
                                 </div>
                               )}
                             </Droppable>
-
+                            {/* 추가 버튼 */}
                             <div className="add-buttons">
-                              <div className="action-btn" onClick={() => {
-                                setSelectedDayIndex(days.indexOf(day));
-                                setIsModalOpen(true);
-                                }}>장소 추가</div>
+                              <div className="action-btn" onClick={() => { setSelectedDayIndex(days.indexOf(day)); setIsModalOpen(true); }}>장소 추가</div>
                               <div className="action-btn" onClick={() => handleAddMemo(days.indexOf(day))}>메모 추가</div>
                             </div>
                           </div>
@@ -353,6 +231,10 @@ const Schedule = () => {
                 )}
               </Droppable>
             </DragDropContext>
+          </div>
+
+          <div className="delete">
+            <div className="delete-text">장소 삭제</div>
           </div>
 
           {/* 장소 추가 모달 */}
@@ -378,7 +260,6 @@ const Schedule = () => {
                   </div>
                 </div>
 
-
                 <div className="place-list">
                   {dummyPlaces.map((place, idx) => (
                     <div className="place-item" key={idx}>
@@ -387,7 +268,7 @@ const Schedule = () => {
                         <div className="place-name">{place.place_name}</div>
                         <div className="place-location">전주</div>
                       </div>
-                      <button className="select-btn" onClick={() => handlePlaceSelect(selectedDayIndex, place)}>
+                      <button className="select-btn" onClick={() => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}>
                         선택
                       </button>
                     </div>

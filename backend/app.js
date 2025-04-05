@@ -39,7 +39,7 @@ app.use(express.json());
 const authRoutes=require("./src/routes/authRoutes");
 app.use("/auth",authRoutes);
 
-// 인증된 사용자만 프로필 접근 가능
+//인증된 사용자만 프로필 접근 가능
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
 //여행&일정 추가

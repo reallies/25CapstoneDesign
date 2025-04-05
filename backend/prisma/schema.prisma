@@ -49,22 +49,23 @@ model Day {
   day_id   Int        @id @default(autoincrement())
   trip_id  String
   date     DateTime   @db.Date
+  day_order    Int
   trip     Trip       @relation(fields: [trip_id], references: [trip_id])
   places   DayPlace[]
   expenses Expense[]
 }
 
 model DayPlace {
-  id       Int    @id @default(autoincrement())
+  dayplace_id       Int    @id @default(autoincrement())
   day_id   Int
-  place_id String
-  order    Int
+  place_id Int
+  dayplace_order    Int
   day      Day    @relation(fields: [day_id], references: [day_id])
   place    Place  @relation(fields: [place_id], references: [place_id])
 }
 
 model Place {
-  place_id        String     @id @default(cuid())
+  place_id        Int     @id @default(autoincrement())
   place_name      String
   place_address   String?
   place_latitude  Float
@@ -82,7 +83,7 @@ model Expense {
   expense_id Int         @id @default(autoincrement())
   trip_id    String
   day_id     Int?
-  place_id   String?
+  place_id   Int?
   type       ExpenseType
   title      String
   price      Int
@@ -92,7 +93,7 @@ model Expense {
   day        Day?        @relation(fields: [day_id], references: [day_id])
   trip       Trip        @relation(fields: [trip_id], references: [trip_id])
   user       User        @relation(fields: [user_id], references: [user_id])
-  place      Place?      @relation(fields: [place_id], references: [place_id], map: "place_id")
+  place      Place?      @relation(fields: [place_id], references: [place_id])
 }
 
 model Like {

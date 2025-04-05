@@ -59,7 +59,21 @@ async function reorderPlaceController(req,res){
     }
 }
 
-//5. day별 장소 삭제 컨트롤러
+//5. 날짜 순서 변경 컨트롤러
+async function reorderDayController(req,res){
+    try {
+        const {trip_id}=req.params;
+        const {previous, present}=req.body;
+
+        const result = await tripService.reorderDayService(trip_id, previous, present);
+
+        return res.status(201).json({success: true, data: result});
+    } catch (error) {
+        console.error("reorderDayController 중 에러", error); 
+    }
+}
+
+//6. day별 장소 삭제 컨트롤러
 async function deletePlaceFromDayController(req, res) {
     try {
       const { day_id, place_id } = req.params;
@@ -71,6 +85,23 @@ async function deletePlaceFromDayController(req, res) {
       console.error("deletePlaceFromDayController 중 에러:", error);
       return res.status(500).json({ message: "장소 삭제 실패", error });
     }
+}
+
+//7. 저장된 여행 일정 불러오기
+async function getMytripsController(req, res) {
+    try {
+      const user_id = req.user.user_id;
+      const trips = await tripService.getMyTripsService(user_id);
+  
+      res.json({ success: true, trips }); // key 이름을 front와 맞춰줘
+    } catch (error) {
+      console.error("getMyTripsController 에러:", error);
+      res.status(500).json({
+        success: false,
+        message: "여행 목록을 불러오지 못했습니다",
+      });
+    }
   }
 
-module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, deletePlaceFromDayController};
+
+module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceFromDayController, getMytripsController};

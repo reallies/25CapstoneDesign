@@ -363,6 +363,11 @@
     font-weight: 400;
 }
 
+.schedule .empty-placeholder {
+    min-height: 10px; 
+    visibility: hidden; 
+}
+
 /* 드래그 바 */
 .schedule .item-drag {
     font-size: 20px;

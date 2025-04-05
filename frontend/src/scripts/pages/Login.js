@@ -1,4 +1,4 @@
-import React,{ useContext } from "react";
+import React from "react";
 import "./Login.css";
 
 import login_logo from "../../assets/images/login_logo.svg";

@@ -53,22 +53,24 @@ CREATE TABLE "Day" (
     "day_id" SERIAL NOT NULL,
     "trip_id" TEXT NOT NULL,
     "date" DATE NOT NULL,
+    "day_order" INTEGER NOT NULL,
 
     CONSTRAINT "Day_pkey" PRIMARY KEY ("day_id")
 );
 
 -- CreateTable
 CREATE TABLE "DayPlace" (
+    "dayplace_id" SERIAL NOT NULL,
     "day_id" INTEGER NOT NULL,
-    "place_id" TEXT NOT NULL,
-    "order" INTEGER NOT NULL,
+    "place_id" INTEGER NOT NULL,
+    "dayplace_order" INTEGER NOT NULL,
 
-    CONSTRAINT "DayPlace_pkey" PRIMARY KEY ("day_id","place_id")
+    CONSTRAINT "DayPlace_pkey" PRIMARY KEY ("dayplace_id")
 );
 
 -- CreateTable
 CREATE TABLE "Place" (
-    "place_id" TEXT NOT NULL,
+    "place_id" SERIAL NOT NULL,
     "place_name" TEXT NOT NULL,
     "place_address" TEXT,
     "place_latitude" DOUBLE PRECISION NOT NULL,
@@ -87,7 +89,7 @@ CREATE TABLE "Expense" (
     "expense_id" SERIAL NOT NULL,
     "trip_id" TEXT NOT NULL,
     "day_id" INTEGER,
-    "place_id" TEXT,
+    "place_id" INTEGER,
     "type" "ExpenseType" NOT NULL,
     "title" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
@@ -202,7 +204,7 @@ ALTER TABLE "Expense" ADD CONSTRAINT "Expense_trip_id_fkey" FOREIGN KEY ("trip_i
 ALTER TABLE "Expense" ADD CONSTRAINT "Expense_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Expense" ADD CONSTRAINT "place_id" FOREIGN KEY ("place_id") REFERENCES "Place"("place_id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Expense" ADD CONSTRAINT "Expense_place_id_fkey" FOREIGN KEY ("place_id") REFERENCES "Place"("place_id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Like" ADD CONSTRAINT "Like_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "Post"("post_id") ON DELETE RESTRICT ON UPDATE CASCADE;
