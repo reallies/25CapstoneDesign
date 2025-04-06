@@ -1,22 +1,24 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import ChatBot from "../components/ChatBot";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
-import {useNavigate } from 'react-router-dom';
 
-const Main = () => {
+const Home = () => {
   const [activeModal, setActiveModal] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState(""); 
+  const [destinationInput, setDestinationInput] = useState("");
+  const [selectedDestinations, setSelectedDestinations] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTheme, setSelectedTheme] = useState([]);
-  const [selectedPeople, setSelectedPeople] = useState({ 성인: 0, 청소년: 0, 어린이: 0, 동행유형: [] });
-  const [peopleStep, setPeopleStep] = useState(1);
+  const [selectedCompanions, setSelectedCompanions] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
   const [selectedMode, setSelectedMode] = useState("ai");
   const searchFieldRefs = useRef({});
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const alertShownRef = useRef(false);
 
   // AI / 직접 일정 핸들러
   const handleModeChange = (mode) => {
@@ -31,8 +33,26 @@ const Main = () => {
 
   // 여행지 선택 핸들러
   const handleSelectDestination = (region) => {
-    setSelectedDestination((prev) => (prev === region ? "" : region));
+    if (selectedDestinations.includes(region)) {
+      setSelectedDestinations(prev => prev.filter((r) => r !== region));
+    } else {
+      if (selectedDestinations.length >= 3) {
+        if (!alertShownRef.current) {
+          alertShownRef.current = true;
+          alert("최대 3개까지만 선택 가능합니다.");
+          setTimeout(() => {
+            alertShownRef.current = false;
+          }, 1000);
+        }
+        return;
+      }
+  
+      const updated = [...selectedDestinations, region];
+      setSelectedDestinations(updated);
+      setDestinationInput(updated.join(", "));
+    }
   };
+
 
   // 여행 테마 토글 핸들러
   const toggleTheme = (theme) => {
@@ -43,25 +63,12 @@ const Main = () => {
 
   // 동행 유형 토글 핸들러
   const toggleCompanion = (companion) => {
-    setSelectedPeople((prev) => {
-      const updatedType = prev.동행유형.includes(companion)
-        ? prev.동행유형.filter((item) => item !== companion)
-        : [...prev.동행유형, companion];
-
-      return { ...prev, 동행유형: updatedType };
-    });
-  };
-
-  // 날짜 변경 핸들러
-  const handleDateChange = (date) => {
-    setCalendarDate(date);
-  };
-
-  // 날짜 두 자리 숫자
-  const formatCalendarDay = (locale, date) => {
-    const day = date.getDate();
-    return day < 10 ? `0${day}` : `${day}`;
-  };
+    setSelectedCompanions((prev) =>
+      prev.includes(companion)
+        ? prev.filter((item) => item !== companion)
+        : [...prev, companion]
+    );
+  };  
 
   // 날짜 선택 확인
   const confirmDateSelection = () => {
@@ -77,14 +84,20 @@ const Main = () => {
 
   // 모달
   const openModal = (modalType, event) => {
-    if (event) {
-      const rect = event.target.getBoundingClientRect();
-      
-      let leftPos = rect.left + window.scrollX + rect.width / 2 - 175;
+    let rect;
+    if ((modalType === "destinationSearch" || modalType === "destination") && searchFieldRefs.current["destination"]) {
+      rect = searchFieldRefs.current["destination"].getBoundingClientRect();  // 무조건 search-field 기준으로
+    } else if (event) {
+      rect = event.target.getBoundingClientRect();
+    }
+  
+    if (rect) {
+      let leftPos = Math.floor(rect.left + window.scrollX + rect.width / 2 - 175);
       leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - 350 - 10));
   
       switch (modalType) {
         case "destination":
+        case "destinationSearch":
           setDestinationModalPosition({ top: 350, left: leftPos });
           break;
         case "date":
@@ -99,14 +112,12 @@ const Main = () => {
         default:
           break;
       }
-  
       setActiveModal(modalType);
     }
-  };
+  };  
   
   const closeModal = () => {
     setActiveModal(null);
-    setPeopleStep(1);
   };
 
   /* 여행 갤러리 데이터 */
@@ -157,15 +168,31 @@ const Main = () => {
           직접 짜기
         </button>
       </div>
+
         <div className="search-content">
-          <div 
-            className="search-field" 
-            ref={(el) => (searchFieldRefs.current["destination"] = el)}
-            onClick={(e) => openModal("destination", e)}
-          >
-            <span className="placeholder-text">여행지</span>
-            {selectedDestination && <span className="selected-text">{selectedDestination}</span>}
-          </div>
+        {/* 여행지 필드 */}
+        <div 
+          className="search-field" 
+          ref={(el) => (searchFieldRefs.current["destination"] = el)}
+          onClick={(e) => openModal("destination", e)}
+        >
+          <span className="placeholder-text">여행지</span>
+          <input
+          type="text"
+          value={destinationInput}
+          onClick={(e) => {
+            e.stopPropagation();
+            openModal("destination", e);
+          }}
+          onChange={(e) => {
+            const value = e.target.value;
+            setDestinationInput(value);
+            if (value.trim() !== "") {
+              openModal("destinationSearch", e);
+            }
+          }}
+        />
+        </div>
           <div 
             className="search-field"
             ref={(el) => (searchFieldRefs.current["date"] = el)}
@@ -188,24 +215,17 @@ const Main = () => {
             )}
           </div>
           <div className="search-field" onClick={(e) => openModal("people", e)}>
-            <span className="placeholder-text">동행 인원</span>
-            {Object.values(selectedPeople).some((count) => count > 0) && (
+            <span className="placeholder-text">동행 유형</span>
+            {selectedCompanions.length > 0 && (
               <span className="selected-text">
-                {selectedPeople.성인 > 0 ? `성인 ${selectedPeople.성인}명 ` : ""}
-                {selectedPeople.청소년 > 0 ? ` 청소년 ${selectedPeople.청소년}명 ` : ""}
-                {selectedPeople.어린이 > 0 ? ` 어린이 ${selectedPeople.어린이}명 ` : ""}
-                {selectedPeople.동행유형?.length > 0 && (
-                  <>
-                    <br />
-                    ({selectedPeople.동행유형.join(", ")})
-                  </>
-                )}
+                {selectedCompanions.join(", ")}
               </span>
             )}
           </div>
           <div 
-            className="schedule-button" 
-            onClick={() => navigate("/schedule")}
+            className="schedule-button"
+            onClick={() => navigate("/schedules")}
+            style={{ cursor: "pointer" }}
           >
             일정 만들기
           </div>
@@ -286,14 +306,63 @@ const Main = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
             <h2>여행 지역을 선택해 주세요</h2>
+            <h5 className="theme-subtitle">다중 선택 가능</h5>
             <div className="region-buttons">
-              {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"].map((region) => (
-                <button key={region} className={`region-btn ${selectedDestination === region ? "active" : ""}`} onClick={() => handleSelectDestination(region)}>
-                  {region}
-                </button>
+            {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "전북", "경남", "제주"].map((region) => (
+              <button
+                key={region}
+                className={`region-btn ${selectedDestinations.includes(region) ? "active" : ""}`}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setSelectedDestinations((prev) => {
+                    let updated;
+                    if (prev.includes(region)) {
+                      updated = prev.filter((r) => r !== region);
+                    } else {
+                      if (prev.length >= 3) {
+                        alert("최대 3개까지만 선택 가능합니다.");
+                        return prev;
+                      }
+                      updated = [...prev, region];
+                    }
+                    setDestinationInput(updated.join(", "));
+                    return updated;
+                  });
+                }}
+              >
+                {region}
+              </button>
+            ))}
+            </div>
+            <button className="close-btn" onClick={() => {
+              setDestinationInput(selectedDestinations.join(", "));
+              closeModal();
+            }}>완료</button>
+          </div>
+        </div>
+      )}
+      {activeModal === "destinationSearch" && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
+            <h2>검색 결과</h2>
+            <h5 className="theme-subtitle">다중 선택 가능</h5>
+            <div className="region-buttons">
+              {["영종도", "여수", "인천", "양양", "전주", "전남", "전국"]
+                .filter(region => region.includes(destinationInput))
+                .map((region) => (
+                  <button
+                    key={region}
+                    className={`region-btn ${selectedDestinations.includes(region) ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectDestination(region);
+                    }}
+                  >
+                    {region}
+                  </button>
               ))}
             </div>
-            <button className="close-btn" onClick={closeModal}>완료</button>
+            <button className="close-btn" onClick={closeModal}>닫기</button>
           </div>
         </div>
       )}
@@ -301,16 +370,36 @@ const Main = () => {
       {/* 여행 날짜 선택 모달 */}
       {activeModal === "date" && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" style={{ ...dateModalPosition }} onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal"
+            style={{ ...dateModalPosition }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2>여행 날짜를 선택해 주세요</h2>
             <Calendar
-              onChange={handleDateChange}
+              onChange={(date) => {
+                if (Array.isArray(date) && date.length === 2) {
+                  const start = date[0];
+                  const end = date[1];
+                  const diffInTime = end.getTime() - start.getTime();
+                  const diffInDays = diffInTime / (1000 * 3600 * 24);
+
+                  if (diffInDays > 7) {
+                    alert("여행 기간은 최대 7일까지 선택 가능합니다.");
+                    return;
+                  }
+                }
+                setCalendarDate(date);
+              }}
               value={calendarDate}
               minDate={new Date()}
               selectRange={true}
               locale="ko-KR"
               className="custom-calendar"
-              formatDay={formatCalendarDay}
+              formatDay={(locale, date) => {
+                const day = date.getDate();
+                return day < 10 ? `0${day}` : `${day}`;
+              }}
               maxDetail="month"
               view="month"
               defaultView="month"
@@ -339,44 +428,32 @@ const Main = () => {
         </div>
       )}
 
-      {/* 동행 인원 선택 모달 */}
+      {/* 동행 유형 선택 모달 */}
       {activeModal === "people" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...peopleModalPosition }} onClick={(e) => e.stopPropagation()}>
-            {peopleStep === 1 ? (
-              <>
-                <h2>동행 인원을 선택해 주세요</h2>
-                <div className="people-counter">
-                  {["성인", "청소년", "어린이"].map((type) => (
-                    <div key={type} className="people-row">
-                      <span className="people-type">{type}</span>
-                      <button className="counter-btn" onClick={() => setSelectedPeople((prev) => ({ ...prev, [type]: Math.max(0, prev[type] - 1) }))}>-</button>
-                      <span className="people-count">{selectedPeople[type]}</span>
-                      <button className="counter-btn" onClick={() => setSelectedPeople((prev) => ({ ...prev, [type]: prev[type] + 1 }))}>+</button>
-                    </div>
-                  ))}
-                </div>
-                <button className="next-btn" onClick={() => setPeopleStep(2)}>다음</button>
-              </>
-            ) : (
-              <>
-                <h2>동행 유형을 선택해 주세요</h2>
-                <h5 className="theme-subtitle">다중 선택 가능</h5>
-                <div className="people-options">
-                  {["혼자", "연인", "친구", "배우자", "부모님", "형제·자매", "회사·동료", "반려동물", "동호회·취미", "기타"].map((companion) => (
-                    <button key={companion} className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`} onClick={() => toggleCompanion(companion)}>
-                      {companion}
-                    </button>
-                  ))}
-                </div>
-                <button className="close-btn" onClick={closeModal}>완료</button>
-              </>
-            )}
+            <h2>동행 유형을 선택해 주세요</h2>
+            <h5 className="theme-subtitle">다중 선택 가능</h5>
+            <div className="people-options">
+              {["혼자", "연인", "친구", "배우자", "부모님", "형제·자매", "회사·동료", "반려동물", "동호회·취미", "기타"].map((companion) => (
+                <button
+                  key={companion}
+                  className={`companion-btn ${selectedCompanions.includes(companion) ? "active" : ""}`}
+                  onClick={() => toggleCompanion(companion)}
+                >
+                  {companion}
+                </button>
+              ))}
+            </div>
+            <button className="close-btn" onClick={closeModal}>완료</button>
           </div>
         </div>
       )}
+
+      <ChatBot />
+
     </div>
   );
 };
 
-export default Main;
+export default Home;
