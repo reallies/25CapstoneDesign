@@ -14,15 +14,15 @@ const NavigationBar = () => {
 
   return (
     <div className="navbar">
-      {/* 로고 */}
-      <div style={{ width: "200px", height: "auto" }}>
-      <img className="nav-logo" src={logo} alt="logo" style={{ width: "80%", height: "auto" }} />
+      {/* 로고 (클릭 시 홈으로 이동) */}
+      <div style={{ width: "200px", height: "auto", cursor: "pointer" }} onClick={() => navigate("/")}>
+        <img className="nav-logo" src={logo} alt="logo" style={{ width: "80%", height: "auto" }} />
       </div>
 
       {/* 네비게이션 메뉴 */}
       <div className="nav-menu">
         <span onClick={() => navigate("/")}>홈</span>
-        <span>여행 일정</span>
+        <span onClick={() => navigate("/schedules")}>여행 일정</span>
         <span>커뮤니티</span>
         <span>내 기록</span>
       </div>
