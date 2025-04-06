@@ -4,10 +4,12 @@ import back from  "../../assets/images/back.svg"
 import search2 from  "../../assets/images/search2.svg"
 import "./Schedule.css";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useNavigate } from "react-router-dom";
 
 export const Schedule = () => {
   const [activeDay, setActiveDay] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [days, setDays] = useState([
     {
       id: "day-1",
@@ -91,10 +93,10 @@ const toggleWeatherDropdown = () => {
         {/* 타이틀 */}
         <div className="div">
             <div className="title-wrap">
-            <div className="title">
-                <div className="title-subname">AI 일정과 함께하는</div>
-                <div className="title-name">전북 여행</div>
-            </div>
+              <div className="title">
+                  <div className="title-subname">AI 일정과 함께하는</div>
+                  <div className="title-name">전북 여행</div>
+              </div>
             <div className="title-edit">편집</div>
         </div>
 
@@ -105,9 +107,11 @@ const toggleWeatherDropdown = () => {
             <div className="tag">#군산시</div>
           </div>
           <div className="menu">
-            <div className="menu-item"><div className="menu-text">가계부</div></div>
-            <div className="menu-item"><div className="menu-text">초대</div></div>
-            <div className="menu-item"><div className="menu-text">내 기록</div></div>
+          <div className="menu-item" onClick={() => navigate("/expenses")}>
+            <div className="menu-text">가계부</div>
+          </div>
+          <div className="menu-item"><div className="menu-text">초대</div></div>
+          <div className="menu-item"><div className="menu-text">내 기록</div></div>
           </div>
         </div>
 
