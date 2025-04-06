@@ -404,11 +404,25 @@ const Main = () => {
                 <h2>동행 유형을 선택해 주세요</h2>
                 <h5 className="theme-subtitle">다중 선택 가능</h5>
                 <div className="people-options">
-                  {Object.keys(companionMap).map((companion) => (
-                    <button key={companion} className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`} onClick={() => toggleCompanion(companion)}>
-                      {companion}
-                    </button>
-                  ))}
+                  {Object.keys(companionMap).map((companion) => {
+                  const isAloneSelected = selectedPeople.동행유형.includes("혼자");
+                  const isOtherSelected = selectedPeople.동행유형.some((item) => item !== "혼자");
+
+                  const isDisabled =
+                    (isAloneSelected && companion !== "혼자") || (isOtherSelected && companion === "혼자");
+
+                      return (
+                        <button
+                          key={companion}
+                          className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`}
+                          onClick={() => !isDisabled && toggleCompanion(companion)}
+                          disabled={isDisabled}
+                          style={isDisabled ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+                        >
+                          {companion}
+                        </button>
+                      );
+                    })}
                 </div>
                 <button className="close-btn" onClick={closeModal}>완료</button>
           </div>

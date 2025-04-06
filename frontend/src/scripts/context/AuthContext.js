@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("로그인 상태 확인 실패:", error);
             setIsLoggedIn(false);
+            setUser(null);
         }
     };
 
@@ -78,7 +79,7 @@ export const AuthProvider = ({ children }) => {
         if (isLoggedIn === null) { 
             checkLoginStatus();
         }
-    }, []);
+    }, [isLoggedIn]);
 
     return (
         <AuthContext.Provider value={{ isLoggedIn, user, setIsLoggedIn, setUser }}>

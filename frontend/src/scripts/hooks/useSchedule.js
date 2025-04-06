@@ -191,7 +191,7 @@ export const useSchedule = (trip_id) => {
 
     useEffect(() => {
         if (trip_id) fetchTrip();
-    }, [trip_id]);
+    }, []);
 
     return {
         trip,
