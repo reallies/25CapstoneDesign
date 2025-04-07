@@ -1,15 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import map from "../../assets/images/map.svg";
-import back from  "../../assets/images/back.svg"
-import search2 from  "../../assets/images/search2.svg"
+import back from  "../../assets/images/back.svg";
+import search2 from  "../../assets/images/search2.svg";
 import "./Schedule.css";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useNavigate } from "react-router-dom";
+import InviteModal from "../components/InviteModal";
+import AddFriendModal from "../components/AddFriendModal";
 
 export const Schedule = () => {
   const [activeDay, setActiveDay] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const inviteModalRef = useRef(null);
+  const addModalRef = useRef(null);
+  const inviteButtonRef = useRef(null);;
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const invite = inviteModalRef.current;
+      const add = addModalRef.current;
+  
+      const clickedOutsideInvite = invite && !invite.contains(e.target);
+      const clickedOutsideAdd = add && !add.contains(e.target);
+  
+      // 친구 추가만 열려 있고 바깥 클릭일 때
+      if (isAddOpen && !isInviteOpen && clickedOutsideAdd) {
+        setIsAddOpen(false);
+        return;
+      }
+  
+      // 친구 목록만 열려 있고 바깥 클릭일 때
+      if (isInviteOpen && !isAddOpen && clickedOutsideInvite) {
+        setIsInviteOpen(false);
+        return;
+      }
+  
+      // 둘 다 열려 있고, 둘 다 바깥 클릭일 때만 닫기
+      if (
+        isAddOpen &&
+        isInviteOpen &&
+        clickedOutsideAdd &&
+        clickedOutsideInvite
+      ) {
+        setIsAddOpen(false);
+        setIsInviteOpen(false);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isAddOpen, isInviteOpen]);
+  
+  
+  
+
   const [days, setDays] = useState([
     {
       id: "day-1",
@@ -43,22 +90,6 @@ export const Schedule = () => {
     },
   ]);
 
-  const handleAddMemo = (dayIndex) => {
-    const newDays = [...days];
-    newDays[dayIndex].items.push({
-      id: `memo-${new Date().getTime()}`,
-      type: "memo",
-      content: "",
-    });
-    setDays(newDays);
-  };
-
-  const handleMemoChange = (dayIndex, itemIndex, value) => {
-    const newDays = [...days];
-    newDays[dayIndex].items[itemIndex].content = value;
-    setDays(newDays);
-  };
-
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
@@ -77,16 +108,15 @@ export const Schedule = () => {
     }
   };
 
-const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
-const handleCloseModal = () => setIsModalOpen(false);
-const [searchText, setSearchText] = useState("");
-const [isFocused, setIsFocused] = useState(false);
-const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
+  const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
+  const handleCloseModal = () => setIsModalOpen(false);
+  const [searchText, setSearchText] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
 
-const toggleWeatherDropdown = () => {
-  setIsWeatherDropdownOpen(prev => !prev);
-};
-
+  const toggleWeatherDropdown = () => {
+    setIsWeatherDropdownOpen(prev => !prev);
+  };
 
   return (
     <div className="schedule">
@@ -107,12 +137,37 @@ const toggleWeatherDropdown = () => {
             <div className="tag">#군산시</div>
           </div>
           <div className="menu">
-          <div className="menu-item" onClick={() => navigate("/expenses")}>
-            <div className="menu-text">가계부</div>
+            <div className="menu-item" onClick={() => navigate("/expenses")}>
+              <div className="menu-text">가계부</div>
+            </div>
+            <div className="menu-item" onClick={() => setIsInviteOpen(true)} ref={inviteButtonRef}>
+              <div className="menu-text">초대</div>
+            </div>
+            <div className="menu-item">
+              <div className="menu-text">내 기록</div>
+            </div>
           </div>
-          <div className="menu-item"><div className="menu-text">초대</div></div>
-          <div className="menu-item"><div className="menu-text">내 기록</div></div>
-          </div>
+
+          {/* 초대 모달 */}
+          {isInviteOpen && (
+            <InviteModal
+              // 친구 목록 모달 닫을 때 친구 추가 모달도 같이 닫음
+              onClose={() => {
+                setIsInviteOpen(false);
+                setIsAddOpen(false); // ← 조건 없이 그냥 같이 닫는 게 더 안전하고 직관적
+              }}
+              onAddFriendClick={() => setIsAddOpen(true)}
+              modalRef={inviteModalRef}
+            />
+          )}
+          {/* 친구 추가 모달 */}
+          {isAddOpen && (
+            <AddFriendModal
+            onClose={() => setIsAddOpen(false)}
+            anchorRef={inviteModalRef}
+            modalRef={addModalRef}
+          />      
+          )}
         </div>
 
         {/* 날씨 */}
@@ -184,36 +239,20 @@ const toggleWeatherDropdown = () => {
                                   {day.items.map((item, itemIndex) => (
                                     <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
                                       {(provided) => (
-                                        item.type === "place" ? (
-                                          <div className="schedule-item"
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                          >
-                                            <div className="item-number">
-                                              {day.items.filter(it => it.type === "place").indexOf(item) + 1}
-                                            </div>
-                                            <div className="item-content">
-                                              <div className="place-type">{item.placeType}</div>
-                                              <div className="place-name">{item.name}</div>
-                                            </div>
-                                            <div className="item-drag">≡</div>
+                                        <div className="schedule-item"
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                        >
+                                          <div className="item-number">
+                                            {day.items.filter(it => it.type === "place").indexOf(item) + 1}
                                           </div>
-                                        ) : (
-                                          <div className="memo-item"
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                          >
-                                            <textarea
-                                              className="memo-input"
-                                              placeholder="메모 입력란"
-                                              value={item.content}
-                                              onChange={(e) => handleMemoChange(days.indexOf(day), itemIndex, e.target.value)}
-                                            />
-                                            <div className="item-drag">≡</div>
+                                          <div className="item-content">
+                                            <div className="place-type">{item.placeType}</div>
+                                            <div className="place-name">{item.name}</div>
                                           </div>
-                                        )
+                                          <div className="item-drag">≡</div>
+                                        </div>
                                       )}
                                     </Draggable>
                                   ))}
@@ -223,8 +262,7 @@ const toggleWeatherDropdown = () => {
                             </Droppable>
 
                             <div className="add-buttons">
-                            <div className="action-btn" onClick={() => setIsModalOpen(true)}>장소 추가</div>
-                              <div className="action-btn" onClick={() => handleAddMemo(days.indexOf(day))}>메모 추가</div>
+                              <div className="action-btn" onClick={() => setIsModalOpen(true)}>장소 추가</div>
                             </div>
                           </div>
                         )}
