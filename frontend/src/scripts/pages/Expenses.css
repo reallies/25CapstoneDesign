@@ -125,7 +125,7 @@
   background: white;
   border-radius: 18px;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 10px #00000040;
   flex: 1;
   min-width: 300px;
 }
@@ -137,7 +137,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 10px #00000040;
   border-radius: 18px;
   background-color: white;
 }
@@ -275,7 +275,7 @@
 /* 정산 영수증 */
 .receipt-box {
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 10px #00000040;
   border-radius: 18px;
   background-color: white;
   display: flex;
@@ -402,7 +402,7 @@
   background: white;
   border-radius: 18px;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 10px #00000040;
   display: flex;
   justify-content: space-between;
   margin-bottom: 30px;
@@ -555,4 +555,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 가계부 화면에서만 모달 위치 조정 */
+.expenses .invite-modal {
+  top: 210px !important; /* ← 원하는 위치로 조절 */
+}
+
+.expenses .add-friend-modal {
+  top: 210px !important; /* ← 오른쪽 모달도 동일하게 조절 */
 }

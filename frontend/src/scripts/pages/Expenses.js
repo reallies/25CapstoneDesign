@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Expenses.css";
+import InviteModal from "../components/InviteModal";
+import AddFriendModal from "../components/AddFriendModal";
 
 // SVG 아이콘 import
 import { ReactComponent as Eat } from "../../assets/images/eat.svg";
@@ -15,27 +17,48 @@ export const Expenses = () => {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [activeDay, setActiveDay] = useState("DAY 1");
 
-  const toggleReceipt = () => {
-    setIsReceiptOpen(!isReceiptOpen);
-  };
+  // ✅ 모달 상태 및 ref 추가
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const inviteModalRef = useRef(null);
+  const addModalRef = useRef(null);
+
+  const toggleReceipt = () => setIsReceiptOpen(!isReceiptOpen);
 
   const days = [
-    "여행 준비",
-    "DAY 1",
-    "DAY 2",
-    "DAY 3",
-    "DAY 4",
-    "DAY 5",
-    "DAY 6",
-    "DAY 7",
+    "여행 준비", "DAY 1", "DAY 2", "DAY 3", "DAY 4", "DAY 5", "DAY 6", "DAY 7"
   ];
+
+  // ✅ 바깥 클릭 시 모달 닫기 처리
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const invite = inviteModalRef.current;
+      const add = addModalRef.current;
+      const outsideInvite = invite && !invite.contains(e.target);
+      const outsideAdd = add && !add.contains(e.target);
+
+      if (isAddOpen && !isInviteOpen && outsideAdd) {
+        setIsAddOpen(false);
+        return;
+      }
+      if (isInviteOpen && !isAddOpen && outsideInvite) {
+        setIsInviteOpen(false);
+        return;
+      }
+      if (isAddOpen && isInviteOpen && outsideAdd && outsideInvite) {
+        setIsAddOpen(false);
+        setIsInviteOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isInviteOpen, isAddOpen]);
 
   return (
     <div className="expenses">
       <div className="div">
-        {/* 상단 3열 구조 */}
+        {/* 상단 영역 */}
         <div className="expense-header-row">
-          {/* 타이틀 */}
           <div className="expense-header">
             <div className="expense-title-sub">AI 일정과 함께하는</div>
             <div className="travel-title-wrap">
@@ -50,15 +73,18 @@ export const Expenses = () => {
             </div>
 
             <div className="expense-menu">
-              <Link to="/expenses" className="expense-menu-item">
-                가계부
-              </Link>
-              <div className="expense-menu-item">초대</div>
+              <Link to="/expenses" className="expense-menu-item">가계부</Link>
+              <div
+                className="expense-menu-item"
+                onClick={() => setIsInviteOpen(true)} // ✅ 모달 열기
+              >
+                초대
+              </div>
               <div className="expense-menu-item">내 기록</div>
             </div>
           </div>
 
-          {/* 공동경비 */}
+          {/* 공동 경비 박스 */}
           <div className="shared-expense-box expense-card">
             <div className="shared-settle-wrapper">
               <button className="shared-settle-btn">정산하기</button>
@@ -90,7 +116,6 @@ export const Expenses = () => {
               <span className="receipt-title">정산 영수증</span>
               <span className="receipt-toggle" onClick={toggleReceipt}>
                 {isReceiptOpen ? "닫기" : "펼쳐보기"}
-                {/* 회전 애니메이션 적용 */}
                 <span className={`dropdown-arrow ${isReceiptOpen ? "rotate" : ""}`}>∨</span>
               </span>
             </div>
@@ -103,6 +128,7 @@ export const Expenses = () => {
               </div>
               <div className="receipt-amount">33,333원</div>
             </div>
+
             {isReceiptOpen && (
               <div className="receipt-detail">
                 <div className="receipt-detail-title">친구별 지출 상세</div>
@@ -125,6 +151,28 @@ export const Expenses = () => {
           </div>
         </div>
 
+        {/* ✅ 조건부 렌더링된 모달들 (중복 제거됨) */}
+        {isInviteOpen && (
+          <InviteModal
+            onClose={() => {
+              setIsInviteOpen(false);
+              setIsAddOpen(false);
+            }}
+            onAddFriendClick={() => setIsAddOpen(true)}
+            modalRef={inviteModalRef}
+            className="expenses-modal" // ✅ 위치 커스터마이징 가능
+          />
+        )}
+
+        {isAddOpen && (
+          <AddFriendModal
+            onClose={() => setIsAddOpen(false)}
+            anchorRef={inviteModalRef}
+            modalRef={addModalRef}
+            className="expenses-modal" // ✅ 위치 커스터마이징 가능
+          />
+        )}
+
         {/* DAY 탭 */}
         <div className="expense-days">
           {days.map((day) => (
@@ -138,33 +186,15 @@ export const Expenses = () => {
           ))}
         </div>
 
-        {/* 지출 리스트와 입력 */}
+        {/* 지출 영역 */}
         <div className="expense-list">
-          {/* 왼쪽 리스트 */}
           <div className="expense-category-list">
-            <div className="expense-item">
-              <div className="expense-icon eat"><Eat /></div>
-              식비
-              <div className="expense-cost">-30,000원</div>
-            </div>
-            <div className="expense-item">
-              <div className="expense-icon sightseeing"><Sightseeing /></div>
-              관광
-              <div className="expense-cost">-40,000원</div>
-            </div>
-            <div className="expense-item">
-              <div className="expense-icon traffic"><Traffic /></div>
-              교통
-              <div className="expense-cost">-5,000원</div>
-            </div>
-            <div className="expense-item">
-              <div className="expense-icon shopping"><Shopping /></div>
-              쇼핑
-              <div className="expense-cost">-25,000원</div>
-            </div>
+            <div className="expense-item"><div className="expense-icon eat"><Eat /></div>식비<div className="expense-cost">-30,000원</div></div>
+            <div className="expense-item"><div className="expense-icon sightseeing"><Sightseeing /></div>관광<div className="expense-cost">-40,000원</div></div>
+            <div className="expense-item"><div className="expense-icon traffic"><Traffic /></div>교통<div className="expense-cost">-5,000원</div></div>
+            <div className="expense-item"><div className="expense-icon shopping"><Shopping /></div>쇼핑<div className="expense-cost">-25,000원</div></div>
           </div>
 
-          {/* 오른쪽 입력 영역 */}
           <div className="expense-input-form">
             <label>지출비용</label>
             <input className="expense-input" type="number" placeholder="0" />
@@ -172,35 +202,13 @@ export const Expenses = () => {
             <input className="expense-input" type="text" placeholder="내용 입력하기" />
             <label>카테고리</label>
             <div className="expense-category-select">
-              {/* 아이콘 + 텍스트 분리 구조 */}
-              <div className="category-wrapper">
-                <div className="category-option traffic"><Traffic /></div>
-                <span className="category-label">교통</span>
-              </div>
-              <div className="category-wrapper">
-                <div className="category-option eat"><Eat /></div>
-                <span className="category-label">식비</span>
-              </div>
-              <div className="category-wrapper">
-                <div className="category-option lodging"><Lodging /></div>
-                <span className="category-label">숙박</span>
-              </div>
-              <div className="category-wrapper">
-                <div className="category-option sightseeing"><Sightseeing /></div>
-                <span className="category-label">관광</span>
-              </div>
-              <div className="category-wrapper">
-                <div className="category-option activity"><Activity /></div>
-                <span className="category-label">액티비티</span>
-              </div>
-              <div className="category-wrapper">
-                <div className="category-option shopping"><Shopping /></div>
-                <span className="category-label">쇼핑</span>
-              </div>
-              <div className="category-wrapper">
-                <div className="category-option etc"><Etc /></div>
-                <span className="category-label">기타</span>
-              </div>
+              <div className="category-wrapper"><div className="category-option traffic"><Traffic /></div><span className="category-label">교통</span></div>
+              <div className="category-wrapper"><div className="category-option eat"><Eat /></div><span className="category-label">식비</span></div>
+              <div className="category-wrapper"><div className="category-option lodging"><Lodging /></div><span className="category-label">숙박</span></div>
+              <div className="category-wrapper"><div className="category-option sightseeing"><Sightseeing /></div><span className="category-label">관광</span></div>
+              <div className="category-wrapper"><div className="category-option activity"><Activity /></div><span className="category-label">액티비티</span></div>
+              <div className="category-wrapper"><div className="category-option shopping"><Shopping /></div><span className="category-label">쇼핑</span></div>
+              <div className="category-wrapper"><div className="category-option etc"><Etc /></div><span className="category-label">기타</span></div>
             </div>
             <button className="add-expense-btn">추가하기</button>
           </div>
