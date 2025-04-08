@@ -1,0 +1,133 @@
+/* 전체 페이지 레이아웃 설정 */
+.myschedule-wrapper {
+    max-width: 1080px;
+    margin: 60px auto;
+    padding: 0 20px;
+    font-family: "SUITE", sans-serif;
+}
+  
+/* 상단 헤더: 타이틀 + 일정 만들기 버튼 */
+.myschedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    margin-top: -40px;
+}
+  
+.myschedule-title {
+    font-size: 40px;
+    font-weight: 600;
+}
+
+.myschedule-create-btn {
+    background-color: #00b4b4;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-size: 16px;
+    cursor: pointer;
+}
+  
+/* 정렬 버튼 (최근순 / 오래된순) */
+.myschedule-sort-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+  
+.sort-btn {
+    padding: 8px 16px;
+    background-color: transparent;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 20px;
+}
+  
+.sort-btn.active {
+    background-color: #00b4b4;
+    color: white;
+    font-weight: 600;
+}
+  
+/* 일정 카드 리스트 전체 영역 */
+.myschedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+  
+/* 개별 일정 카드 스타일 */
+.schedule-card {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #00000040;
+    padding: 20px;
+}
+  
+/* 이미지 대신 회색 도형 */
+.schedule-placeholder {
+    width: 120px;
+    height: 120px;
+    background-color: #ddd;
+    border-radius: 12px;
+    margin-right: 24px;
+}
+  
+/* 텍스트 정보 영역 */
+.schedule-info {
+    flex: 1;
+}
+  
+.schedule-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+  
+.schedule-tags {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+  
+.schedule-tag {
+    background-color: #717171;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    color: #ffffff;
+}
+  
+.schedule-date {
+    font-size: 14px;
+    color: #717171;
+}
+  
+/* 버튼 그룹: 자세히 보기 / 삭제하기 */
+.schedule-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+  
+.view-btn,
+.delete-btn {
+    padding: 8px 30px;
+    border: 1px solid #CFCFCF;
+    border-radius: 10px;
+    background-color: white;
+    cursor: pointer;
+    color: #717171;
+    font-size: 14px;
+}
+  
+.view-btn:hover,
+.delete-btn:hover {
+    background-color: #f6f6f6;
+}
