@@ -1,0 +1,127 @@
+/* 모달 전체 배경 */
+.settleup-modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  /* 모달 박스 스타일 */
+  .settleup-modal-box {
+    background-color: #f8f8f8;
+    border-radius: 24px;
+    padding: 30px 40px;
+    width: 420px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'SUITE', sans-serif;
+    position: relative;
+  }
+  
+  /* 닫기 버튼 */
+  .settleup-close-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    font-size: 20px;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* 제목 */
+  .settleup-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  /* 총 금액 */
+  .settleup-amount {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+  
+  /* 서브 텍스트 */
+  .settleup-sub {
+    font-size: 15px;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 12px;
+  }
+  
+  /* 친구 리스트 영역 */
+  .settleup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  
+  /* 개별 친구 행 */
+  .settleup-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+  
+  .settleup-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #ccc;
+    border-radius: 50%;
+  }
+  
+  .settleup-name {
+    flex: 1;
+    margin-left: 12px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  
+  .settleup-value {
+    font-size: 14px;
+    margin-right: 12px;
+  }
+  
+  .settleup-select-btn {
+    background-color: #eee;
+    color: #555;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .settleup-select-btn.active {
+    background-color: #00b4b4;
+    color: white;
+    font-weight: bold;
+  }
+  
+  /* 확인 버튼 */
+  .settleup-confirm-btn {
+    width: 100%;
+    background-color: #00b4b4;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
