@@ -12,16 +12,16 @@
 
 > **여행 준비, SLAY와 함께면 충분해요.** 
 
-AI 여행지 추천부터 일정 · 지출 관리까지! 
+AI 여행지 추천부터 일정 · 지출 관리까지!  
 복잡한 과정을 간단하게 만들어주는 여행 전용 웹 플랫폼 **SLAY**
 
 ---
 
 ## 📋 주요 기능 한눈에 보기
 
-> 복잡한 앱 전전은 그만, 
-> **더 간편하게, 더 똑똑하게, 더 즐겁게** 
-> **SLAY**와 함께 가뿐한 여행을 시작하세요. 
+> 복잡한 앱 전전은 그만,  
+> **더 간편하게, 더 똑똑하게, 더 즐겁게**  
+> **SLAY**와 함께 가뿐한 여행을 시작하세요.
 
 ### ✔️ 핵심 기능
 
@@ -85,12 +85,12 @@ AI 여행지 추천부터 일정 · 지출 관리까지!
 
 ## 👥 팀 소개
 
-| Profile                                                      | Name     | Role                                 | Contact                                                      |
-| ------------------------------------------------------------ | -------- | ------------------------------------ | ------------------------------------------------------------ |
-| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑오현석 | Backend Developer                    | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
-| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수   | UX/UI · Frontend / Developer         | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
-| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현   | Backend Developer / Database Manager | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
-| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환   | External API Integrator / Deployment Manager                   | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
+| Profile                                                      | Name     | Role                                         | Contact                                                      |
+| ------------------------------------------------------------ | -------- | -------------------------------------------- | ------------------------------------------------------------ |
+| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑 오현석 | Backend Developer                            | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
+| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수   | UX/UI · Frontend / Developer                 | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
+| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현   | Backend Developer / Database Manager         | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
+| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환   | External API Integrator / Deployment Manager | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
 
 ---
 
