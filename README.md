@@ -1,8 +1,8 @@
-# 🧭 Travel Scheduler & Recommender
+# 🧭 Travel Scheduler & Recommender - Team SLAY
 
 ### 🏫 2025년 1학기 캡스톤디자인
 
-> 팀 SLAY | 맞춤형 여행 일정 추천 & 공유 플랫폼
+> 맞춤형 여행 일정 추천 & 공유 플랫폼
 
 ![Thumbnail](docs/Thumbnail.png)
 
