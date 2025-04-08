@@ -3,7 +3,7 @@ const tripController = require("../controller/scheduleController");
 const {authenticateJWT} =require("../middleware/authMiddleware");
 
 const router = express.Router();
-//7. 저장된 여행 일정 불러오기 -- 2.번 라우트보다 앞으로 와야함
+//7. 저장된 여행 일정 불러오기 - 2.번 라우트보다 앞으로 와야함
 router.get("/myTrips",authenticateJWT, tripController.getMytripsController);
 
 //1. 여행 생성
@@ -22,7 +22,9 @@ router.patch("/:trip_id/reorderPlace",authenticateJWT, tripController.reorderPla
 router.patch("/:trip_id/reorderDay",authenticateJWT, tripController.reorderDayController);
 
 //6. 장소 삭제
-router.delete("/:trip_id/day/:day_id/place/:place_id",authenticateJWT, tripController.deletePlaceFromDayController);
+router.delete("/:trip_id/day/:day_id/dayplace/:dayplace_id",authenticateJWT, tripController.deletePlaceController);
 
+//8. 여행 삭제
+router.delete("/:trip_id", authenticateJWT, tripController.deleteTripController)
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import deleteIcon from "../../assets/images/delete.svg";
 
 const MyTrips = () => {
   const [trips, setTrips] = useState([]);
@@ -12,9 +13,7 @@ const MyTrips = () => {
         credentials: "include",
       });
       const data = await res.json();
-      if (res.ok && data.trips) {
-        setTrips(data.trips);
-      }
+      setTrips(data.trips);
     } catch (err) {
       console.error("여행 목록 불러오기 실패:", err);
     }
@@ -27,6 +26,18 @@ const MyTrips = () => {
   const handleTripClick = (tripId) => {
     navigate(`/schedule/${tripId}`);
   };
+
+  const handleDeleteTrip = async (tripId) =>{
+    try {
+      await fetch(`http://localhost:8080/schedule/${tripId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      setTrips((prev) => prev.filter((trip) => trip.trip_id !== tripId));
+    } catch (err) {
+      console.error("여행 삭제 중 에러:", err);
+    }
+  }
 
   if (trips.length === 0) return <div>생성한 여행이 없습니다.</div>;
 
@@ -47,6 +58,7 @@ const MyTrips = () => {
             onClick={() => handleTripClick(trip.trip_id)}
           >
             <h3>{trip.title}</h3> {/* 여행 제목만 출력 */}
+            <img src={deleteIcon} alt="여행삭제" onClick={(e)=>{e.stopPropagation(); handleDeleteTrip(trip.trip_id) }}/>
           </div>
         ))}
       </div>

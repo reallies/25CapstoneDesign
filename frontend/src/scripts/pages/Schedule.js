@@ -5,6 +5,7 @@ import { useSchedule } from "../hooks/useSchedule";
 import map from "../../assets/images/map.svg";
 import back from "../../assets/images/back.svg";
 import search2 from "../../assets/images/search2.svg";
+import deleteIcon from "../../assets/images/delete.svg"
 import "./Schedule.css";
 
 const Schedule = () => {
@@ -20,6 +21,7 @@ const Schedule = () => {
     handleAddMemo,
     handleMemoChange,
     onDragEnd,
+    handleDeletePlace,
   } = useSchedule(trip_id);
 
   const [searchText, setSearchText] = useState("");
@@ -176,6 +178,7 @@ const Schedule = () => {
                                               <div className="place-type">{item.placeType}</div>
                                               <div className="place-name">{item.name}</div>
                                             </div>
+                                            <img src = {deleteIcon} alt="삭제" className="delete-icon" onClick={()=> handleDeletePlace(day.id, item.dayPlaceId)} />
                                             <div className="item-drag">≡</div>
                                           </div>
                                         )}

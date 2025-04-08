@@ -8,91 +8,92 @@ export const useSchedule = (trip_id) => {
     // 여행 정보 불러오기
     const fetchTrip = async () => {
         try {
-        const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
-            credentials: "include",
-        });
-        const data = await res.json();
-        if (res.ok && data.trip) {
-            setTrip(data.trip);
-
-            const convertedDays = data.trip.days
-            .sort((a, b) => a.day_order - b.day_order)
-            .map((day, index) => {
-                const tripStartDate = new Date(data.trip.start_date);
-                const calculatedDate = new Date(tripStartDate);
-                calculatedDate.setDate(tripStartDate.getDate() + (day.day_order - 1));
-
-                return {
-                id: `day-${day.day_id}`,
-                date: `| ${calculatedDate.getFullYear()}.${String(calculatedDate.getMonth() + 1).padStart(2, "0")}.${String(calculatedDate.getDate()).padStart(2, "0")}` +
-                    ` - ${calculatedDate.toLocaleDateString("ko-KR", { weekday: "short" })}`,
-                color: ["red", "orange", "purple"][index % 3],
-                items: day.places
-                    .sort((a, b) => a.dayplace_order - b.dayplace_order)
-                    .map((p) => ({
-                    id: `item-${p.dayplace_id}`,
-                    dayPlaceId: p.dayplace_id,
-                    type: "place",
-                    placeType: p.place_type || "관광명소",
-                    name: p.place.place_name,
-                    })),
-                };
+            const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+                credentials: "include",
             });
+            const data = await res.json();
+            if (res.ok && data.trip) {
+                setTrip(data.trip);
 
-            setDays(convertedDays);
-        }
+                const convertedDays = data.trip.days
+                .sort((a, b) => a.day_order - b.day_order)
+                .map((day, index) => {
+                    const tripStartDate = new Date(data.trip.start_date);
+                    const calculatedDate = new Date(tripStartDate);
+                    calculatedDate.setDate(tripStartDate.getDate() + (day.day_order - 1));
+
+                    return {
+                    id: `day-${day.day_id}`,
+                    date: `| ${calculatedDate.getFullYear()}.${String(calculatedDate.getMonth() + 1).padStart(2, "0")}.${String(calculatedDate.getDate()).padStart(2, "0")}` +
+                        ` - ${calculatedDate.toLocaleDateString("ko-KR", { weekday: "short" })}`,
+                    color: ["red", "orange", "purple"][index % 3],
+                    items: day.places
+                        .sort((a, b) => a.dayplace_order - b.dayplace_order)
+                        .map((p) => ({
+                        id: `item-${p.dayplace_id}`,
+                        dayPlaceId: p.dayplace_id,
+                        type: "place",
+                        placeType: p.place_type || "관광명소",
+                        name: p.place.place_name,
+                        })),
+                    };
+                });
+                setDays(convertedDays);
+            }
         } catch (err) {
-        console.error("여행 정보를 불러오지 못함:", err);
+            console.error("여행 정보를 불러오지 못함:", err);
         }
     };
 
+    //장소 추가
     const handlePlaceSelect = async (dayIndex, place, setIsModalOpen) => {
         const day = days[dayIndex];
         const dayId = Number(day.id.replace("day-", ""));
 
         try {
-        const res = await fetch(`http://localhost:8080/schedule/${trip_id}/day/${dayId}/place`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-            kakao_place_id: place.kakao_place_id,
-            place_name: place.place_name,
-            place_address: place.place_address,
-            place_latitude: place.latitude,
-            place_longitude: place.longitude,
-            place_image_url: place.image_url || "",
-            place_star: place.place_star,
-            place_call_num: place.call,
-            }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.data) {
-            const newDays = [...days];
-            newDays[dayIndex].items.push({
-            id: `item-${data.data.dayPlace.dayplace_id}`,
-            dayPlaceId: data.data.dayPlace.dayplace_id,
-            type: "place",
-            name: data.data.place.place_name,
-            placeType: "관광명소",
+            const res = await fetch(`http://localhost:8080/schedule/${trip_id}/day/${dayId}/place`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                kakao_place_id: place.kakao_place_id,
+                place_name: place.place_name,
+                place_address: place.place_address,
+                place_latitude: place.latitude,
+                place_longitude: place.longitude,
+                place_image_url: place.image_url || "",
+                place_star: place.place_star,
+                place_call_num: place.call,
+                }),
             });
-            setDays(newDays);
-            setIsModalOpen(false);
-        }
+
+            const data = await res.json();
+
+            if (res.ok && data.data) {
+                const newDays = [...days];
+                newDays[dayIndex].items.push({
+                id: `item-${data.data.dayPlace.dayplace_id}`,
+                dayPlaceId: data.data.dayPlace.dayplace_id,
+                type: "place",
+                name: data.data.place.place_name,
+                placeType: "관광명소",
+                });
+                setDays(newDays);
+                setIsModalOpen(false);
+            }
         } catch (err) {
-        console.error("장소 추가 실패:", err);
+            console.error("장소 추가 실패:", err);
         }
     };
 
+    //메모추가
     const handleAddMemo = (dayIndex) => {
         const newDays = [...days];
         newDays[dayIndex].items.push({
-        id: `memo-${Date.now()}`,
-        type: "memo",
-        content: "",
-        });
+            id: `memo-${Date.now()}`,
+            type: "memo",
+            content: "",
+            });
         setDays(newDays);
     };
 
@@ -104,6 +105,7 @@ export const useSchedule = (trip_id) => {
 
     const extractDayId = (id) => id.replace(/-place|-memo/, "");
 
+    //메모 드래그
     const handleMemoDragEnd = (result) => {
         const { source, destination } = result;
         const sourceDayIndex = days.findIndex((d) => d.id === extractDayId(source.droppableId));
@@ -115,6 +117,7 @@ export const useSchedule = (trip_id) => {
         setDays(newDays);
     };
 
+    //날짜 드래그
     const handleDayDragEnd = async (result) => {
         const { source, destination } = result;
         const newDays = [...days];
@@ -123,21 +126,22 @@ export const useSchedule = (trip_id) => {
         setDays(newDays);
 
         try {
-        await fetch(`http://localhost:8080/schedule/${trip_id}/reorderDay`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-            previous: source.index,
-            present: destination.index,
-            }),
-        });
-        await fetchTrip();
+            await fetch(`http://localhost:8080/schedule/${trip_id}/reorderDay`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                previous: source.index,
+                present: destination.index,
+                }),
+            });
+            await fetchTrip();
         } catch (error) {
-        console.error("DAY 순서 변경 실패:", error);
+            console.error("DAY 순서 변경 실패:", error);
         }
     };
 
+    //장소 드래그
     const handlePlaceDragEnd = async (result) => {
         const { source, destination } = result;
         const sourceDayIndex = days.findIndex((d) => d.id === extractDayId(source.droppableId));
@@ -149,24 +153,24 @@ export const useSchedule = (trip_id) => {
         setDays(newDays);
 
         try {
-        await fetch(`http://localhost:8080/schedule/${trip_id}/reorderPlace`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-            previous: {
-                day_id: Number(days[sourceDayIndex].id.replace("day-", "")),
-                dayplace_id: movedItem.dayPlaceId,
-            },
-            present: {
-                day_id: Number(days[destDayIndex].id.replace("day-", "")),
-                dayplace_order: destination.index + 1,
-            },
-            }),
-        });
-        await fetchTrip();
+            await fetch(`http://localhost:8080/schedule/${trip_id}/reorderPlace`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                previous: {
+                    day_id: Number(days[sourceDayIndex].id.replace("day-", "")),
+                    dayplace_id: movedItem.dayPlaceId,
+                },
+                present: {
+                    day_id: Number(days[destDayIndex].id.replace("day-", "")),
+                    dayplace_order: destination.index + 1,
+                },
+                }),
+            });
+            await fetchTrip();
         } catch (error) {
-        console.error("PLACE 순서 변경 실패:", error);
+            console.error("PLACE 순서 변경 실패:", error);
         }
     };
 
@@ -189,9 +193,36 @@ export const useSchedule = (trip_id) => {
         }
     };
 
+    //장소 삭제
+    const handleDeletePlace = async (dayId,dayPlaceId) => {
+        const numericDayId = Number(dayId.replace("day-", ""));
+
+        setDays((prevDays) => {
+            return prevDays.map((day) => {
+              if (day.id === dayId) {
+                return {
+                  ...day,
+                  items: day.items.filter((item) => item.dayPlaceId  !== dayPlaceId),
+                };
+              }
+              return day;
+            });
+        });
+
+        try {
+            await fetch(`http://localhost:8080/schedule/${trip_id}/day/${numericDayId}/dayplace/${dayPlaceId}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("PLACE 삭제 실패:", error);
+        }
+    }
+
     useEffect(() => {
         if (trip_id) fetchTrip();
-    }, []);
+    }, [trip_id]);
 
     return {
         trip,
@@ -207,5 +238,6 @@ export const useSchedule = (trip_id) => {
         handleDayDragEnd,
         handlePlaceDragEnd,
         onDragEnd,
+        handleDeletePlace,
     }
 };

@@ -1,6 +1,6 @@
 const tripService = require("../services/scheduleService");
 
-// 1. 여행 추가 컨트롤러
+//1. 여행 생성 컨트롤러
 async function createTripController(req,res){
     try {
         const userId = req.user.user_id; //user_id 가져옴
@@ -15,7 +15,7 @@ async function createTripController(req,res){
     }
 }
 
-// 2. tripId로 여행정보 접근 컨트롤러
+//2. 여행 정보 조회 컨트롤러
 async function getTripIdController(req,res){
     try {
         const {trip_id} = req.params;
@@ -30,7 +30,7 @@ async function getTripIdController(req,res){
     }
 }
 
-//3. Day별 장소 추가 컨트롤러
+//3. 특정 Day에 장소 추가 컨트롤러
 async function addPlaceToDayController(req,res){
     try {
         const {day_id} = req.params;
@@ -74,34 +74,40 @@ async function reorderDayController(req,res){
 }
 
 //6. day별 장소 삭제 컨트롤러
-async function deletePlaceFromDayController(req, res) {
+async function deletePlaceController(req, res) {
     try {
-      const { day_id, place_id } = req.params;
+        const { dayplace_id } = req.params;
+        const result = await tripService.deletePlaceService(Number(dayplace_id));
   
-      const result = await tripService.deletePlaceFromDayService(Number(day_id), Number(place_id));
-  
-      return res.status(200).json({ success: true, data: result });
+        return res.status(200).json({ success: true, data: result });
     } catch (error) {
-      console.error("deletePlaceFromDayController 중 에러:", error);
-      return res.status(500).json({ message: "장소 삭제 실패", error });
+        console.error("deletePlaceService 중 에러:", error);
     }
 }
 
-//7. 저장된 여행 일정 불러오기
+//7.저장된 여행 일정 불러오기 컨트롤러
 async function getMytripsController(req, res) {
     try {
       const user_id = req.user.user_id;
       const trips = await tripService.getMyTripsService(user_id);
   
-      res.json({ success: true, trips }); // key 이름을 front와 맞춰줘
+      res.json({ success: true, trips });
     } catch (error) {
-      console.error("getMyTripsController 에러:", error);
-      res.status(500).json({
-        success: false,
-        message: "여행 목록을 불러오지 못했습니다",
-      });
+        console.error("getMyTripsController 에러:", error);
     }
-  }
+}
+
+// 8. 여행삭제 컨트롤러
+async function deleteTripController(req,res){
+    try {
+        const { trip_id } = req.params;
+        const result = await tripService.deleteTripService(trip_id);
+    
+        return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        console.error("deleteTripController 중 에러", error);
+    }
+}
 
 
-module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceFromDayController, getMytripsController};
+module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController};
