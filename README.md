@@ -58,17 +58,17 @@ AI 여행지 추천부터 일정 · 지출 관리까지!
 - <img src="https://img.shields.io/badge/openai-%23412991.svg?&style=for-the-badge&logo=openai&logoColor=white" align="left" />
 - <img src="https://img.shields.io/badge/google%20calendar-%234285F4.svg?&style=for-the-badge&logo=google-calendar&logoColor=white" align="left" />
 
-### 🔐 인증
+### 🔐 Authentication
 
 - <img src="https://img.shields.io/badge/JWT-%23007ACC.svg?&style=for-the-badge&logo=jsonwebtokens&logoColor=white" align="left" />
 - <img src="https://img.shields.io/badge/OAuth%202.0-%2326A69A.svg?&style=for-the-badge&logo=oauth&logoColor=white" align="left" />
 
-### 🚀 배포
+### 🚀 Deployment
 
 - <img src="https://img.shields.io/badge/amazon%20aws-%23232F3E.svg?&style=for-the-badge&logo=amazon-aws&logoColor=white" align="left" />
 - <img src="https://img.shields.io/badge/nginx-%23269539.svg?&style=for-the-badge&logo=nginx&logoColor=white" align="left" />
 
-### 🧩 협업 도구
+### 🧩 Collaboration Tool
 
 - <img src="https://img.shields.io/badge/github-%23181717.svg?&style=for-the-badge&logo=github&logoColor=white" align="left" />
 - <img src="https://img.shields.io/badge/notion-%23000000.svg?&style=for-the-badge&logo=notion&logoColor=white" align="left" />
@@ -85,12 +85,12 @@ AI 여행지 추천부터 일정 · 지출 관리까지!
 
 ## 👥 팀 소개
 
-| Profile                                                      | Name     | Role                                         | Contact                                                      |
-| ------------------------------------------------------------ | -------- | -------------------------------------------- | ------------------------------------------------------------ |
-| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑 오현석 | Backend Developer                            | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
-| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수   | UX/UI · Frontend / Developer                 | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
-| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현   | Backend Developer / Database Manager         | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
-| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환   | External API Integrator / Deployment Manager | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
+| Profile                                                      | Name    | Role                                         | Contact                                                      |
+| ------------------------------------------------------------ | ------- | -------------------------------------------- | ------------------------------------------------------------ |
+| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑오현석 | Backend Developer                            | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
+| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수  | UX/UI · Frontend / Developer                 | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
+| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현  | Backend Developer / Database Manager         | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
+| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환  | External API Integrator / Deployment Manager | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
 
 ---
 
