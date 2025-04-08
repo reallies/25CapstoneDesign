@@ -1,8 +1,8 @@
-# 🧭 Travel Scheduler & Recommender - Team SLAY
+# 🧭 Travel Scheduler & Recommender
 
-### 🏫 2025년 1학기 캡스톤디자인
+### ⚔️ Team SLAY
 
-> **맞춤형 여행 일정 추천 & 공유 플랫폼**
+> 맞춤형 여행 일정 추천 & 공유 플랫폼
 
 ![Thumbnail](docs/Thumbnail.png)
 
@@ -87,10 +87,10 @@
 
 | Profile                                                      | Name     | Role                                 | Contact                                                      |
 | ------------------------------------------------------------ | -------- | ------------------------------------ | ------------------------------------------------------------ |
-| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑 오현석 | Backend Developer                    | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
+| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑오현석 | Backend Developer                    | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
 | <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수   | UX/UI · Frontend / Developer         | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
-| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현   | Backend Developer / DataBase manager | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
-| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환   | Frontend Developer                   | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
+| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현   | Backend Developer / Database Manager | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
+| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환   | External API Integrator / Deployment Manager                   | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
 
 ---
 
