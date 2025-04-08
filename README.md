@@ -1,46 +1,97 @@
-# 25CapstoneDesign
-25년 1학기 캡스톤디자인
+# 🧭 Travel Scheduler & Recommender
 
-# Travel Scheduler & Recommender
+### 🏫 2025년 1학기 캡스톤디자인
 
-## 프로젝트 개요
-이 프로젝트는 사용자가 여행 일정을 요일별로 계획할 수 있도록 지원하며, 지도, 날씨, 경비, 후기 등 여행에 필요한 정보를 한 곳에서 제공하는 웹 서비스입니다.  
-또한, AI 기반 챗봇 기능을 통해 사용자가 설정한 시나리오(지역, 동행자 유형, 여행 성향 등)에 맞춰 맞춤 여행지를 추천하고, 생성된 여행 일정을 구글 캘린더에 연동하는 기능을 포함합니다.
+> 팀 SLAY | 맞춤형 여행 일정 추천 & 공유 플랫폼
 
-## 주요 기능
-- **회원가입/로그인:** 구글 소셜 로그인 활용
-- **여행 일정 관리:** 여행 일정 생성, 수정, 삭제 및 Day별 관리 (드래그 앤 드롭 인터페이스)
-- **지도 연동:** KakaoMap API를 이용한 지도 및 스트리트 뷰 표시
-- **날씨 정보:** 기상청 API를 활용한 예보 확인
-- **AI 기반 챗봇 추천:** Open AI API를 이용한 맞춤 여행지 추천
-- **구글 캘린더 연동:** 생성된 일정 자동 등록
-- **경비 관리 및 여행 후기:** 지출 기록 및 후기 작성 기능
+![Thumbnail](docs/Thumbnail.png)
 
-## 기술 스택
-- **Front-end:**  
-  - 프레임워크: React  
-  - 디자인 도구: Pigma
-- **Back-end:**  
-  - 플랫폼: Node.js  
-  - 개발 환경: VSCode
-- **데이터베이스:**  
-  - DBMS: PostgreSQL  
-  - ORM: Prisma
-- **외부 API:**  
-  - 지도/스트리트 뷰: KakaoMap API  
-  - 날씨: 기상청 API  
-  - AI 기능: Open AI API  
-  - 캘린더 연동: Google Calendar API
-  - 로그인: OAuth 2.0 api
-- **인증:** Google 소셜 로그인
-- **배포:**  
-  - 서버: AWS EC2  
-  - 웹서버: Nginx (리버스 프록시 및 정적 파일 서빙)
-- **프로젝트 관리 및 커뮤니케이션:**  
-  - 버전 관리: GitHub  
-  - 소통: KakaoTalk, Discord  
-  - 회의록: Notion
+---
 
-## Design
-- **UI/UX 디자인:**  
-  - Figma 디자인 참고: [Figma Design](https://www.figma.com/design/43bODe77hYu02GHCPcvaD1/2025-1-%EC%BA%A1%EC%8A%A4%ED%86%A4-%EB%94%94%EC%9E%90%EC%9D%B8?node-id=0-1&t=JjS8VRgIPhXlqtoS-1)
+## 📌 프로젝트 개요
+
+> **여행 준비, SLAY와 함께면 충분해요.** 
+
+장소 추천부터 일정&지출 관리까지!  
+복잡한 과정을 간단하게 만들어주는 여행 전용 웹 플랫폼 **SLAY***
+
+---
+
+## 📋 주요 기능 한눈에 보기
+
+> 복잡한 앱 전전은 그만,  
+> **더 간편하게, 더 똑똑하게, 더 즐겁게**  
+> **SLAY**와 함께 가뿐한 여행을 시작하세요.
+
+### ✔️ 핵심 기능
+
+- 🧠 **AI 맞춤 추천**, 내 여행 성향에 꼭 맞는 장소 자동 추천
+- 📆 **드래그 앤 드롭 일정 관리**, UI로 직관적인 여행 설계
+- 🗺️ **지도 + 날씨 통합 제공**, 여행지 상황까지 한눈에
+- 💸 **지출 관리와 후기 작성**, 여행의 기록을 더 가치 있게
+- 🤝 **실시간 공동 편집**, 동행자와 함께 만드는 일정
+
+---
+
+## 🛠 기술 스택
+
+
+### 🖥️ Front-End
+
+- <img src="https://img.shields.io/badge/react-%2361DAFB.svg?&style=for-the-badge&logo=react&logoColor=black" align="left" />
+- <img src="https://img.shields.io/badge/figma-%23F24E1E.svg?&style=for-the-badge&logo=figma&logoColor=white" align="left" />
+
+### ⚙️ Back-End
+
+- <img src="https://img.shields.io/badge/node.js-%23339933.svg?&style=for-the-badge&logo=node.js&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/visual%20studio%20code-%23007ACC.svg?&style=for-the-badge&logo=visual%20studio%20code&logoColor=white" align="left" />
+
+### 🗄️ Database
+
+- <img src="https://img.shields.io/badge/postgresql-%23336791.svg?&style=for-the-badge&logo=postgresql&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/prisma-%232D3748.svg?&style=for-the-badge&logo=prisma&logoColor=white" align="left" />
+
+### 🌐 API & Integration
+
+- <img src="https://img.shields.io/badge/kakao%20map-%23FFCD00.svg?&style=for-the-badge&logo=kakao&logoColor=black" align="left" />
+- <img src="https://img.shields.io/badge/openweather-%23007396.svg?&style=for-the-badge&logo=openweather&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/openai-%23412991.svg?&style=for-the-badge&logo=openai&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/google%20calendar-%234285F4.svg?&style=for-the-badge&logo=google-calendar&logoColor=white" align="left" />
+
+### 🔐 인증
+
+- <img src="https://img.shields.io/badge/JWT-%23007ACC.svg?&style=for-the-badge&logo=jsonwebtokens&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/OAuth%202.0-%2326A69A.svg?&style=for-the-badge&logo=oauth&logoColor=white" align="left" />
+
+### 🚀 배포
+
+- <img src="https://img.shields.io/badge/amazon%20aws-%23232F3E.svg?&style=for-the-badge&logo=amazon-aws&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/nginx-%23269539.svg?&style=for-the-badge&logo=nginx&logoColor=white" align="left" />
+
+### 🧩 협업 도구
+
+- <img src="https://img.shields.io/badge/github-%23181717.svg?&style=for-the-badge&logo=github&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/notion-%23000000.svg?&style=for-the-badge&logo=notion&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/kakaotalk-%23FFCD00.svg?&style=for-the-badge&logo=kakaotalk&logoColor=black" align="left" />
+- <img src="https://img.shields.io/badge/discord-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white" align="left" />
+
+---
+
+## 🎨 디자인
+
+- [📎 Figma Design 바로가기](https://www.figma.com/design/43bODe77hYu02GHCPcvaD1/2025-1-%EC%BA%A1%EC%8A%A4%ED%86%A4-%EB%94%94%EC%9E%90%EC%9D%B8?node-id=0-1&t=JjS8VRgIPhXlqtoS-1)
+
+---
+
+## 👥 팀 소개
+
+| Profile                                                      | Name     | Role                                 | Contact                                                      |
+| ------------------------------------------------------------ | -------- | ------------------------------------ | ------------------------------------------------------------ |
+| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑 오현석 | Backend Developer                    | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
+| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수   | UX/UI · Frontend / Developer         | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
+| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현   | Backend Developer / DataBase manager | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
+| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환   | Frontend Developer                   | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
+
+---
+
+> 👏 **"여행을 준비하는 모든 순간, SLAY가 함께합니다."**
