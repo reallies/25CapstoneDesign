@@ -112,6 +112,7 @@
   min-height: 160px;
   height: auto;
 }
+
 /* DAY 탭 및 리스트 */
 .expense-days,
 .expense-list {
@@ -148,7 +149,7 @@
   right: 20px;
 }
 
-/* 공동경비 정보(왼쪽 영역) 컨테이너 */
+/* 공동경비 정보 컨테이너 */
 .shared-info {
   flex: 1;
   min-width: 280px;
@@ -163,7 +164,7 @@
 }
 
 
-/* "공동경비" 제목 텍스트 */
+/* 공동경비 제목 텍스트 */
 .shared-title {
   font-size: 28px;
   font-weight: 800;
@@ -183,6 +184,9 @@
   font-size: 14px;
   cursor: pointer;
   border: none;
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 .shared-amount-wrapper {
@@ -311,7 +315,7 @@
   font-size: 16px;
 }
 
-/* 카드 상단의 '정산 영수증' 텍스트와 '펼쳐보기' 토글을 포함하는 라인 */
+/* 카드 상단 라인(토글) */
 .receipt-header {
   display: flex;
   justify-content: space-between;
@@ -319,14 +323,14 @@
   margin-bottom: 6px;
 }
 
-/* 우측 '펼쳐보기' 또는 '닫기' 텍스트 스타일 */
+/* 토글 텍스트 스타일 */
 .receipt-toggle {
   font-size: 13px;
   color: #aaa;
   cursor: pointer;
 }
 
-/* '보낼 돈' 라벨 텍스트 스타일 */
+/* 보낼 돈 텍스트 스타일 */
 .receipt-label {
   font-size: 14px;
   margin: 8px 0 4px;
@@ -340,14 +344,14 @@
   margin: 6px 0 12px;
 }
 
-/* 아바타 + 이름이 들어간 왼쪽 영역 컨테이너 */
+/* 정산영수증 친구 리스트 컨테이너 */
 .receipt-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* 아바타 이미지 대체용 회색 원형 (사용자 이미지 자리) */
+/* 친구 프로필 */
 .receipt-avatar {
   width: 40px;
   height: 40px;
@@ -393,7 +397,7 @@
 }
 
 .day-tab.active {
-  background: #00ADB5; /* 선택된 DAY 탭 */
+  background: #00ADB5;
   color: white;
 }
 
@@ -408,7 +412,7 @@
   margin-bottom: 30px;
 }
 
-/* 왼쪽: 지출 항목 나열 */
+/* 지출 항목 나열 */
 .expense-category-list {
   display: flex;
   flex-direction: column;
@@ -436,7 +440,7 @@
   font-weight: 700;
 }
 
-/* 오른쪽: 지출 입력 영역 */
+/* 지출 입력 영역 */
 .expense-input-form {
   flex: 1;
   margin-left: 40px;
@@ -449,9 +453,10 @@
 }
 
 .expense-input {
-  width: 100%;
+  width: 95%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: none;
+  background-color: #F8F8FA;
   border-radius: 12px;
   margin-bottom: 15px;
 }
@@ -550,6 +555,7 @@
   background-color: #3C4A57;
 }
 
+/* 친구 초대&추가 모달 */
 .expense-icon,
 .category-option {
   display: flex;
@@ -557,11 +563,10 @@
   justify-content: center;
 }
 
-/* 가계부 화면에서만 모달 위치 조정 */
 .expenses .invite-modal {
-  top: 210px !important; /* ← 원하는 위치로 조절 */
+  top: 210px !important;
 }
 
 .expenses .add-friend-modal {
-  top: 210px !important; /* ← 오른쪽 모달도 동일하게 조절 */
+  top: 210px !important;
 }

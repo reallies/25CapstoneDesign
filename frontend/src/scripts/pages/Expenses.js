@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import "./Expenses.css";
 import InviteModal from "../components/InviteModal";
 import AddFriendModal from "../components/AddFriendModal";
+import SettleUpModal from "../components/SettleUpModal";
 
-// SVG 아이콘 import
 import { ReactComponent as Eat } from "../../assets/images/eat.svg";
 import { ReactComponent as Traffic } from "../../assets/images/traffic.svg";
 import { ReactComponent as Lodging } from "../../assets/images/lodging.svg";
@@ -17,9 +17,9 @@ export const Expenses = () => {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [activeDay, setActiveDay] = useState("DAY 1");
 
-  // ✅ 모달 상태 및 ref 추가
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isSettlementOpen, setIsSettlementOpen] = useState(false);
   const inviteModalRef = useRef(null);
   const addModalRef = useRef(null);
 
@@ -29,7 +29,6 @@ export const Expenses = () => {
     "여행 준비", "DAY 1", "DAY 2", "DAY 3", "DAY 4", "DAY 5", "DAY 6", "DAY 7"
   ];
 
-  // ✅ 바깥 클릭 시 모달 닫기 처리
   useEffect(() => {
     const handleClickOutside = (e) => {
       const invite = inviteModalRef.current;
@@ -76,7 +75,7 @@ export const Expenses = () => {
               <Link to="/expenses" className="expense-menu-item">가계부</Link>
               <div
                 className="expense-menu-item"
-                onClick={() => setIsInviteOpen(true)} // ✅ 모달 열기
+                onClick={() => setIsInviteOpen(true)}
               >
                 초대
               </div>
@@ -87,7 +86,7 @@ export const Expenses = () => {
           {/* 공동 경비 박스 */}
           <div className="shared-expense-box expense-card">
             <div className="shared-settle-wrapper">
-              <button className="shared-settle-btn">정산하기</button>
+              <button className="shared-settle-btn" onClick={() => setIsSettlementOpen(true)}>정산하기</button>
             </div>
             <div className="shared-info">
               <h3>공동경비</h3>
@@ -151,7 +150,18 @@ export const Expenses = () => {
           </div>
         </div>
 
-        {/* ✅ 조건부 렌더링된 모달들 (중복 제거됨) */}
+        {isSettlementOpen && (
+          <>
+            {console.log("SettleUpModal is rendering")}
+            <SettleUpModal
+              isOpen={isSettlementOpen}
+              onClose={() => setIsSettlementOpen(false)}
+              totalAmount={100000}
+              friends={["상상부기", "상찌", "한성냥이", "꼬꼬꾸꾸"]}
+            />
+          </>
+        )}
+
         {isInviteOpen && (
           <InviteModal
             onClose={() => {
@@ -160,7 +170,7 @@ export const Expenses = () => {
             }}
             onAddFriendClick={() => setIsAddOpen(true)}
             modalRef={inviteModalRef}
-            className="expenses-modal" // ✅ 위치 커스터마이징 가능
+            className="expenses-modal"
           />
         )}
 
@@ -169,7 +179,7 @@ export const Expenses = () => {
             onClose={() => setIsAddOpen(false)}
             anchorRef={inviteModalRef}
             modalRef={addModalRef}
-            className="expenses-modal" // ✅ 위치 커스터마이징 가능
+            className="expenses-modal"
           />
         )}
 
