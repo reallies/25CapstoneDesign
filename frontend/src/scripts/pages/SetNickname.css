@@ -1,0 +1,77 @@
+.nickname-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 80px;
+}
+  
+.nickname-logo {
+    width: 500px;
+    height: 500px;
+    margin-top: -50px;
+}
+
+.nickname-title {
+    margin-top: -120px;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+  
+.nickname-sub {
+    margin-top: -10px;
+    font-size: 18px;
+    margin-bottom: 32px;
+    color: #333;
+}
+  
+.nickname-input-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+  
+.nickname-input-box input {
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: none;
+    background-color: #F2F2F2;
+    width: 240px;
+    height: 30px;
+    outline: none;
+}
+  
+.nickname-input-box button {
+    background-color: #828282;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    height: 40px;
+}
+  
+.nickname-submit-button {
+    background-color: #00b4b4;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 330px;
+}
+
+.check-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    vertical-align: middle;
+    margin-top: -3px;
+}
+  
+.nickname-check-message {
+    font-size: 14px;
+    margin-bottom: 24px;
+}
