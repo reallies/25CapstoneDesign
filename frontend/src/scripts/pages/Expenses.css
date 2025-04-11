@@ -459,6 +459,8 @@
   background-color: #F8F8FA;
   border-radius: 12px;
   margin-bottom: 15px;
+  outline: none;
+  border: none;
 }
 
 /* 카테고리 선택 버튼 */
