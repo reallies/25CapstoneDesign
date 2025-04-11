@@ -1,86 +1,49 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import "./AddFriendModal.css";
 import search2 from "../../assets/images/search2.svg";
 
 const AddFriendModal = ({ onClose, anchorRef, modalRef }) => {
+  // 초기 더미 친구 목록
+  const initialAddableFriends = ["상상부기", "상찌", "한성냥이", "꼬꼬꾸꾸", "멍멍이"];
 
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-        const invite = anchorRef?.current;
-        const add = modalRef?.current;
-    
-        if (!invite || !add) return;
-    
-        const isClickOutsideAdd = !add.contains(e.target);
-        const isClickOutsideInvite = !invite.contains(e.target);
-    
-        if (isClickOutsideAdd && isClickOutsideInvite) {
-            onClose();
-        }
-        };
-    
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [onClose, anchorRef, modalRef]);
-  
+  // 상태 관리
+  const [pendingAdds, setPendingAdds] = useState([]);
+  const [addListState] = useState(initialAddableFriends);
+
+  // 추가 버튼 클릭 시 대기중 상태 토글
+  const handleAdd = (name) => {
+    if (pendingAdds.includes(name)) {
+      setPendingAdds(pendingAdds.filter(n => n !== name));
+    } else {
+      setPendingAdds([...pendingAdds, name]);
+    }
+  };
 
   return (
-    <div
-        className="add-friend-modal fixed-position"
-        ref={modalRef}
-    >
-    <div className="modal-header">
-    <div className="invite-search-bar">
-        <input type="text" placeholder="닉네임 검색" />
-        <img src={search2} alt="Search" />
-    </div>
-    </div>
-
-    <div className="text-wrapper-2">친구 추가</div>
-      <div className="friend-item">
-        <div className="rectangle" />
-        <div className="text-wrapper-5">상상부기</div>
-        <div className="frame">
-          <div className="text-wrapper-8">추가</div>
+    <div className="add-friend-modal fixed-position" ref={modalRef}>
+      <div className="modal-header">
+        <div className="invite-search-bar">
+          <input type="text" placeholder="닉네임 검색" />
+          <img src={search2} alt="Search" />
         </div>
       </div>
-
-      <div className="friend-item">
-        <div className="rectangle-2" />
-        <div className="text-wrapper-4">상찌</div>
-        <div className="frame-2">
-          <div className="text-wrapper-8">추가</div>
+      <div className="text-wrapper-2">친구 추가</div>
+      {addListState.map((name, index) => (
+        <div key={index}>
+          <div className="friend-item">
+            <div className="rectangle" />
+            <div className="user-name">{name}</div>
+            <div className="button-group">
+              {pendingAdds.includes(name) ? (
+                <div className="frame pending" onClick={() => handleAdd(name)}>대기중</div>
+              ) : (
+                <div className="frame" onClick={() => handleAdd(name)}>추가</div>
+              )}
+            </div>
+          </div>
+          {index !== addListState.length - 1 && <div className="gray-line" />}
         </div>
-      </div>
-
-      <div className="friend-item">
-        <div className="rectangle-3" />
-        <div className="text-wrapper-6">한성냥이</div>
-        <div className="div-wrapper">
-          <div className="text-wrapper-8">추가</div>
-        </div>
-      </div>
-
-      <div className="friend-item">
-        <div className="rectangle-4" />
-        <div className="text-wrapper-7">꼬꼬꾸꾸</div>
-        <div className="frame-3">
-          <div className="text-wrapper-8">추가</div>
-        </div>
-      </div>
-
-      <div className="friend-item">
-        <div className="rectangle-6" />
-        <div className="text-wrapper-11">멍멍이</div>
-        <div className="frame-5">
-            <div className="text-wrapper-8">추가</div>
-        </div>
-    </div>
-
-      <div className="gray-line" style={{ top: "262px" }} />
-      <div className="gray-line" style={{ top: "362px" }} />
-      <div className="gray-line" style={{ top: "462px" }} />
-      <div className="gray-line" style={{ top: "562px" }} />
+      ))}
     </div>
   );
 };
