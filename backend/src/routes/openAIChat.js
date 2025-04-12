@@ -85,7 +85,7 @@ router.post("/search-places", authenticateJWT, async (req, res) => {
 });
 
 // 여행 정보 API (OpenAI 답변 반환)
-router.post("/travel-info", authenticateJWT, async (req, res) => {
+router.post("/travel-info", authenticateJWT, async (req, res) => { //여행 경로 추천 (/chatbot/recommend-route) / 날씨 기반 액티비티 추천 (/chatbot/weather-activity)
   try {
     const { input } = req.body;
     const userId = req.user.user_id;
