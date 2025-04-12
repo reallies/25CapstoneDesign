@@ -121,6 +121,8 @@ model Post {
   user_id    Int
   title      String?
   content    String
+  visibility TripVisibility  @default(PRIVATE)
+  image_urls String?         @db.Json
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   comments   Comment[]
