@@ -1,0 +1,29 @@
+.weather-box {
+    width: 90%;
+    margin: 0 auto;
+    height: 60%;
+    background-color: #76a6c5;
+    align-items: center;
+    padding: 6px;
+    border-radius: 20px;
+}
+
+.weather-day {
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.weather-days {
+    display: flex;
+    height: 50px;
+    gap: 16px;
+}
+.temp-range {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 4px;
+}

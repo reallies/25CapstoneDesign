@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useSchedule } from "../hooks/useSchedule";
-import map from "../../assets/images/map.svg";
-import back from "../../assets/images/back.svg";
-import search2 from "../../assets/images/search2.svg";
 import deleteIcon from "../../assets/images/delete.svg"
+import KakaoMap from "../components/KakaoMap";
+import PlaceSearchModal from "../components/PlaceSearchModal";
 import "./Schedule.css";
+import WeatherBox from "../components/WeatherBox";
 
 const Schedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
+
   const { trip_id } = useParams();
   const {
     trip,
@@ -24,48 +27,25 @@ const Schedule = () => {
     handleDeletePlace,
   } = useSchedule(trip_id);
 
-  const [searchText, setSearchText] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
-  const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
-  
-  //날씨 부분
+  useEffect(() => {
+    if (trip && trip.destinations.length > 0) {
+      setSelectedCity(trip.destinations[0]);
+    }
+  }, [trip]);
+
+
   const toggleWeatherDropdown = () => {
     setIsWeatherDropdownOpen((prev) => !prev);
   };
 
   const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
 
-  const handleCloseModal = () => { 
-    setIsModalOpen(false); 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
     setSelectedDayIndex(null);
   };
 
   if (!trip) return null;
-
-  //예시 장소 - 카카오 api 연결시 삭제
-  const dummyPlaces = [
-    {
-      kakao_place_id: "kakao-001",
-      place_name: "전주 한옥마을",
-      place_address: "전주시 완산구 교동",
-      latitude: 35.815,
-      longitude: 127.150,
-      image_url: "",
-      place_star: null,
-      call: "063-111-1111",
-    },
-    {
-      kakao_place_id: "kakao-002",
-      place_name: "전주향교",
-      place_address: "전주시 완산구 향교길",
-      latitude: 35.812,
-      longitude: 127.155,
-      image_url: "",
-      place_star: null,
-      call: "063-222-2222",
-    },
-  ];
-
 
   return (
     <div className="schedule">
@@ -94,7 +74,6 @@ const Schedule = () => {
 
         {/* 날씨 */}
         <div className="weather">
-          <div className="weather-background" />
           <div className="weather-header">
             <p className="weather-text">여행 기간 동안의 날씨 소식이에요</p>
             <div className="weather-dropdown-toggle" onClick={toggleWeatherDropdown}>
@@ -109,10 +88,21 @@ const Schedule = () => {
           {isWeatherDropdownOpen && (
             <div className="weather-dropdown">
               {trip.destinations.map((d) => (
-                <div className="dropdown-item" key={d}>{d}</div>
+                <div
+                  className="dropdown-item"
+                  key={d}
+                  onClick={() => {
+                    setSelectedCity(d); // ✅ 도시 선택
+                    setIsWeatherDropdownOpen(false); // 드롭다운 닫기
+                  }}
+                >
+                  {d}
+                </div>
               ))}
             </div>
           )}
+          {selectedCity && <WeatherBox city={selectedCity} destinations={trip.destinations || []}/>
+        }
         </div>
 
         {/* 탭 */}
@@ -131,11 +121,8 @@ const Schedule = () => {
 
         {/* 일정 */}
         <div className="schedule-box">
-          <div className="view">
-            <img className="image" alt="지도" src={map} />
-          </div>
+          <div className="schedule-left">
 
-          <div className="schedule-list">
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="days" type="DAY">
                 {(provided) => (
@@ -149,7 +136,7 @@ const Schedule = () => {
                             {...provided.draggableProps}
                           >
                             <div className="day-header" {...provided.dragHandleProps}>
-                              <div className="day-title">DAY {days.findIndex(d => d.id === day.id)+1}</div>
+                              <div className="day-title">DAY {days.findIndex(d => d.id === day.id) + 1}</div>
                               <div className="day-date">{day.date}</div>
                               <div className="day-drag">≡</div>
                             </div>
@@ -178,7 +165,7 @@ const Schedule = () => {
                                               <div className="place-type">{item.placeType}</div>
                                               <div className="place-name">{item.name}</div>
                                             </div>
-                                            <img src = {deleteIcon} alt="삭제" className="delete-icon" onClick={()=> handleDeletePlace(day.id, item.dayPlaceId)} />
+                                            <img src={deleteIcon} alt="삭제" className="delete-icon" onClick={() => handleDeletePlace(day.id, item.dayPlaceId)} />
                                             <div className="item-drag">≡</div>
                                           </div>
                                         )}
@@ -190,7 +177,7 @@ const Schedule = () => {
                             </Droppable>
                             {/*MEMO 순서 변경 부분*/}
                             <Droppable droppableId={`${day.id}-memo`} type="MEMO">
-                              {(provided) => (
+                              {(provided) => (  
                                 <div ref={provided.innerRef} {...provided.droppableProps}>
                                   {day.items
                                     .filter((item) => item.type === "memo")
@@ -236,51 +223,34 @@ const Schedule = () => {
             </DragDropContext>
           </div>
 
-          <div className="delete">
-            <div className="delete-text">장소 삭제</div>
+          <div className="schedule-right">
+            <div className="map-container">
+
+              {/* 카카오 지도 */}
+              <KakaoMap days={days} />
+
+              {/* 장소 추가 모달 */}
+              {isModalOpen && (
+                <div className="place-modal-overlay">
+                  <PlaceSearchModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    onSelect={(place) => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}
+                  />
+                </div>
+              )}
+
+
+
+            </div>
           </div>
 
-          {/* 장소 추가 모달 */}
-          {isModalOpen && (
-            <div className="place-modal-wrap">
-              <div className="place-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                  <img src={back} alt="뒤로가기" className="back" onClick={handleCloseModal} />
-                  {/* 검색창 */}
-                  <div className="search-container">
-                    <input
-                      type="text"
-                      className="modal-search"
-                      value={searchText}
-                      onChange={(e) => setSearchText(e.target.value)}
-                      placeholder={isFocused ? "" : "장소 검색"}
-                      onFocus={() => setIsFocused(true)}
-                      onBlur={() => {
-                        if (searchText === "") setIsFocused(false);
-                      }}
-                    />
-                    <img src={search2} alt="돋보기" className="search-icon" />
-                  </div>
-                </div>
-
-                <div className="place-list">
-                  {dummyPlaces.map((place, idx) => (
-                    <div className="place-item" key={idx}>
-                      <div className="place-thumb" />
-                      <div className="place-info">
-                        <div className="place-name">{place.place_name}</div>
-                        <div className="place-location">전주</div>
-                      </div>
-                      <button className="select-btn" onClick={() => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}>
-                        선택
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="satellite">
+            <div className="satellite-text">위성 보기</div>
+          </div>
         </div>
+
+
       </div>
     </div>
   );

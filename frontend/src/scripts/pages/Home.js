@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const Main = () => {
   const [activeModal, setActiveModal] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState([]); 
+  const [selectedDestination, setSelectedDestination] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState({ 성인: 0, 청소년: 0, 어린이: 0, 동행유형: [] });
@@ -56,11 +56,11 @@ const Main = () => {
   // 여행지 선택 핸들러 - 최대 3개까지 선택
   const handleSelectDestination = (region) => {
     setSelectedDestination((prev) => {
-      if (prev.includes(region)){
-        return prev.filter((r)=>r!==region);
-      }else if (prev.length < 3){
-        return [...prev,region];
-      }else{
+      if (prev.includes(region)) {
+        return prev.filter((r) => r !== region);
+      } else if (prev.length < 3) {
+        return [...prev, region];
+      } else {
         alert("최대 3개의 여행지만 선택할 수 있습니다.");
         return prev;
       }
@@ -112,10 +112,10 @@ const Main = () => {
   const openModal = (modalType, event) => {
     if (event) {
       const rect = event.target.getBoundingClientRect();
-      
+
       let leftPos = rect.left + window.scrollX + rect.width / 2 - 175;
       leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - 350 - 10));
-  
+
       switch (modalType) {
         case "destination":
           setDestinationModalPosition({ top: 350, left: leftPos });
@@ -132,11 +132,11 @@ const Main = () => {
         default:
           break;
       }
-  
+
       setActiveModal(modalType);
     }
   };
-  
+
   const closeModal = () => {
     setActiveModal(null);
   };
@@ -172,17 +172,17 @@ const Main = () => {
   ];
 
   //여정 추가
-  const createTrip = async () =>{
-    if(!selectedDestination || !calendarDate  || selectedTheme.length === 0 || !selectedPeople){
+  const createTrip = async () => {
+    if (!selectedDestination || !calendarDate || selectedTheme.length === 0 || !selectedPeople) {
       alert("여행지, 날짜, 테마를 모두 선택해주세요!");
       return;
     }
 
     const toDateString = (date) => date.toISOString().split("T")[0];
     const startDate = toDateString(calendarDate[0]);
-    const endDate = toDateString(calendarDate[1]);  
-    
-    const tripData ={
+    const endDate = toDateString(calendarDate[1]);
+
+    const tripData = {
       destinations: selectedDestination,
       startDate: startDate,
       endDate: endDate,
@@ -191,21 +191,30 @@ const Main = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/schedule",{
+      const res = await fetch("http://localhost:8080/schedule", {
         method: "POST",
-        headers: {"Content-Type" : "application/json"},
-        body : JSON.stringify(tripData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tripData),
         credentials: "include",
       });
 
       const data = await res.json();
 
       if (data.success && data.trip) {
-          navigate(`/schedule/${data.trip.trip_id}`);
+        const tripId = data.trip.trip_id;
+
+        if (selectedMode === "ai") {
+          await fetch(`http://localhost:8080/schedule/${tripId}/generate-days`, {
+            method: "POST",
+            credentials: "include",
+          });
+        }
+
+        navigate(`/schedule/${tripId}`);
       } else {
-          console.error("tripData가 존재하지 않음:", data);
+        console.error("tripData가 존재하지 않음:", data);
       }
-  } catch (error) {
+    } catch (error) {
       console.error("에러 발생:", error);
     }
   };
@@ -214,30 +223,30 @@ const Main = () => {
     <div className="main-container">
       {/* 검색 바 */}
       <div className="search-box" style={{ height: "auto" }}>
-      <div className="button-container">
-        <button 
-          className={`rounded-button ${selectedMode === "ai" ? "active" : ""}`} 
-          onClick={() => handleModeChange("ai")}
-        >
-          AI 일정
-        </button>
-        <button 
-          className={`text-button ${selectedMode === "manual" ? "active" : ""}`} 
-          onClick={() => handleModeChange("manual")}
-        >
-          직접 짜기
-        </button>
-      </div>
+        <div className="button-container">
+          <button
+            className={`rounded-button ${selectedMode === "ai" ? "active" : ""}`}
+            onClick={() => handleModeChange("ai")}
+          >
+            AI 일정
+          </button>
+          <button
+            className={`text-button ${selectedMode === "manual" ? "active" : ""}`}
+            onClick={() => handleModeChange("manual")}
+          >
+            직접 짜기
+          </button>
+        </div>
         <div className="search-content">
-          <div 
-            className="search-field" 
+          <div
+            className="search-field"
             ref={(el) => (searchFieldRefs.current["destination"] = el)}
             onClick={(e) => openModal("destination", e)}
           >
             <span className="placeholder-text">여행지</span>
             {selectedDestination && <span className="selected-text">{selectedDestination}</span>}
           </div>
-          <div 
+          <div
             className="search-field"
             ref={(el) => (searchFieldRefs.current["date"] = el)}
             onClick={(e) => openModal("date", e)}
@@ -245,8 +254,8 @@ const Main = () => {
             <span className="placeholder-text">여행 시작 - 여행 완료</span>
             {selectedDate && <span className="selected-text">{selectedDate}</span>}
           </div>
-          <div 
-            className="search-field" 
+          <div
+            className="search-field"
             ref={(el) => (searchFieldRefs.current["theme"] = el)}
             onClick={(e) => openModal("theme", e)}
             style={{ minHeight: selectedTheme.length > 0 ? "auto" : "70px" }}
@@ -298,20 +307,20 @@ const Main = () => {
         <div className="travel-gallery">
           <div className="gallery-title">여행 갤러리</div>
           <div className="gallery-container">
-          {galleryData.map((item, index) => (
-            <div className={`gallery-card ${item.isLast ? "last-card" : ""}`} key={index}>
-              <div className="gallery-card-inner">
-                <img className="gallery-image" src={item.img} alt="여행 이미지" />
-                {!item.isLast && <div className="gallery-subtitle">{item.subtitle}</div>}
-                <div className="gallery-description">{item.description}</div>
-                <div className="gallery-buttons">
-                  <button className="gallery-button">DAY 보기</button>
-                  <button className="gallery-button">여행 코스 보기</button>
+            {galleryData.map((item, index) => (
+              <div className={`gallery-card ${item.isLast ? "last-card" : ""}`} key={index}>
+                <div className="gallery-card-inner">
+                  <img className="gallery-image" src={item.img} alt="여행 이미지" />
+                  {!item.isLast && <div className="gallery-subtitle">{item.subtitle}</div>}
+                  <div className="gallery-description">{item.description}</div>
+                  <div className="gallery-buttons">
+                    <button className="gallery-button">DAY 보기</button>
+                    <button className="gallery-button">여행 코스 보기</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
         <div className="my-records">
           <div className="records-title">내 기록</div>
@@ -401,30 +410,30 @@ const Main = () => {
       {activeModal === "people" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...peopleModalPosition }} onClick={(e) => e.stopPropagation()}>
-                <h2>동행 유형을 선택해 주세요</h2>
-                <h5 className="theme-subtitle">다중 선택 가능</h5>
-                <div className="people-options">
-                  {Object.keys(companionMap).map((companion) => {
-                  const isAloneSelected = selectedPeople.동행유형.includes("혼자");
-                  const isOtherSelected = selectedPeople.동행유형.some((item) => item !== "혼자");
+            <h2>동행 유형을 선택해 주세요</h2>
+            <h5 className="theme-subtitle">다중 선택 가능</h5>
+            <div className="people-options">
+              {Object.keys(companionMap).map((companion) => {
+                const isAloneSelected = selectedPeople.동행유형.includes("혼자");
+                const isOtherSelected = selectedPeople.동행유형.some((item) => item !== "혼자");
 
-                  const isDisabled =
-                    (isAloneSelected && companion !== "혼자") || (isOtherSelected && companion === "혼자");
+                const isDisabled =
+                  (isAloneSelected && companion !== "혼자") || (isOtherSelected && companion === "혼자");
 
-                      return (
-                        <button
-                          key={companion}
-                          className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`}
-                          onClick={() => !isDisabled && toggleCompanion(companion)}
-                          disabled={isDisabled}
-                          style={isDisabled ? { opacity: 0.5, cursor: "not-allowed" } : {}}
-                        >
-                          {companion}
-                        </button>
-                      );
-                    })}
-                </div>
-                <button className="close-btn" onClick={closeModal}>완료</button>
+                return (
+                  <button
+                    key={companion}
+                    className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`}
+                    onClick={() => !isDisabled && toggleCompanion(companion)}
+                    disabled={isDisabled}
+                    style={isDisabled ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+                  >
+                    {companion}
+                  </button>
+                );
+              })}
+            </div>
+            <button className="close-btn" onClick={closeModal}>완료</button>
           </div>
         </div>
       )}

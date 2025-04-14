@@ -109,5 +109,16 @@ async function deleteTripController(req,res){
     }
 }
 
-
-module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController};
+//9. AI 여행 일정 생성 컨트롤러
+async function generateDaysController(req, res) {
+    try {
+      const { trip_id } = req.params;
+      const result = await tripService.generateDaysService(trip_id);
+      res.status(200).json({ success: true, days: result });
+    } catch (err) {
+      console.error("generateDaysController 오류:", err);
+      res.status(500).json({ error: "AI 일정 생성 실패" });
+    }
+  }
+  
+module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController, generateDaysController};

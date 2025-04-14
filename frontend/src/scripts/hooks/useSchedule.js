@@ -47,6 +47,8 @@ export const useSchedule = (trip_id) => {
 
     //장소 추가
     const handlePlaceSelect = async (dayIndex, place, setIsModalOpen) => {
+        console.log("✅ 선택된 place 정보", place);
+
         const day = days[dayIndex];
         const dayId = Number(day.id.replace("day-", ""));
 
@@ -77,6 +79,7 @@ export const useSchedule = (trip_id) => {
                 type: "place",
                 name: data.data.place.place_name,
                 placeType: "관광명소",
+                ...data.data.place,
                 });
                 setDays(newDays);
                 setIsModalOpen(false);
