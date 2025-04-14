@@ -36,15 +36,19 @@ app.use(passport.session());
 
 app.use(express.json());
 
-//소셜 로그인 & 로그아웃
+// 소셜 로그인 & 로그아웃
 const authRoutes=require("./src/routes/authRoutes");
 app.use("/auth",authRoutes);
 
-//친구추가 & 일정 초대
+// 친구추가 & 일정 초대
 const friendshipRoutes = require("./src/routes/friendshipRoutes");
 const tripRoutes = require("./src/routes/tripRoutes");
 app.use("/friendship", friendshipRoutes);
 app.use("/trip", tripRoutes);
+
+// 여행 리뷰 작성
+const postRoutes = require("./src/routes/postRoutes");
+app.use("/posts", postRoutes);
 
 // 인증된 사용자만 프로필 접근 가능
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
