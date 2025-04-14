@@ -50,6 +50,10 @@ app.use("/trip", tripRoutes);
 const postRoutes = require("./src/routes/postRoutes");
 app.use("/posts", postRoutes);
 
+// 체크 리스트
+const checklistRoutes = require("./src/routes/checklistRoutes");
+app.use("/checklist", checklistRoutes);
+
 // 인증된 사용자만 프로필 접근 가능
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
