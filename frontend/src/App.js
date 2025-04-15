@@ -7,6 +7,7 @@ import Schedule from "./scripts/pages/Schedule";
 import Expenses from "./scripts/pages/Expenses";
 import SetNickname from "./scripts/pages/SetNickname";
 import MySchedule from "./scripts/pages/MySchedule";
+import MyPage from "./scripts/pages/MyPage";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/expenses" element={<Expenses />} /> {/* 가계부 페이지 */}
         <Route path="/set-nickname" element={<SetNickname />} />  {/* 닉네임 설정 페이지 */}
         <Route path="/myschedule" element={<MySchedule />} /> {/* 나의 일정 페이지 */}
+        <Route path="/mypage" element={<MyPage />} /> {/* 마이페이지 */}
       </Routes>
     </Router>
   );
