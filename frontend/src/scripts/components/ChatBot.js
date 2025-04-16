@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import chatbotIcon from "../../assets/images/chatbot.svg";
 import icon from "../../assets/images/icon.svg";
+import searchIcon from "../../assets/images/search1.svg";
 import "./ChatBot.css";
 
 const ChatBot = () => {
@@ -42,6 +43,10 @@ const ChatBot = () => {
               ))}
             </div>
             <div className="chatbot-input-box">
+              <button className="chatbot-search-btn">
+                <img src={searchIcon} alt="search" />
+                <span>장소검색</span>
+              </button>
               <input type="text" placeholder="support에게 물어보세요" />
               <button className="chatbot-send-btn">+</button>
             </div>
