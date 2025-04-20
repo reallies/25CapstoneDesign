@@ -11,7 +11,7 @@ const LoginModal = ({ isOpen, onClose,user, onFriendClick, isFriendModalOpen, on
 
   // "나의 일정" 클릭 시 페이지 이동 함수
   const handleMyScheduleClick = () => {
-    navigate("/myschedule"); // 이 경로는 App.js의 Route에 맞춰 조정하세요
+    navigate("/myschedule"); 
     onClose();
   };
 
