@@ -39,6 +39,24 @@ app.use(express.json());
 const authRoutes=require("./src/routes/authRoutes");
 app.use("/auth",authRoutes);
 
+// 친구추가 & 일정 초대
+const friendshipRoutes = require("./src/routes/friendshipRoutes");
+const tripRoutes = require("./src/routes/tripRoutes");
+app.use("/friendship", friendshipRoutes);
+app.use("/trip", tripRoutes);
+
+// 여행 리뷰 작성
+const postRoutes = require("./src/routes/postRoutes");
+app.use("/posts", postRoutes);
+
+// 체크 리스트
+const checklistRoutes = require("./src/routes/checklistRoutes");
+app.use("/checklist", checklistRoutes);
+
+//챗봇
+const openAIChatbot = require('./src/routes/openAIChat');
+app.use('/chatbot', openAIChatbot);
+
 //인증된 사용자만 프로필 접근 가능
 app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
