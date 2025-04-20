@@ -1,10 +1,28 @@
 const express = require("express");
 const tripController = require("../controller/scheduleController");
 const {authenticateJWT} =require("../middleware/authMiddleware");
+const prisma = require("../../prisma/prismaClient");
 
 const router = express.Router();
-//7. 저장된 여행 일정 불러오기 - 2.번 라우트보다 앞으로 와야함
+//7. 저장된 여행 여러개 불러오기 - 2.번 라우트보다 앞으로 와야함
 router.get("/myTrips",authenticateJWT, tripController.getMytripsController);
+//10. 최신 여행 불러오기
+router.get("/recent", authenticateJWT, async (req, res) => {
+    try {
+      const latestTrip = await prisma.trip.findFirst({
+        where: { user_id: req.user.user_id },
+        orderBy: { updated_at: "desc" },
+      });
+  
+      if (!latestTrip) {
+        return res.status(404).json({ message: "생성된 여행이 없습니다." });
+      }
+  
+      res.json({ success: true, trip_id: latestTrip.trip_id });
+    } catch (err) {
+      res.status(500).json({ message: "서버 오류" });
+    }
+});
 
 //1. 여행 생성
 router.post("/", authenticateJWT, tripController.createTripController);
@@ -27,7 +45,7 @@ router.delete("/:trip_id/day/:day_id/dayplace/:dayplace_id",authenticateJWT, tri
 //8. 여행 삭제
 router.delete("/:trip_id", authenticateJWT, tripController.deleteTripController)
 
-// 9. AI 추천 일정 자동 생성
+//9. AI 추천 일정 자동 생성 - 무시
 router.post("/:trip_id/generate-days", authenticateJWT, tripController.generateDaysController);
 
 

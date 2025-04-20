@@ -119,6 +119,6 @@ async function generateDaysController(req, res) {
       console.error("generateDaysController 오류:", err);
       res.status(500).json({ error: "AI 일정 생성 실패" });
     }
-  }
-  
+}
+
 module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController, generateDaysController};

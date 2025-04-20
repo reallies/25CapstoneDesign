@@ -24,6 +24,23 @@ const NavigationBar = () => {
     }
   };
 
+  const handleLatestTrip = async() => {
+    try {
+      const res = await fetch("http://localhost:8080/schedule/recent", {
+        credentials: "include",
+      });
+      const data = await res.json();
+  
+      if (data.success && data.trip_id) {
+        navigate(`/schedule/${data.trip_id}`);
+      } else {
+        alert("생성된 여행이 없습니다.");
+      }
+    } catch (error) {
+      console.error("최근 여행 불러오기 실패", error);
+    }
+  }
+ 
   return (
     <div className="navbar">
       {/* 로고 */}
@@ -34,7 +51,7 @@ const NavigationBar = () => {
       {/* 네비게이션 메뉴 */}
       <div className="nav-menu">
         <span onClick={() => navigate("/")}>홈</span>
-        <span>여행 일정</span>
+        <span onClick={handleLatestTrip}>여행 일정</span>
         <span>커뮤니티</span>
         <span>내 기록</span>
       </div>

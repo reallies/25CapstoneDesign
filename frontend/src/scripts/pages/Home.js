@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import "./Home.css";
+import ChatBot from "../components/ChatBot";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
@@ -12,9 +13,10 @@ const Main = () => {
   const [selectedDestination, setSelectedDestination] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTheme, setSelectedTheme] = useState([]);
-  const [selectedPeople, setSelectedPeople] = useState({ 성인: 0, 청소년: 0, 어린이: 0, 동행유형: [] });
+  const [selectedPeople, setSelectedPeople] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
   const [selectedMode, setSelectedMode] = useState("ai");
+
   const searchFieldRefs = useRef({});
   const navigate = useNavigate();
 
@@ -78,11 +80,9 @@ const Main = () => {
   // 동행 유형 토글 핸들러
   const toggleCompanion = (companion) => {
     setSelectedPeople((prev) => {
-      const updatedType = prev.동행유형.includes(companion)
-        ? prev.동행유형.filter((item) => item !== companion)
-        : [...prev.동행유형, companion];
-
-      return { ...prev, 동행유형: updatedType };
+      return prev.includes(companion)
+        ? prev.filter((item) => item !== companion)
+        : [...prev, companion];
     });
   };
 
@@ -100,6 +100,15 @@ const Main = () => {
   // 날짜 선택 확인
   const confirmDateSelection = () => {
     if (Array.isArray(calendarDate) && calendarDate.length === 2) {
+      const [start, end] = calendarDate;
+      const diffInMs = Math.abs(end - start);
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24) + 1;
+  
+      if (diffInDays > 7) {
+        alert("최대 7일까지 선택할 수 있습니다.");
+        return;
+      }
+
       const formattedStartDate = calendarDate[0].toLocaleDateString("ko-KR");
       const formattedEndDate = calendarDate[1].toLocaleDateString("ko-KR");
       setSelectedDate(`${formattedStartDate} - ${formattedEndDate}`);
@@ -193,7 +202,7 @@ const Main = () => {
       startDate: startDate,
       endDate: endDate,
       theme: selectedTheme.map((t) => themeMap[t]),
-      companionType: selectedPeople.동행유형.map((c) => companionMap[c]),
+      companionType: selectedPeople.map((c) => companionMap[c]),
     };
 
     try {
@@ -250,7 +259,7 @@ const Main = () => {
             onClick={(e) => openModal("destination", e)}
           >
             <span className="placeholder-text">여행지</span>
-            {selectedDestination && <span className="selected-text">{selectedDestination}</span>}
+            {selectedDestination && <span className="selected-text">{selectedDestination.join(", ")}</span>}
           </div>
           <div
             className="search-field"
@@ -275,9 +284,9 @@ const Main = () => {
           </div>
           <div className="search-field" onClick={(e) => openModal("people", e)}>
             <span className="placeholder-text">동행 인원</span>
-            {selectedPeople.동행유형.length > 0 && (
+            {selectedPeople.length > 0 && (
               <span className="selected-text">
-                {selectedPeople.동행유형.join(", ")}
+                {selectedPeople.join(", ")}
               </span>
             )}
           </div>
@@ -388,6 +397,8 @@ const Main = () => {
               view="month"
               defaultView="month"
               showNeighboringMonth={true}
+
+              
             />
             <button className="close-btn" onClick={confirmDateSelection}>완료</button>
           </div>
@@ -420,8 +431,8 @@ const Main = () => {
             <h5 className="theme-subtitle">다중 선택 가능</h5>
             <div className="people-options">
               {Object.keys(companionMap).map((companion) => {
-                const isAloneSelected = selectedPeople.동행유형.includes("혼자");
-                const isOtherSelected = selectedPeople.동행유형.some((item) => item !== "혼자");
+                const isAloneSelected = selectedPeople.includes("혼자");
+                const isOtherSelected = selectedPeople.some((item) => item !== "혼자");
 
                 const isDisabled =
                   (isAloneSelected && companion !== "혼자") || (isOtherSelected && companion === "혼자");
@@ -429,7 +440,7 @@ const Main = () => {
                 return (
                   <button
                     key={companion}
-                    className={`companion-btn ${selectedPeople.동행유형.includes(companion) ? "active" : ""}`}
+                    className={`companion-btn ${selectedPeople.includes(companion) ? "active" : ""}`}
                     onClick={() => !isDisabled && toggleCompanion(companion)}
                     disabled={isDisabled}
                     style={isDisabled ? { opacity: 0.5, cursor: "not-allowed" } : {}}
@@ -443,6 +454,8 @@ const Main = () => {
           </div>
         </div>
       )}
+
+    <ChatBot />
     </div>
   );
 };

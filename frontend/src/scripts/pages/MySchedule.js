@@ -23,7 +23,12 @@ const MySchedule = () => {
         credentials: "include",
       });
       const data = await res.json();
-      setTrips(data.trips);
+
+      const sortedTrips = [...data.trips].sort(
+        (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+      );
+
+      setTrips(sortedTrips);
     } catch (err) {
       console.error("여행 목록 불러오기 실패:", err);
     }
@@ -103,7 +108,7 @@ const MySchedule = () => {
               </div>
               <div className="schedule-buttons">
                   <button className="view-btn" onClick={() => handleViewTrip(trip.trip_id)}>자세히 보기</button>
-                  <button className="delete-btn" >삭제하기</button>
+                  <button className="delete-btn" onClick={() => handleDeleteTrip(trip.trip_id)}>삭제하기</button>
               </div>
             </div>
         ))}
