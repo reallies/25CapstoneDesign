@@ -6,6 +6,7 @@ import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
 import { useNavigate } from "react-router-dom";
 
+
 const Main = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState([]);
@@ -110,14 +111,20 @@ const Main = () => {
 
   // 모달
   const openModal = (modalType, event) => {
-    if (event) {
-      const rect = event.target.getBoundingClientRect();
-
-      let leftPos = rect.left + window.scrollX + rect.width / 2 - 175;
+    let rect;
+    if ((modalType === "destinationSearch" || modalType === "destination") && searchFieldRefs.current["destination"]) {
+      rect = searchFieldRefs.current["destination"].getBoundingClientRect();  // 무조건 search-field 기준으로
+    } else if (event) {
+      rect = event.target.getBoundingClientRect();
+    }
+  
+    if (rect) {
+      let leftPos = Math.floor(rect.left + window.scrollX + rect.width / 2 - 175);
       leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - 350 - 10));
-
+  
       switch (modalType) {
         case "destination":
+        case "destinationSearch":
           setDestinationModalPosition({ top: 350, left: leftPos });
           break;
         case "date":
@@ -132,10 +139,9 @@ const Main = () => {
         default:
           break;
       }
-
       setActiveModal(modalType);
     }
-  };
+  };  
 
   const closeModal = () => {
     setActiveModal(null);

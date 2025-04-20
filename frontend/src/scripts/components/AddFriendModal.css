@@ -1,0 +1,127 @@
+.add-friend-modal {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 30px 20px;
+    width: 480px;
+    max-height: 520px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+  
+.add-friend-modal.fixed-position {
+    position: absolute;
+    top: 120px;
+    left: 625px;
+    z-index: 1001;
+}
+  
+.add-friend-modal::-webkit-scrollbar {
+    display: none;
+}
+  
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.modal-top-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}  
+  
+.back-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.invite-search-bar {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    flex: 1;
+    max-width: 380px;
+}
+  
+.invite-search-bar input {
+    border: none;
+    outline: none;
+    background: none;
+    flex: 1;
+    font-size: 16px;
+    font-family: "SUITE-Medium";
+}
+  
+.invite-search-bar img {
+    width: 20px;
+    height: 20px;
+}
+  
+.text-wrapper-2 {
+    font-family: "SUITE-Bold", Helvetica;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    margin-left: 5px;
+}
+  
+.friend-item {
+    display: flex;
+    align-items: center;
+    margin-top: 30px;
+    position: relative;
+}
+  
+.user-name {
+    color: #000000;
+    font-family: "SUITE-Medium", Helvetica;
+    font-size: 16px;
+    font-weight: 500;
+}
+  
+.rectangle {
+    background-color: #d9d9d9;
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
+    margin-right: 15px;
+}
+  
+.frame {
+    background-color: #E4F8F1;
+    color: #4ACD9F;
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 14px;
+    font-family: "SUITE-Medium", Helvetica;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.pending {
+    background-color: #FFEACC;
+    color: #FF9900;
+}
+  
+.gray-line {
+    width: 100%;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin-top: 10px;
+}
+  
+  
+.text-wrapper-8 {
+    color: #000000;
+    font-size: 14px;
+    font-weight: 500;
+}

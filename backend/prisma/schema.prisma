@@ -37,6 +37,7 @@ model Trip {
   destinations   String[]
   theme          ThemeType[]
   version        Int              @default(0)
+  updated_at     DateTime         @default(now())
   checklist      Checklist[]
   days           Day[]
   expenses       Expense[]
@@ -56,12 +57,13 @@ model Day {
 }
 
 model DayPlace {
-  dayplace_id    Int   @id @default(autoincrement())
+  dayplace_id    Int     @id @default(autoincrement())
   day_id         Int
   place_id       Int
   dayplace_order Int
-  day            Day   @relation(fields: [day_id], references: [day_id])
-  place          Place @relation(fields: [place_id], references: [place_id])
+  dayplace_time  String?
+  day            Day     @relation(fields: [day_id], references: [day_id])
+  place          Place   @relation(fields: [place_id], references: [place_id])
 }
 
 model Place {
@@ -116,17 +118,20 @@ model Comment {
 }
 
 model Post {
-  post_id    Int       @id @default(autoincrement())
+  post_id    Int            @id @default(autoincrement())
   trip_id    String
   user_id    Int
   title      String?
   content    String
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  rating     Float?
+  visibility TripVisibility @default(PRIVATE)
+  image_urls Json?
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
   comments   Comment[]
   likes      Like[]
-  trip       Trip      @relation(fields: [trip_id], references: [trip_id])
-  user       User      @relation(fields: [user_id], references: [user_id])
+  trip       Trip           @relation(fields: [trip_id], references: [trip_id])
+  user       User           @relation(fields: [user_id], references: [user_id])
 }
 
 model Checklist {

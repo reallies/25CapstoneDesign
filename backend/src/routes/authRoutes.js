@@ -113,11 +113,10 @@ router.post("/refresh",async(req,res)=>{
       }
 });
 
-// 닉네임 설정 라우트
-router.post("/set-nickname", authenticateJWT, async (req, res) => {
+//닉네임 유효성 검사, 중복 체크 라우트
+router.post("/check-nickname",authenticateJWT, async (req, res) => {
   try {
     const { nickname } = req.body;
-    const user = req.user;
 
     // 요청값 유효성 검사
     if (!nickname || typeof nickname !== "string") {
@@ -125,6 +124,7 @@ router.post("/set-nickname", authenticateJWT, async (req, res) => {
     }
 
     const trimmedNickname = nickname.trim();
+    
     if (!trimmedNickname) {
       return res.status(400).json({ message: "닉네임을 입력해주세요." });
     }
@@ -136,19 +136,29 @@ router.post("/set-nickname", authenticateJWT, async (req, res) => {
       });
     }
 
-    if (trimmedNickname.length < 3 || trimmedNickname.length > 15) {
-      return res.status(400).json({
-        message: "닉네임은 3자 이상 15자 이하여야 합니다.",
-      });
-    }
-
-    // 중복 검사
-    const existingUser = await prisma.user.findFirst({
+    // DB 중복 체크
+    const existing = await prisma.user.findFirst({
       where: { nickname: trimmedNickname },
     });
-    if (existingUser) {
-      return res.status(400).json({ message: "이미 존재하는 닉네임입니다." });
+
+    if (existing) {
+      return res.status(200).json({ available: false, message: "중복 닉네임" });
     }
+
+    return res.status(200).json({ available: true });
+  } catch (err) {
+    console.error("닉네임 중복 검사 오류:", err);
+    return res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// 닉네임 생성 라우트
+router.post("/set-nickname", authenticateJWT, async (req, res) => {
+  try {
+    const { nickname } = req.body;
+    const user = req.user;
+
+    const trimmedNickname = nickname.trim();
 
     // 사용자 정보 업데이트
     await prisma.user.update({
