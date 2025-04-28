@@ -7,6 +7,9 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useNavigate } from "react-router-dom";
 import InviteModal from "../components/InviteModal";
 import AddFriendModal from "../components/AddFriendModal";
+import FeedbackModal from "../components/FeedbackModal";
+
+
 
 export const Schedule = () => {
   const [activeDay, setActiveDay] = useState("ALL");
@@ -17,6 +20,7 @@ export const Schedule = () => {
   const inviteModalRef = useRef(null);
   const addModalRef = useRef(null);
   const inviteButtonRef = useRef(null);;
+  const [showFeedback, setShowFeedback] = useState(false);  // 피드백 받기
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -53,9 +57,6 @@ export const Schedule = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isAddOpen, isInviteOpen]);
-  
-  
-  
 
   const [days, setDays] = useState([
     {
@@ -151,10 +152,9 @@ export const Schedule = () => {
           {/* 초대 모달 */}
           {isInviteOpen && (
             <InviteModal
-              // 친구 목록 모달 닫을 때 친구 추가 모달도 같이 닫음
               onClose={() => {
                 setIsInviteOpen(false);
-                setIsAddOpen(false); // ← 조건 없이 그냥 같이 닫는 게 더 안전하고 직관적
+                setIsAddOpen(false);
               }}
               onAddFriendClick={() => setIsAddOpen(true)}
               modalRef={inviteModalRef}
@@ -194,26 +194,51 @@ export const Schedule = () => {
         )}
         </div>
 
-        {/* 탭 */}
+        {/* 탭 - 피드백 받기 버튼 추가*/}
         <div className="schedule-tab">
-          <div className={`day-tab ${activeDay === "ALL" ? "active" : ""}`} onClick={() => setActiveDay("ALL")}>전체 보기</div>
-          {days.map((_, idx) => (
+          <div className="day-tabs-left">
             <div
-              className={`day-tab ${activeDay === idx ? "active" : ""}`}
-              key={idx}
-              onClick={() => setActiveDay(idx)}
+              className={`day-tab ${activeDay === "ALL" ? "active" : ""}`}
+              onClick={() => setActiveDay("ALL")}
             >
-              DAY {idx + 1}
+              전체 보기
             </div>
-          ))}
+            {days.map((_, idx) => (
+              <div
+                className={`day-tab ${activeDay === idx ? "active" : ""}`}
+                key={idx}
+                onClick={() => setActiveDay(idx)}
+              >
+                DAY {idx + 1}
+              </div>
+            ))}
+          </div>
+
+          <div className="feedback-btn-wrap">
+          <button
+            className="feedback-btn-alone"
+            onClick={() => setShowFeedback(prev => !prev)}
+          >
+            ? 피드백 받기
+          </button>
+          </div>
         </div>
 
         {/* 일정 */}
         <div className="schedule-box">
-          <div className="view">
-            <img className="image" alt="지도" src={map} />
-          </div>
 
+        {/* 피드백 받기 */}
+        <div className="view">
+          {showFeedback ? (
+            <img className="image" alt="지도" src={map} style={{ display: 'none' }} />
+          ) : (
+            <img className="image" alt="지도" src={map} />
+          )}
+
+          {showFeedback && (
+            <FeedbackModal onClose={() => setShowFeedback(false)} />
+          )}
+        </div>
           <div className="schedule-list">
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="days" type="DAY">
