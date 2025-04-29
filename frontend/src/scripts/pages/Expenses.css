@@ -483,6 +483,7 @@
   flex-direction: column;
   align-items: center;
   width: 70px;
+  cursor: pointer;
 }
 
 .category-option {
@@ -498,6 +499,14 @@
 .category-option svg {
   width: 24px;
   height: 24px;
+  pointer-events: none; /* SVG 클릭 방지 */
+}
+
+/* 수정: 선택된 카테고리 강조 스타일 추가 */
+.expense-category-select .category-wrapper.selected {
+  background-color: #e0e0e0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2) !important;
 }
 
 .category-label {

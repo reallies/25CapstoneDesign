@@ -158,7 +158,18 @@ router.get("/:trip_id", authenticateJWT, async (req, res) => {
     const { trip_id } = req.params;
     const user = req.user;
 
-    const trip = await prisma.trip.findUnique({ where: { trip_id } });
+    // 수정: TripInvitation으로 필드 이름 변경
+    const trip = await prisma.trip.findUnique({
+      where: { trip_id },
+      include: {
+        days: { orderBy: { date: "asc" } },
+        TripInvitation: {
+          where: { status: "ACCEPTED" },
+          include: { User: { select: { user_id: true, nickname: true } } },
+        },
+        user: { select: { user_id: true, nickname: true } },
+      },
+    });
     if (!trip) {
       return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
     }
@@ -171,7 +182,19 @@ router.get("/:trip_id", authenticateJWT, async (req, res) => {
       return res.status(403).json({ message: "이 일정에 접근할 권한이 없습니다." });
     }
 
-    res.json({ message: "일정 조회 성공", trip });
+    const participants = [
+      { user_id: trip.user.user_id, nickname: trip.user.nickname },
+      ...trip.TripInvitation.map((inv) => ({
+        user_id: inv.User.user_id,
+        nickname: inv.User.nickname,
+      })),
+    ];
+
+    // 디버깅 로그 추가
+    console.log("Trip Data:", trip);
+    console.log("Participants:", participants);
+
+    res.json({ message: "일정 조회 성공", trip, participants });
   } catch (error) {
     console.error("일정 조회 중 오류:", error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
@@ -346,91 +369,98 @@ router.get("/:trip_id/expenses", authenticateJWT, async (req, res) => {
   });
 
   // 정산 계산
-router.get("/:trip_id/settle", authenticateJWT, async (req, res) => {
-  try {
-    const { trip_id } = req.params;
-    const user = req.user;
-
-    // 일정 존재 확인 및 권한 체크
-    const trip = await prisma.trip.findUnique({ where: { trip_id } });
-    if (!trip) {
-      return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
-    }
-
-    const isOwner = trip.user_id === user.user_id;
-    const invitation = await prisma.tripInvitation.findFirst({
-      where: { trip_id, invited_user_id: user.user_id, status: "ACCEPTED" },
-    });
-    if (!isOwner && !invitation) {
-      return res.status(403).json({ message: "이 일정의 정산 정보를 조회할 권한이 없습니다." });
-    }
-
-    // 참여자 목록 (소유자 + 초대받고 수락한 사용자)
-    const participants = [
-      await prisma.user.findUnique({ where: { user_id: trip.user_id }, select: { user_id: true, nickname: true } }),
-      ...(await prisma.tripInvitation.findMany({
-        where: { trip_id, status: "ACCEPTED" },
-        include: { User: { select: { user_id: true, nickname: true } } },
-      })).map(inv => inv.User),
-    ].filter(Boolean);
-
-    // 사용자별 지출 합계
-    const expenses = await prisma.expense.groupBy({
-      by: ["user_id"],
-      where: { trip_id },
-      _sum: { price: true },
-    });
-
-    const userExpenses = participants.map(participant => {
-      const expense = expenses.find(e => e.user_id === participant.user_id);
-      return {
-        user_id: participant.user_id,
-        nickname: participant.nickname,
-        total: expense?._sum.price || 0,
-      };
-    });
-
-    // 총 지출 및 평균 계산
-    const totalAmount = userExpenses.reduce((acc, u) => acc + u.total, 0);
-    const averageAmount = totalAmount / userExpenses.length;
-
-    // 각 사용자의 차액 계산
-    const balances = userExpenses.map(u => ({
-      nickname: u.nickname,
-      balance: u.total - averageAmount,
-    }));
-
-    // 송금 정보 계산 (최소 송금 횟수)
-    const creditors = balances.filter(b => b.balance > 0); // 받아야 할 사람
-    const debtors = balances.filter(b => b.balance < 0);   // 내야 할 사람
-    const settlements = [];
-    let i = 0, j = 0;
-
-    while (i < creditors.length && j < debtors.length) {
-      const amount = Math.min(creditors[i].balance, -debtors[j].balance);
-      if (amount > 0) {
-        settlements.push({
-          from: debtors[j].nickname,
-          to: creditors[i].nickname,
-          amount: Math.round(amount), // 소수점 반올림
-        });
+  router.get("/:trip_id/settle", authenticateJWT, async (req, res) => {
+    try {
+      const { trip_id } = req.params;
+      const user = req.user;
+  
+      // 일정 존재 확인 및 권한 체크
+      const trip = await prisma.trip.findUnique({ where: { trip_id } });
+      if (!trip) {
+        return res.status(404).json({ message: "해당 일정을 찾을 수 없습니다." });
       }
-      creditors[i].balance -= amount;
-      debtors[j].balance += amount;
-      if (creditors[i].balance <= 0) i++;
-      if (debtors[j].balance >= 0) j++;
+  
+      const isOwner = trip.user_id === user.user_id;
+      const invitation = await prisma.tripInvitation.findFirst({
+        where: { trip_id, invited_user_id: user.user_id, status: "ACCEPTED" },
+      });
+      if (!isOwner && !invitation) {
+        return res.status(403).json({ message: "이 일정의 정산 정보를 조회할 권한이 없습니다." });
+      }
+  
+      // 참여자 목록 (소유자 + 초대받고 수락한 사용자)
+      const participants = [
+        await prisma.user.findUnique({ where: { user_id: trip.user_id }, select: { user_id: true, nickname: true } }),
+        ...(await prisma.tripInvitation.findMany({
+          where: { trip_id, status: "ACCEPTED" },
+          include: { User: { select: { user_id: true, nickname: true } } },
+        })).map((inv) => inv.User),
+      ].filter(Boolean);
+  
+      // 사용자별 지출 합계
+      const expenses = await prisma.expense.groupBy({
+        by: ["user_id"],
+        where: { trip_id },
+        _sum: { price: true },
+      });
+  
+      const userExpenses = participants.map((participant) => {
+        const expense = expenses.find((e) => e.user_id === participant.user_id);
+        return {
+          user_id: participant.user_id,
+          nickname: participant.nickname,
+          total: expense?._sum.price || 0,
+        };
+      });
+  
+      // 수정: 디버깅 로그 추가
+      console.log("Participants:", participants);
+      console.log("User Expenses:", userExpenses);
+  
+      // 총 지출 및 평균 계산
+      const totalAmount = userExpenses.reduce((acc, u) => acc + u.total, 0);
+      const averageAmount = totalAmount / userExpenses.length;
+  
+      // 각 사용자의 차액 계산
+      const balances = userExpenses.map((u) => ({
+        nickname: u.nickname,
+        balance: u.total - averageAmount,
+      }));
+  
+      // 송금 정보 계산 (최소 송금 횟수)
+      const creditors = balances.filter((b) => b.balance > 0); // 받아야 할 사람
+      const debtors = balances.filter((b) => b.balance < 0); // 내야 할 사람
+      const settlements = [];
+      let i = 0,
+        j = 0;
+  
+      while (i < creditors.length && j < debtors.length) {
+        const amount = Math.min(creditors[i].balance, -debtors[j].balance);
+        if (amount > 0) {
+          settlements.push({
+            from: debtors[j].nickname,
+            to: creditors[i].nickname,
+            amount: Math.round(amount), // 소수점 반올림
+          });
+        }
+        creditors[i].balance -= amount;
+        debtors[j].balance += amount;
+        if (creditors[i].balance <= 0) i++;
+        if (debtors[j].balance >= 0) j++;
+      }
+  
+      // 수정: userExpenses를 응답에 포함
+      res.json({
+        message: "정산 정보",
+        total_amount: totalAmount,
+        average_amount: averageAmount,
+        settlements,
+        userExpenses, // 추가
+      });
+    } catch (error) {
+      console.error("정산 계산 오류:", error);
+      res.status(500).json({ message: "서버 오류가 발생했습니다." });
     }
-
-    res.json({
-      message: "정산 정보",
-      total_amount: totalAmount,
-      average_amount: averageAmount,
-      settlements,
-    });
-  } catch (error) {
-    console.error("정산 계산 오류:", error);
-    res.status(500).json({ message: "서버 오류가 발생했습니다." });
-  }
-});
+  });
 
 module.exports = router;
