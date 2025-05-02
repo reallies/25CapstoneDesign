@@ -7,12 +7,14 @@ import KakaoMap from "../components/KakaoMap";
 import PlaceSearchModal from "../components/PlaceSearchModal";
 import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
+import FeedbackModal from "../components/FeedbackModal";
 
 const Schedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false); 
 
   const { trip_id } = useParams();
   const {
@@ -117,6 +119,15 @@ const Schedule = () => {
               DAY {idx + 1}
             </div>
           ))}
+
+          <div className="feedback-btn-wrap">
+          <button
+            className="feedback-btn-alone"
+            onClick={() => setShowFeedback(prev => !prev)}
+          >
+            ? 피드백 받기
+          </button>
+          </div>
         </div>
 
         {/* 일정 */}
