@@ -64,7 +64,6 @@ export const Expenses = () => {
     OTHER: "etc",
   };
 
-  // 수정: 여행 정보 및 참가자 가져오기
   useEffect(() => {
     const fetchTrip = async () => {
       setIsLoading(true);
@@ -98,7 +97,6 @@ export const Expenses = () => {
     fetchTrip();
   }, [trip_id, token]);
 
-  // 정산 정보 가져오기
   useEffect(() => {
     const fetchSettlement = async () => {
       try {
@@ -117,7 +115,6 @@ export const Expenses = () => {
     fetchSettlement();
   }, [trip_id, token]);
 
-  // 수정: 지출 목록 가져오기
   useEffect(() => {
     const fetchExpenses = async () => {
       if (!activeDay || !trip_id || !dayTabs.length) {
@@ -147,7 +144,6 @@ export const Expenses = () => {
     fetchExpenses();
   }, [activeDay, trip_id, token, dayTabs]);
 
-  // 지출 추가 핸들러
   const handleAddExpense = async () => {
     if (!cost || !description || !category) {
       alert("모든 필드를 입력해주세요.");
@@ -184,7 +180,6 @@ export const Expenses = () => {
 
   const toggleReceipt = () => setIsReceiptOpen(!isReceiptOpen);
 
-  // 모달 외부 클릭 처리
   useEffect(() => {
     const handleClickOutside = (e) => {
       const invite = inviteModalRef.current;
@@ -209,7 +204,6 @@ export const Expenses = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isInviteOpen, isAddOpen]);
 
-  // 사용자별 송금 정보 필터링
   const userSettlements = settlementData?.settlements?.filter(
     (s) => s.from === currentUserNickname || s.to === currentUserNickname
   ) || [];
@@ -230,7 +224,7 @@ export const Expenses = () => {
               <div className="expense-tag">#군산시</div>
             </div>
             <div className="expense-menu">
-              <Link to={`/expenses/${trip_id}`} className="expense-menu-item">가계부</Link>
+              <Link to={`/schedule/${trip_id}`} className="expense-menu-item">일정</Link>
               <div className="expense-menu-item" onClick={() => setIsInviteOpen(true)}>초대</div>
               <div className="expense-menu-item">내 기록</div>
             </div>
@@ -353,7 +347,6 @@ export const Expenses = () => {
           />
         )}
 
-        {/* 수정: Day 탭 UI */}
         <div className="expense-days">
           {isLoading ? (
             <p>탭을 불러오는 중...</p>
@@ -372,7 +365,6 @@ export const Expenses = () => {
           )}
         </div>
 
-        {/* 수정: 지출 목록 UI */}
         <div className="expense-list">
           <div className="expense-category-list">
             {isLoading ? (

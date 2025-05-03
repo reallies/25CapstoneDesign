@@ -180,4 +180,46 @@ router.get("/pending", authenticateJWT, async (req, res) => {
   }
 });
 
+// 사용자 검색 (친구가 아닌 사용자 포함)
+router.get("/search", authenticateJWT, async (req, res) => {
+  try {
+    const { nickname } = req.query;
+    const user = req.user;
+
+    if (!nickname || typeof nickname !== "string") {
+      return res.status(400).json({ message: "닉네임을 입력해주세요." });
+    }
+
+    // 모든 사용자 검색 (본인 제외)
+    const users = await prisma.user.findMany({
+      where: {
+        nickname: { contains: nickname, mode: "insensitive" },
+        user_id: { not: user.user_id },
+      },
+      select: { user_id: true, nickname: true, image_url: true },
+    });
+
+    // 현재 친구 목록 조회
+    const friendships = await prisma.friendship.findMany({
+      where: {
+        OR: [{ requester_id: user.user_id }, { recipient_id: user.user_id }],
+        status: "ACCEPTED",
+      },
+      select: { requester_id: true, recipient_id: true },
+    });
+
+    const friendIds = friendships.map((f) =>
+      f.requester_id === user.user_id ? f.recipient_id : f.requester_id
+    );
+
+    // 친구가 아닌 사용자만 필터링
+    const nonFriends = users.filter((u) => !friendIds.includes(u.user_id));
+
+    res.json({ message: "사용자 검색 성공", users: nonFriends });
+  } catch (error) {
+    console.error("사용자 검색 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
