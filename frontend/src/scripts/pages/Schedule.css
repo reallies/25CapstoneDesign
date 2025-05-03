@@ -186,13 +186,15 @@
 
 /* 일정별 보기(탭) 버튼 영역 */
 .schedule .schedule-tab {
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 30px;
+    display: flex;
     position: absolute;
     top: 405px;
+    justify-content: space-between;
     left: 0;
     right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 0 40px;
     margin-left: -35px;
 }
@@ -224,9 +226,10 @@
 
 /* 일정 전체 영역 */
 .schedule .schedule-box {
+    display: flex;
     border-radius: 20px;
+    overflow: hidden;
     height: 924px;
-    position: absolute;
     top: 475px;
     left: 0;
     right: 0;
@@ -235,7 +238,9 @@
     box-sizing: border-box;
     background-color: #fff;
     margin: 0 auto;
-    display: flex;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px #00000040;
+    position: absolute;
 }
 
 .schedule .view {
@@ -250,14 +255,10 @@
 }
 
 .schedule .kakao-map {
-    height: 871px;
     left: 475px;
-    object-fit: cover;
     position: absolute;
     top: 27px;
     width: 940px;
-    border-radius: 20px;
-    box-shadow: 0 0 10px #00000020;
 }
 
 /* 일정 리스트 영역 */
@@ -389,12 +390,12 @@
     color: #fff;
     font-family: "SUITE-ExtraBold";
     font-size: 15px;
-    padding: 15px 65px;
+    padding: 15px 0;
     border-radius: 30px;
     text-align: center;
     cursor: pointer;
-    width: fit-content;
-    margin-top: 10px;
+    width: 60%;
+    min-width: 400px;
 }
 
 /* DAY 1 빨간 계열 */
@@ -417,16 +418,17 @@
     align-items: center;
     background-color: #00ADB5;
     border-radius: 30px;
-    display: flex;
+    display: flex; 
     gap: 10px;
     height: 32px;
     justify-content: center;
-    left: 1278px;
+    right: 20px;
     padding: 10px 13px;
     position: absolute;
-    top: 46px;
+    top: 20px;
     width: 93px;
     z-index: 100;
+    cursor: pointer;
 }
 
 .schedule .satellite-text {
@@ -547,7 +549,7 @@
     width: 420px;
     height: 500px;
     z-index: 10;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background: white;
     border-radius: 20px;
     overflow: hidden;

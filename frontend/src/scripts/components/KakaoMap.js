@@ -136,7 +136,7 @@ const KakaoMap = ({ days }) => {
   return (
     <div>
       {!mapLoaded && <p style={{ textAlign: "center" }}>지도를 불러오는 중입니다...</p>}
-      <div ref={mapRef} style={{ width: "100%", height: "900px", borderRadius: "12px" }} />
+      <div ref={mapRef} style={{ width: "100%", height: "870px", borderRadius: "12px" }} />
     </div>
   );
 };

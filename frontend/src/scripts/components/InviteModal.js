@@ -1,47 +1,181 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./InviteModal.css";
 import search2 from "../../assets/images/search2.svg";
 
-const InviteModal = ({ onClose, onAddFriendClick, modalRef }) => {
+// Axios 기본 설정
+const api = axios.create({
+  baseURL: "http://localhost:8080",
+  withCredentials: true,
+});
+
+const InviteModal = ({ onClose, onAddFriendClick, modalRef, tripId }) => {
   const [activeTab, setActiveTab] = useState("friend");
-
-  // 초기 더미 친구 목록
-  const initialFriendList = ["상상부기", "상찌", "한성냥이", "꼬꼬꾸꾸", "멍멍이", "냥냥이"];
-  const initialRequestList = ["예비부기", "상상몽"];
-  const initialInviteList = ["망상부기"];
-
-  // 상태 관리
+  const [friendListState, setFriendListState] = useState([]);
+  const [requestListState, setRequestListState] = useState([]);
+  const [inviteListState, setInviteListState] = useState([]);
   const [pendingInvites, setPendingInvites] = useState([]);
-  const [friendListState, setFriendListState] = useState(initialFriendList);
-  const [requestListState, setRequestListState] = useState(initialRequestList);
-  const [inviteListState, setInviteListState] = useState(initialInviteList);
+
+  // 데이터 가져오기
+  useEffect(() => {
+    const fetchFriendList = async () => {
+      try {
+        const response = await api.get("/friendship/list");
+        setFriendListState(response.data.friends || []);
+      } catch (error) {
+        console.error("친구 목록 조회 실패:", error);
+      }
+    };
+
+    const fetchPendingRequests = async () => {
+      try {
+        const response = await api.get("/friendship/pending");
+        setRequestListState(response.data.pendingRequests || []);
+      } catch (error) {
+        console.error("요청 목록 조회 실패:", error);
+      }
+    };
+
+    const fetchPendingInvites = async () => {
+      try {
+        const response = await api.get("/trip/invite/pending");
+        console.log("초대 목록 응답:", response.data);
+        setInviteListState(response.data.pendingInvitations || []);
+      } catch (error) {
+        console.error("초대 목록 조회 실패:", error.response ? error.response.data : error.message);
+        setInviteListState([]);
+      }
+    };
+
+    fetchFriendList();
+    fetchPendingRequests();
+    fetchPendingInvites();
+  }, []);
+
+  // 초대 기능
+  const handleInvite = async (friend) => {
+    if (!tripId) {
+      console.error("tripId가 정의되지 않았습니다.");
+      alert("여행 ID가 누락되었습니다. 올바른 여행을 선택해주세요.");
+      return;
+    }
+
+    try {
+      const response = await api.post("/trip/invite", {
+        trip_id: tripId,
+        invited_nickname: friend.nickname,
+      });
+      console.log("초대 전송 성공:", response.data);
+      setPendingInvites([...pendingInvites, friend.user_id]);
+      alert("초대가 성공적으로 전송되었습니다!");
+    } catch (error) {
+      console.error("초대 전송 실패:", error.response ? error.response.data : error.message);
+      alert(error.response?.data?.message || "초대 전송에 실패했습니다.");
+    }
+  };
+
+  // 요청 수락 기능
+  const handleAccept = async (friendshipId) => {
+    try {
+      await api.put("/friendship/accept", { friendship_id: friendshipId });
+      setRequestListState(requestListState.filter((req) => req.friendship_id !== friendshipId));
+      alert("친구 요청이 수락되었습니다!");
+    } catch (error) {
+      console.error("요청 수락 실패:", error);
+      alert(error.response?.data?.message || "요청 수락에 실패했습니다.");
+    }
+  };
+
+  // 요청 거절 기능
+  const handleReject = async (friendshipId) => {
+    try {
+      await api.put("/friendship/reject", { friendship_id: friendshipId });
+      setRequestListState(requestListState.filter((req) => req.friendship_id !== friendshipId));
+      alert("친구 요청이 거절되었습니다.");
+    } catch (error) {
+      console.error("요청 거절 실패:", error);
+      alert(error.response?.data?.message || "요청 거절에 실패했습니다.");
+    }
+  };
+
+  // 초대 수락 기능
+  const handleAcceptInvite = async (invitationId) => {
+    try {
+      await api.put("/trip/invite/accept", { invitation_id: invitationId });
+      setInviteListState(inviteListState.filter((inv) => inv.invitation_id !== invitationId));
+      alert("초대가 수락되었습니다!");
+    } catch (error) {
+      console.error("초대 수락 실패:", error);
+      alert(error.response?.data?.message || "초대 수락에 실패했습니다.");
+    }
+  };
+
+  // 초대 거절 기능
+  const handleRejectInvite = async (invitationId) => {
+    try {
+      await api.put("/trip/invite/reject", { invitation_id: invitationId });
+      setInviteListState(inviteListState.filter((inv) => inv.invitation_id !== invitationId));
+      alert("초대가 거절되었습니다.");
+    } catch (error) {
+      console.error("초대 거절 실패:", error);
+      alert(error.response?.data?.message || "초대 거절에 실패했습니다.");
+    }
+  };
 
   // 현재 탭에 따라 출력할 리스트 반환
   const getListByTab = () => {
-    if (activeTab === "friend") return friendListState;
-    if (activeTab === "request") return requestListState;
-    if (activeTab === "invite") return inviteListState;
-    return [];
-  };
-
-  // 초대 버튼 클릭 시 대기중 상태 토글
-  const handleInvite = (name) => {
-    if (pendingInvites.includes(name)) {
-      setPendingInvites(pendingInvites.filter(n => n !== name))
-    } else {
-      setPendingInvites([...pendingInvites, name]);
-    }
-  };
-
-  // 삭제 / 수락 / 거절 클릭 시 해당 리스트에서 항목 제거
-  const handleRemove = (name) => {
     if (activeTab === "friend") {
-      setFriendListState(friendListState.filter(n => n !== name));
+      return friendListState.map((friend, index) => (
+        <div key={index}>
+          <div className="friend-item">
+            <div className="rectangle" />
+            <div className="user-name">{friend.nickname}</div>
+            <div className="button-group">
+              {pendingInvites.includes(friend.user_id) ? (
+                <div className="frame pending">대기중</div>
+              ) : (
+                <div className="frame" onClick={() => handleInvite(friend)}>초대</div>
+              )}
+              <div className="frame danger" onClick={() => alert("친구 삭제 기능은 준비 중입니다.")}>삭제</div>
+            </div>
+          </div>
+          {index !== friendListState.length - 1 && <div className="gray-line" />}
+        </div>
+      ));
     } else if (activeTab === "request") {
-      setRequestListState(requestListState.filter(n => n !== name));
+      return requestListState.map((req, index) => (
+        <div key={index}>
+          <div className="friend-item">
+            <div className="rectangle" />
+            <div className="user-name">{req.requester_nickname}</div>
+            <div className="button-group">
+              <div className="frame" onClick={() => handleAccept(req.friendship_id)}>수락</div>
+              <div className="frame danger" onClick={() => handleReject(req.friendship_id)}>거절</div>
+            </div>
+          </div>
+          {index !== requestListState.length - 1 && <div className="gray-line" />}
+        </div>
+      ));
     } else if (activeTab === "invite") {
-      setInviteListState(inviteListState.filter(n => n !== name));
+      return inviteListState.length > 0 ? (
+        inviteListState.map((inv, index) => (
+          <div key={index}>
+            <div className="friend-item">
+              <div className="rectangle" />
+              <div className="user-name">{inv.trip_title}</div>
+              <div className="button-group">
+                <div className="frame" onClick={() => handleAcceptInvite(inv.invitation_id)}>수락</div>
+                <div className="frame danger" onClick={() => handleRejectInvite(inv.invitation_id)}>거절</div>
+              </div>
+            </div>
+            {index !== inviteListState.length - 1 && <div className="gray-line" />}
+          </div>
+        ))
+      ) : (
+        <div className="friend-item">받은 초대가 없습니다.</div>
+      );
     }
+    return [];
   };
 
   return (
@@ -80,39 +214,7 @@ const InviteModal = ({ onClose, onAddFriendClick, modalRef }) => {
       </div>
 
       {/* 리스트 출력 영역: 탭에 따른 친구 목록 */}
-      <div className="invite-modal-scroll">
-        {getListByTab().map((name, index) => (
-          <div key={index}>
-            <div className="friend-item">
-              <div className="rectangle" />
-              <div className="user-name">{name}</div>
-              <div className="button-group">
-                {/* 친구 목록 탭: 초대/철회 + 삭제 */}
-                {activeTab === "friend" && (
-                  <>
-                    {pendingInvites.includes(name) ? (
-                      <div className="frame pending" onClick={() => handleInvite(name)}>대기중</div>
-                    ) : (
-                      <div className="frame" onClick={() => handleInvite(name)}>초대</div>
-                    )}
-                    <div className="frame danger" onClick={() => handleRemove(name)}>삭제</div>
-                  </>
-                )}
-                {/* 요청/초대 탭: 수락 + 거절 */}
-                {(activeTab === "request" || activeTab === "invite") && (
-                  <>
-                    <div className="frame" onClick={() => handleRemove(name)}>수락</div>
-                    <div className="frame danger" onClick={() => handleRemove(name)}>거절</div>
-                  </>
-                )}
-              </div>
-            </div>
-            {index !== getListByTab().length - 1 && (
-              <div className="gray-line" />
-            )}
-          </div>
-        ))}
-      </div>
+      <div className="invite-modal-scroll">{getListByTab()}</div>
     </div>
   );
 };

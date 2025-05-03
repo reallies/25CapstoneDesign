@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate  } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useSchedule } from "../hooks/useSchedule";
 import deleteIcon from "../../assets/images/delete.svg"
 import KakaoMap from "../components/KakaoMap";
 import PlaceSearchModal from "../components/PlaceSearchModal";
+import InviteModal from "../components/InviteModal";
+import AddFriendModal from "../components/AddFriendModal";
 import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
 import FeedbackModal from "../components/FeedbackModal";
@@ -15,17 +17,20 @@ const Schedule = () => {
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
   
+  // 새로운 상태 추가
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
+
   const [showFeedback, setShowFeedback] = useState(false); //피드백 받기 
 
   const { trip_id } = useParams();
+  const navigate = useNavigate();
   const {
     trip,
     days,
     activeDay,
     setActiveDay,
     handlePlaceSelect,
-    handleAddMemo,
-    handleMemoChange,
     onDragEnd,
     handleDeletePlace,
   } = useSchedule(trip_id);
@@ -36,7 +41,20 @@ const Schedule = () => {
     }
   }, [trip]);
 
+  // 새로운 이벤트 핸들러
+  const handleExpensesClick = () => {
+    navigate(`/expenses/${trip_id}`);
+  };
 
+  const handleInviteClick = () => {
+    setIsInviteModalOpen(true);
+  };
+
+  const handleAddFriendClick = () => {
+    setIsAddFriendModalOpen(true);
+  };
+
+  // 기존 함수
   const toggleWeatherDropdown = () => {
     setIsWeatherDropdownOpen((prev) => !prev);
   };
@@ -69,9 +87,15 @@ const Schedule = () => {
             ))}
           </div>
           <div className="menu">
-            <div className="menu-item"><div className="menu-text">가계부</div></div>
-            <div className="menu-item"><div className="menu-text">초대</div></div>
-            <div className="menu-item"><div className="menu-text">내 기록</div></div>
+            <div className="menu-item" onClick={handleExpensesClick}>
+              <div className="menu-text">가계부</div>
+            </div>
+            <div className="menu-item" onClick={handleInviteClick}>
+              <div className="menu-text">초대</div>
+            </div>
+            <div className="menu-item">
+              <div className="menu-text">내 기록</div>
+            </div>
           </div>
         </div>
 
@@ -81,13 +105,9 @@ const Schedule = () => {
             <p className="weather-text">여행 기간 동안의 날씨 소식이에요</p>
             <div className="weather-dropdown-toggle" onClick={toggleWeatherDropdown}>
               장소별 날씨 보기
-              <span className={`dropdown-arrow ${isWeatherDropdownOpen ? "rotate" : ""}`}>
-                ∨
-              </span>
+              <span className={`dropdown-arrow ${isWeatherDropdownOpen ? "rotate" : ""}`}>∨</span>
             </div>
           </div>
-
-          {/* 드롭다운 메뉴 */}
           {isWeatherDropdownOpen && (
             <div className="weather-dropdown">
               {trip.destinations.map((d) => (
@@ -95,8 +115,8 @@ const Schedule = () => {
                   className="dropdown-item"
                   key={d}
                   onClick={() => {
-                    setSelectedCity(d); // ✅ 도시 선택
-                    setIsWeatherDropdownOpen(false); // 드롭다운 닫기
+                    setSelectedCity(d);
+                    setIsWeatherDropdownOpen(false);
                   }}
                 >
                   {d}
@@ -104,10 +124,9 @@ const Schedule = () => {
               ))}
             </div>
           )}
-          {selectedCity && <WeatherBox city={selectedCity} destinations={trip.destinations || []}/>
-        }
+          {selectedCity && <WeatherBox city={selectedCity} destinations={trip.destinations || []} />}
         </div>
-
+        
         {/* 탭 */}
         <div className="schedule-tab">
           <div className="day-tabs-left">
@@ -218,42 +237,10 @@ const Schedule = () => {
                                 </div>
                               )}
                             </Droppable>
-                            {/*MEMO 순서 변경 부분*/}
-                            <Droppable droppableId={`${day.id}-memo`} type="MEMO">
-                              {(provided) => (  
-                                <div ref={provided.innerRef} {...provided.droppableProps}>
-                                  {day.items
-                                    .filter((item) => item.type === "memo")
-                                    .map((item, itemIndex) => (
-                                      <Draggable key={item.id} draggableId={item.id} index={itemIndex}>
-                                        {(provided) => (
-                                          <div
-                                            className="memo-item"
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                          >
-                                            <textarea
-                                              className="memo-input"
-                                              placeholder="메모 입력란"
-                                              value={item.content}
-                                              onChange={(e) =>
-                                                handleMemoChange(dayIndex, itemIndex, e.target.value)
-                                              }
-                                            />
-                                            <div className="item-drag">≡</div>
-                                          </div>
-                                        )}
-                                      </Draggable>
-                                    ))}
-                                  {provided.placeholder}
-                                </div>
-                              )}
-                            </Droppable>
+
                             {/* 추가 버튼 */}
                             <div className="add-buttons">
                               <div className="action-btn" onClick={() => { setSelectedDayIndex(days.indexOf(day)); setIsModalOpen(true); }}>장소 추가</div>
-                              <div className="action-btn" onClick={() => handleAddMemo(days.indexOf(day))}>메모 추가</div>
                             </div>
                           </div>
                         )}
@@ -265,13 +252,25 @@ const Schedule = () => {
               </Droppable>
             </DragDropContext>
           </div>
-
-          <div className="delete">
-            <div className="delete-text">장소 삭제</div>
-          </div>
-
         </div>
       </div>
+
+      {/* InviteModal 렌더링 */}
+      {isInviteModalOpen && (
+        <InviteModal
+          onClose={() => setIsInviteModalOpen(false)}
+          onAddFriendClick={handleAddFriendClick}
+          tripId={trip_id} // trip_id 전달
+          modalRef={null} // 필요 시 ref 추가
+        />
+      )}
+
+      {/* AddFriendModal 렌더링 */}
+      {isAddFriendModalOpen && (
+        <AddFriendModal
+          onClose={() => setIsAddFriendModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
