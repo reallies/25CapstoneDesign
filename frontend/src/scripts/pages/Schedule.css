@@ -49,7 +49,6 @@
     margin-bottom: 10px;
 }
 
-
 .schedule .content {
     position: absolute;
     top: 230px;
@@ -87,6 +86,7 @@
     justify-content: center;
     height: 40px;
     padding: 12px 25px;
+    cursor: pointer;
 }
 
 .menu-text {
@@ -95,7 +95,6 @@
     font-size: 18px;
     font-weight: 700;
 }
-
 
 /* 날씨 */
 .schedule .weather {
@@ -187,16 +186,15 @@
 
 /* 일정별 보기(탭) 버튼 영역 */
 .schedule .schedule-tab {
-    align-items: center;
-    background-color: #ffffff;
-    border-radius: 30px;
-    display: flex;
-    gap: 10px;
-    height: 32px;
-    justify-content: center;
     position: absolute;
     top: 405px;
-    width: auto;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    margin-left: -35px;
 }
 
 /* DAY별 탭 */
@@ -226,12 +224,9 @@
 
 /* 일정 전체 영역 */
 .schedule .schedule-box {
-    display: flex;
-    flex-direction: row;
     border-radius: 20px;
     height: 924px;
-    position: relative;
-    overflow: hidden;
+    position: absolute;
     top: 475px;
     left: 0;
     right: 0;
@@ -240,8 +235,29 @@
     box-sizing: border-box;
     background-color: #fff;
     margin: 0 auto;
-    border: 2px solid #fff;
-    box-shadow: 0 0 10px #00000040;
+    display: flex;
+}
+
+.schedule .view {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px #00000040;
+    height: 924px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1440px;
+}
+
+.schedule .kakao-map {
+    height: 871px;
+    left: 475px;
+    object-fit: cover;
+    position: absolute;
+    top: 27px;
+    width: 940px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #00000020;
 }
 
 /* 일정 리스트 영역 */
@@ -257,7 +273,9 @@
     padding: 10px 16px;
     position: absolute;
     top: 19px;
-    width: 600px;
+    width: 430px;
+    max-width: 430px;
+    flex-shrink: 0;
 }
 
 /* 일정 목록 스크롤바 숨기기 */
@@ -271,8 +289,10 @@
     border-radius: 20px;
     box-shadow: 0 0 10px #00000040;
     padding: 20px;
-    margin: 10px 7px 20px;
-    max-width: none;
+    margin-bottom: 20px;
+    width: 430px;
+    max-width: 430px;
+    box-sizing: border-box;
 }
 
 /* DAY 헤더 */
@@ -423,29 +443,6 @@
     width: fit-content;
 }
 
-/* 메모 박스 */
-.schedule .memo-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 10px 15px;
-    margin-bottom: 15px;
-    border: 1px solid #e0e0e0;
-}
-
-.schedule .memo-input {
-    width: 100%;
-    border: none;
-    resize: none;
-    background-color: transparent;
-    font-family: "SUITE-Medium";
-    font-size: 16px;
-    color: #000000;
-    outline: none;
-}
-
 .schedule .item-drag {
     font-size: 20px;
     cursor: grab;
@@ -542,17 +539,11 @@
     position: relative;
 }
 
-.map-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
 /* 모달이 오른쪽 위에 뜨도록 */
 .place-modal-overlay {
     position: absolute;
-    top: 10px;
-    left: 20px;
+    top: 30px;
+    left: 475px;
     width: 420px;
     height: 500px;
     z-index: 10;
@@ -564,8 +555,28 @@
     padding: 20px;
 }
 
-div .kakao-map-container {
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
+/* 피드백 받기 */
+.day-tabs-left {
+    display: flex;
+    gap: 10px;
+}
+
+/* 새로 추가 */
+.feedback-btn-wrap {
+    margin-left: auto;
+}
+  
+/* 피드백 받기 버튼 */
+.feedback-btn-alone {
+    background-color: #000000;
+    color: white;
+    height: 50px;
+    width: 140px;
+    border: none;
+    border-radius: 10px;
+    font-family: "SUITE-ExtraBold", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    margin-right: -35px;
+    cursor: pointer;
 }

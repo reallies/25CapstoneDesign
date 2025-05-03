@@ -14,7 +14,8 @@ const Schedule = () => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false); 
+  
+  const [showFeedback, setShowFeedback] = useState(false); //피드백 받기 
 
   const { trip_id } = useParams();
   const {
@@ -109,17 +110,20 @@ const Schedule = () => {
 
         {/* 탭 */}
         <div className="schedule-tab">
-          <div className={`day-tab ${activeDay === "ALL" ? "active" : ""}`} onClick={() => setActiveDay("ALL")}>전체 보기</div>
-          {days.map((_, idx) => (
-            <div
-              className={`day-tab ${activeDay === idx ? "active" : ""}`}
-              key={idx}
-              onClick={() => setActiveDay(idx)}
-            >
-              DAY {idx + 1}
-            </div>
-          ))}
+          <div className="day-tabs-left">
+            <div className={`day-tab ${activeDay === "ALL" ? "active" : ""}`} onClick={() => setActiveDay("ALL")}>전체 보기</div>
+            {days.map((_, idx) => (
+              <div
+                className={`day-tab ${activeDay === idx ? "active" : ""}`}
+                key={idx}
+                onClick={() => setActiveDay(idx)}
+              >
+                DAY {idx + 1}
+              </div>
+            ))}
+          </div>
 
+          {/* 피드백 버튼 */}
           <div className="feedback-btn-wrap">
           <button
             className="feedback-btn-alone"
@@ -130,10 +134,38 @@ const Schedule = () => {
           </div>
         </div>
 
-        {/* 일정 */}
         <div className="schedule-box">
-          <div className="schedule-left">
+          {/* 오른쪽 파트 */}
+          <div className="view">
+            {!showFeedback && (
+              <>
+              <div className="kakao-map">
+                <KakaoMap days={days} />
+                <div className="satellite">
+                  <div className="satellite-text">위성 보기</div>
+                </div>
+              </div>
+              </>
+            )}
 
+            {showFeedback && (
+              <FeedbackModal onClose={() => setShowFeedback(false)} />
+            )}
+
+            {/* 장소 추가 모달 */}
+            {isModalOpen && (
+              <div className="place-modal-overlay">
+                <PlaceSearchModal
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  onSelect={(place) => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 왼쪽 파트 */}
+          <div className="schedule-list">
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="days" type="DAY">
                 {(provided) => (
@@ -234,34 +266,11 @@ const Schedule = () => {
             </DragDropContext>
           </div>
 
-          <div className="schedule-right">
-            <div className="map-container">
-
-              {/* 카카오 지도 */}
-              <KakaoMap days={days} />
-
-              {/* 장소 추가 모달 */}
-              {isModalOpen && (
-                <div className="place-modal-overlay">
-                  <PlaceSearchModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    onSelect={(place) => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}
-                  />
-                </div>
-              )}
-
-
-
-            </div>
+          <div className="delete">
+            <div className="delete-text">장소 삭제</div>
           </div>
 
-          <div className="satellite">
-            <div className="satellite-text">위성 보기</div>
-          </div>
         </div>
-
-
       </div>
     </div>
   );
