@@ -89,7 +89,6 @@ const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
                                     <div className="place-address">{getCityName(place.address_name)}</div>
                                 </div>
                                 <button className="select-btn" onClick={() => {
-                                    console.log("🟢 convertToPlace result:", convertToPlace(place))
                                     onSelect(convertToPlace(place))
                                 }}
                                 >
@@ -107,7 +106,7 @@ const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
 };
 
 const convertToPlace = (p) => {
-    console.log("🧪 원본 place 객체:", p);
+    console.log("원본 place 객체:", p);
     return { 
     kakao_place_id: p.id,
     place_name: p.place_name,

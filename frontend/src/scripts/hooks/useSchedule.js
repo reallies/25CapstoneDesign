@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 export const useSchedule = (trip_id) => {
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
     const [activeDay, setActiveDay] = useState("ALL");
-  
+
     // 여행 정보 불러오기
-    const fetchTrip = async () => {
+    const fetchTrip = useCallback(async () => {
         try {
             const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
                 credentials: "include",
@@ -16,38 +16,37 @@ export const useSchedule = (trip_id) => {
                 setTrip(data.trip);
 
                 const convertedDays = data.trip.days
-                .sort((a, b) => a.day_order - b.day_order)
-                .map((day, index) => {
-                    const tripStartDate = new Date(data.trip.start_date);
-                    const calculatedDate = new Date(tripStartDate);
-                    calculatedDate.setDate(tripStartDate.getDate() + (day.day_order - 1));
+                    .sort((a, b) => a.day_order - b.day_order)
+                    .map((day, index) => {
+                        const tripStartDate = new Date(data.trip.start_date);
+                        const calculatedDate = new Date(tripStartDate);
+                        calculatedDate.setDate(tripStartDate.getDate() + (day.day_order - 1));
 
-                    return {
-                    id: `day-${day.day_id}`,
-                    date: `| ${calculatedDate.getFullYear()}.${String(calculatedDate.getMonth() + 1).padStart(2, "0")}.${String(calculatedDate.getDate()).padStart(2, "0")}` +
-                        ` - ${calculatedDate.toLocaleDateString("ko-KR", { weekday: "short" })}`,
-                    color: ["red", "orange", "purple"][index % 3],
-                    items: day.places
-                        .sort((a, b) => a.dayplace_order - b.dayplace_order)
-                        .map((p) => ({
-                        id: `item-${p.dayplace_id}`,
-                        dayPlaceId: p.dayplace_id,
-                        type: "place",
-                        placeType: p.place_type || "관광명소",
-                        name: p.place.place_name,
-                        })),
-                    };
-                });
+                        return {
+                            id: `day-${day.day_id}`,
+                            date: `| ${calculatedDate.getFullYear()}.${String(calculatedDate.getMonth() + 1).padStart(2, "0")}.${String(calculatedDate.getDate()).padStart(2, "0")}` +
+                                ` - ${calculatedDate.toLocaleDateString("ko-KR", { weekday: "short" })}`,
+                            color: ["red", "orange", "purple"][index % 3],
+                            items: day.places
+                                .sort((a, b) => a.dayplace_order - b.dayplace_order)
+                                .map((p) => ({
+                                    id: `item-${p.dayplace_id}`,
+                                    dayPlaceId: p.dayplace_id,
+                                    type: "place",
+                                    placeType: p.place_type || "관광명소",
+                                    name: p.place.place_name,
+                                })),
+                        };
+                    });
                 setDays(convertedDays);
             }
         } catch (err) {
             console.error("여행 정보를 불러오지 못함:", err);
         }
-    };
+    }, [trip_id]);
 
     //장소 추가
     const handlePlaceSelect = async (dayIndex, place, setIsModalOpen) => {
-        console.log("✅ 선택된 place 정보", place);
 
         const day = days[dayIndex];
         const dayId = Number(day.id.replace("day-", ""));
@@ -58,14 +57,14 @@ export const useSchedule = (trip_id) => {
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
-                kakao_place_id: place.kakao_place_id,
-                place_name: place.place_name,
-                place_address: place.place_address,
-                place_latitude: place.latitude,
-                place_longitude: place.longitude,
-                place_image_url: place.image_url || "",
-                place_star: place.place_star,
-                place_call_num: place.call,
+                    kakao_place_id: place.kakao_place_id,
+                    place_name: place.place_name,
+                    place_address: place.place_address,
+                    place_latitude: place.latitude,
+                    place_longitude: place.longitude,
+                    place_image_url: place.image_url || "",
+                    place_star: place.place_star,
+                    place_call_num: place.call,
                 }),
             });
 
@@ -74,12 +73,12 @@ export const useSchedule = (trip_id) => {
             if (res.ok && data.data) {
                 const newDays = [...days];
                 newDays[dayIndex].items.push({
-                id: `item-${data.data.dayPlace.dayplace_id}`,
-                dayPlaceId: data.data.dayPlace.dayplace_id,
-                type: "place",
-                name: data.data.place.place_name,
-                placeType: "관광명소",
-                ...data.data.place,
+                    id: `item-${data.data.dayPlace.dayplace_id}`,
+                    dayPlaceId: data.data.dayPlace.dayplace_id,
+                    type: "place",
+                    name: data.data.place.place_name,
+                    placeType: "관광명소",
+                    ...data.data.place,
                 });
                 setDays(newDays);
                 setIsModalOpen(false);
@@ -96,7 +95,7 @@ export const useSchedule = (trip_id) => {
             id: `memo-${Date.now()}`,
             type: "memo",
             content: "",
-            });
+        });
         setDays(newDays);
     };
 
@@ -134,8 +133,8 @@ export const useSchedule = (trip_id) => {
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
-                previous: source.index,
-                present: destination.index,
+                    previous: source.index,
+                    present: destination.index,
                 }),
             });
             await fetchTrip();
@@ -161,14 +160,14 @@ export const useSchedule = (trip_id) => {
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
-                previous: {
-                    day_id: Number(days[sourceDayIndex].id.replace("day-", "")),
-                    dayplace_id: movedItem.dayPlaceId,
-                },
-                present: {
-                    day_id: Number(days[destDayIndex].id.replace("day-", "")),
-                    dayplace_order: destination.index + 1,
-                },
+                    previous: {
+                        day_id: Number(days[sourceDayIndex].id.replace("day-", "")),
+                        dayplace_id: movedItem.dayPlaceId,
+                    },
+                    present: {
+                        day_id: Number(days[destDayIndex].id.replace("day-", "")),
+                        dayplace_order: destination.index + 1,
+                    },
                 }),
             });
             await fetchTrip();
@@ -182,33 +181,33 @@ export const useSchedule = (trip_id) => {
         if (!destination) return;
 
         switch (type) {
-        case "DAY":
-            handleDayDragEnd(result);
-            break;
-        case "PLACE":
-            handlePlaceDragEnd(result);
-            break;
-        case "MEMO":
-            handleMemoDragEnd(result);
-            break;
-        default:
-            break;
+            case "DAY":
+                handleDayDragEnd(result);
+                break;
+            case "PLACE":
+                handlePlaceDragEnd(result);
+                break;
+            case "MEMO":
+                handleMemoDragEnd(result);
+                break;
+            default:
+                break;
         }
     };
 
     //장소 삭제
-    const handleDeletePlace = async (dayId,dayPlaceId) => {
+    const handleDeletePlace = async (dayId, dayPlaceId) => {
         const numericDayId = Number(dayId.replace("day-", ""));
 
         setDays((prevDays) => {
             return prevDays.map((day) => {
-              if (day.id === dayId) {
-                return {
-                  ...day,
-                  items: day.items.filter((item) => item.dayPlaceId  !== dayPlaceId),
-                };
-              }
-              return day;
+                if (day.id === dayId) {
+                    return {
+                        ...day,
+                        items: day.items.filter((item) => item.dayPlaceId !== dayPlaceId),
+                    };
+                }
+                return day;
             });
         });
 
@@ -225,7 +224,7 @@ export const useSchedule = (trip_id) => {
 
     useEffect(() => {
         if (trip_id) fetchTrip();
-    }, [trip_id]);
+    }, [trip_id, fetchTrip]);
 
     return {
         trip,
