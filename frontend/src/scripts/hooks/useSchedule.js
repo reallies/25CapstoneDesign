@@ -35,6 +35,8 @@ export const useSchedule = (trip_id) => {
                                     type: "place",
                                     placeType: p.place_type || "관광명소",
                                     name: p.place.place_name,
+                                    latitude: p.place.place_latitude,    
+                                    longitude: p.place.place_longitude,  
                                 })),
                         };
                     });
