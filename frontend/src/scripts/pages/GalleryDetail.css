@@ -1,0 +1,253 @@
+/* ===== 전체 컨테이너 설정 ===== */
+.detail-container {
+    max-width: 1280px;
+    margin: 40px auto;
+    font-family: 'SUITE', sans-serif;
+    padding: 0 20px;
+}
+
+/* ===== 제목 및 설명 영역 ===== */
+.detail-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.detail-desc {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 10px;
+    color: #333;
+}
+
+/* ===== 작성자 정보 메타 영역 ===== */
+.detail-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.profile-circle {
+    width: 48px;
+    height: 48px;
+    background-color: #ccc;
+    border-radius: 50%;
+}
+
+.meta-text {
+    flex: 1;
+    margin-left: 12px;
+    font-size: 13px;
+}
+
+.nickname {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.friend-link {
+    font-size: 15px;
+    color: #00b5ad;
+    cursor: pointer;
+}
+
+.friend-link.pending {
+    color: orange;
+    background: none;
+}
+
+.time {
+    font-size: 14px;
+    font-weight: 500;
+    color: #888;
+}
+
+.meta-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.meta-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.meta-btn.follow {
+    background-color: #00ADB5;
+    color: white;
+}
+
+.meta-btn.view-schedule {
+    border: 1px solid #00ADB5;
+    background-color: white;
+    color: #00ADB5;
+}
+
+/* ===== 구분선 ===== */
+.divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+
+/* ===== 사진 + 장소 + 설명 영역 ===== */
+.photo-section {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.photo-img {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.photo-location {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.location-icon {
+    width: 30px;
+    height: 30px;
+    vertical-align: middle;
+}
+
+.gallery-detail-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #000000;
+    margin-bottom: 16px;
+}
+
+/* ===== 일정 보기 상단 탭 ===== */
+.gallery-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.gallery-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid #cfcfcf;
+    border-radius: 999px;
+    height: 48px;
+    padding: 0 20px;
+    font-family: "SUITE-ExtraBold", Helvetica;
+    font-size: 16px;
+    font-weight: 600;
+    color: #cfcfcf;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+
+.gallery-tab.active {
+    background-color: #00ADB5;
+    color: #ffffff;
+    border: none;
+}
+
+/* ===== 일정 전체 레이아웃 ===== */
+.gallery-schedule {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.gallery-schedule-list {
+    width: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: visible;
+    padding: 8px;
+}
+
+.gallery-schedule-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* ===== 일정 카드 영역 ===== */
+.day-card {
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.day-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.day-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #000;
+}
+
+.day-date {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7e7e7e;
+}
+
+.schedule-ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ===== 각 일정 항목 ===== */
+.schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f3f3f3;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.item-number {
+    background-color: #00ADB5;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    text-align: center;
+    line-height: 32px;
+    font-weight: 700;
+}
+
+.item-name {
+    font-size: 16px;
+}
+
+/* ===== 지도 이미지 ===== */
+.schedule-map {
+    border-radius: 20px;
+    width: 600px;
+    height: auto;
+}
