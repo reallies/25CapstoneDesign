@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import "./Expenses.css";
 import InviteModal from "../components/InviteModal";
 import AddFriendModal from "../components/AddFriendModal";
@@ -22,6 +22,7 @@ export const Expenses = () => {
   const [isSettlementOpen, setIsSettlementOpen] = useState(false);
   const inviteModalRef = useRef(null);
   const addModalRef = useRef(null);
+  const navigate = useNavigate();
 
   const toggleReceipt = () => setIsReceiptOpen(!isReceiptOpen);
 
@@ -79,7 +80,9 @@ export const Expenses = () => {
               >
                 초대
               </div>
-              <div className="expense-menu-item">내 기록</div>
+              <div className="expense-menu-item" onClick={() => navigate("/schedules")}>
+                여행 일정
+              </div>
             </div>
           </div>
 
