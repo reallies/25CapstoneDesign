@@ -6,6 +6,7 @@ import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
+import AlertModal from "../components/AlertModal";
 
 const Home = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -15,15 +16,11 @@ const Home = () => {
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedCompanions, setSelectedCompanions] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
-  const [selectedMode, setSelectedMode] = useState("ai");
   const searchFieldRefs = useRef({});
   const navigate = useNavigate();
   const alertShownRef = useRef(false);
-
-  // AI / 직접 일정 핸들러
-  const handleModeChange = (mode) => {
-    setSelectedMode(mode);
-  };
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
 
   // 모달 위치
   const [destinationModalPosition, setDestinationModalPosition] = useState({ top: 250, left: 100 });
@@ -39,20 +36,19 @@ const Home = () => {
       if (selectedDestinations.length >= 3) {
         if (!alertShownRef.current) {
           alertShownRef.current = true;
-          alert("최대 3개까지만 선택 가능합니다.");
+          setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
+          setAlertOpen(true);
           setTimeout(() => {
             alertShownRef.current = false;
           }, 1000);
         }
         return;
       }
-  
       const updated = [...selectedDestinations, region];
       setSelectedDestinations(updated);
       setDestinationInput(updated.join(", "));
     }
   };
-
 
   // 여행 테마 토글 핸들러
   const toggleTheme = (theme) => {
@@ -154,21 +150,6 @@ const Home = () => {
     <div className="main-container">
       {/* 검색 바 */}
       <div className="search-box" style={{ height: "auto" }}>
-      <div className="button-container">
-        <button 
-          className={`rounded-button ${selectedMode === "ai" ? "active" : ""}`} 
-          onClick={() => handleModeChange("ai")}
-        >
-          AI 일정
-        </button>
-        <button 
-          className={`text-button ${selectedMode === "manual" ? "active" : ""}`} 
-          onClick={() => handleModeChange("manual")}
-        >
-          직접 짜기
-        </button>
-      </div>
-
         <div className="search-content">
         {/* 여행지 필드 */}
         <div 
@@ -176,22 +157,28 @@ const Home = () => {
           ref={(el) => (searchFieldRefs.current["destination"] = el)}
           onClick={(e) => openModal("destination", e)}
         >
-          <span className="placeholder-text">여행지</span>
-          <input
-          type="text"
-          value={destinationInput}
-          onClick={(e) => {
-            e.stopPropagation();
-            openModal("destination", e);
-          }}
-          onChange={(e) => {
-            const value = e.target.value;
-            setDestinationInput(value);
-            if (value.trim() !== "") {
-              openModal("destinationSearch", e);
-            }
-          }}
-        />
+          <span className="field-label">여행지</span>
+
+          <div className="input-wrapper">
+            {destinationInput === "" && (
+              <span className="custom-placeholder">여행지 검색</span>
+            )}
+            <input
+              type="text"
+              value={destinationInput}
+              onClick={(e) => {
+                e.stopPropagation();
+                openModal("destination", e);
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                setDestinationInput(value);
+                if (value.trim() !== "") {
+                  openModal("destinationSearch", e);
+                }
+              }}
+            />
+          </div>
         </div>
           <div 
             className="search-field"
@@ -260,20 +247,32 @@ const Home = () => {
         <div className="travel-gallery">
           <div className="gallery-title">여행 갤러리</div>
           <div className="gallery-container">
-          {galleryData.map((item, index) => (
-            <div className={`gallery-card ${item.isLast ? "last-card" : ""}`} key={index}>
-              <div className="gallery-card-inner">
-                <img className="gallery-image" src={item.img} alt="여행 이미지" />
-                {!item.isLast && <div className="gallery-subtitle">{item.subtitle}</div>}
-                <div className="gallery-description">{item.description}</div>
-                <div className="gallery-buttons">
-                  <button className="gallery-button">DAY 보기</button>
-                  <button className="gallery-button">여행 코스 보기</button>
+            {galleryData.map((item, index) => (
+              <div
+                className={`gallery-card ${item.isLast ? "last-card" : ""}`}
+                key={index}
+                onClick={() => {
+                  if (item.isLast) navigate("/gallery");
+                }}
+                style={{ cursor: item.isLast ? "pointer" : "default" }}
+              >
+                <div className="gallery-card-inner">
+                  <img className="gallery-image" src={item.img} alt="여행 이미지" />
+
+                  {!item.isLast && (
+                    <>
+                      <div className="gallery-subtitle">{item.subtitle}</div>
+                      <div className="gallery-description">{item.description}</div>
+                      <div className="gallery-buttons">
+                        <button className="gallery-button">게시글 보기</button>
+                        <button className="gallery-button">일정 보기</button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
         <div className="my-records">
           <div className="records-title">내 기록</div>
@@ -288,6 +287,9 @@ const Home = () => {
                 key={index}
                 className={`record-card ${record.isLast ? "last-rcard" : ""}`}
                 style={!record.isLast ? { backgroundImage: `url(${record.img})` } : {}}
+                onClick={() => {
+                  if (record.isLast) navigate("/record");
+                }}
               >
                 {!record.isLast ? (
                   <div className="record-text">{record.text}</div>
@@ -320,9 +322,10 @@ const Home = () => {
                       updated = prev.filter((r) => r !== region);
                     } else {
                       if (prev.length >= 3) {
-                        alert("최대 3개까지만 선택 가능합니다.");
+                        setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
+                        setAlertOpen(true);
                         return prev;
-                      }
+                      }                      
                       updated = [...prev, region];
                     }
                     setDestinationInput(updated.join(", "));
@@ -385,7 +388,8 @@ const Home = () => {
                   const diffInDays = diffInTime / (1000 * 3600 * 24);
 
                   if (diffInDays > 7) {
-                    alert("여행 기간은 최대 7일까지 선택 가능합니다.");
+                    setAlertText("여행 기간은 최대 7일까지 선택 가능합니다.");
+                    setAlertOpen(true);
                     return;
                   }
                 }
@@ -450,8 +454,13 @@ const Home = () => {
         </div>
       )}
 
+      {/* 하단 챗봇 컴포넌트 */}
       <ChatBot />
-
+      
+      {/* 경고 모달 */}
+      {alertOpen && (
+        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+      )}
     </div>
   );
 };

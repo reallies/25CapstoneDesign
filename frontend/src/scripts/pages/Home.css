@@ -46,40 +46,6 @@ input, textarea {
   transition: all 0.2s ease-in-out;
 }
 
-/* 일정 선택 버튼 */
-.button-container {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* 기본 스타일 */
-.rounded-button, .text-button {
-  background: none;
-  border: none;
-  font-family: "SUITE";
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 10px 20px;
-}
-
-/* 활성화된 버튼 스타일 */
-.rounded-button.active {
-  background: #00ADB5;
-  color: white;
-  border-radius: 50px;
-}
-
-.text-button.active {
-  background: #00ADB5;
-  color: white;
-  border-radius: 50px;
-}
-
 /* 검색 필드 */
 .search-content {
   display: flex;
@@ -109,21 +75,16 @@ input, textarea {
   overflow: hidden;
 }
 
-/* 기존 텍스트 */
-.placeholder-text {
-  font-size: 16px;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-/* 새로운 텍스트 */
-.selected-text {
+.search-field input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: "SUITE";
   font-size: 18px;
-  font-weight: 700;
-  color: rgb(0, 0, 0);
-  margin-top: 5px;
-  white-space: normal;
-  word-break: break-word;
+  font-weight: 500;
+  color: black;
+  outline: none;
+  cursor: text;
 }
 
 /* 일정 만들기 버튼 */
@@ -147,7 +108,7 @@ input, textarea {
 /* === 공통 모달 스타일 === */
 .modal-overlay {
   position: absolute;
-  top: -1.5%;
+  top: 0;
   left: 0px;
   width: 100%;
   height: 100%;
@@ -171,11 +132,20 @@ input, textarea {
   position: absolute;
 }
 
+.selected-text {
+  font-family: "SUITE";
+  font-size: 18px; 
+  font-weight: 500;
+  color: black;
+  margin-top: 5px;
+}
+
+
 /* === 여행지 선택 모달 === */
 .region-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 20px !important;
   justify-content: center;
   margin-top: 20px;
 }
@@ -195,6 +165,50 @@ input, textarea {
 .region-btn.active {
   background: #00adb5;
   color: #ffffff;
+}
+
+.destination-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #000;
+  outline: none;
+}
+
+.field-label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 4px 0;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  z-index: 2;
+  position: relative;
+  color: #222;
+  margin: 0;
+}
+
+.custom-placeholder {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  color: #bbb;
+  font-size: 16px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* === 여행 날짜 선택 모달 === */
@@ -647,14 +661,11 @@ button {
 /* === 여행 갤러리 & 내 기록 === */
 .gallery-records-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
-  width: 100%;
-  max-width: 2200px;
-  height: fit-content;
-  gap: 110px;
+  gap: 50px;
   margin-top: 80px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .gallery-card-inner {
@@ -785,74 +796,60 @@ button {
 
 /* 내 기록 */
 .my-records {
-  flex: 1;
-  min-width: 270px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
+  width: 350px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 30px;
 }
 
+
 .records-title {
-  font-family: "SUITE";
-  font-size: 30px;
-  font-weight: 700;
-  text-transform: uppercase;
   text-align: left;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  white-space: nowrap;
 }
 
 .records-container {
   display: grid;
-  grid-template-columns: repeat(2, auto);
-  grid-gap: 15px;
-  justify-content: flex-end;
-  margin-top: 20px;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(2, 160px);
+  gap: 16px;
+  justify-content: start;
 }
 
-/* 내 기록 카드 */
 .record-card {
-  width: 175px;
-  height: 175px;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  box-shadow: 1px 1px 3px 2px rgba(0, 0, 0, 0.25);
+  position: relative;
+  cursor: pointer;
   display: flex;
-  align-items: flex-end;
   justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 14px;
+  align-items: flex-end;
+  overflow: hidden;
 }
 
 .record-text {
-  position: absolute;
-  bottom: 0;
   width: 100%;
-  background: rgba(190, 190, 190, 0.6);
-  padding: 5px 0;
-  text-align: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
   font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
+  padding: 6px;
+  text-align: center;
+  border-radius: 0 0 12px 12px;
 }
 
-/* 추가 카드 */
 .last-rcard {
+  background-color: #d9d9d9;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
 }
 
-/* 추가 아이콘 */
 .plus-icon {
   width: 40px;
   height: 40px;
-  object-fit: contain;
-  cursor: pointer;
 }
