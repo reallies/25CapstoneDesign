@@ -82,7 +82,7 @@ const Home = () => {
   const openModal = (modalType, event) => {
     let rect;
     if ((modalType === "destinationSearch" || modalType === "destination") && searchFieldRefs.current["destination"]) {
-      rect = searchFieldRefs.current["destination"].getBoundingClientRect();  // 무조건 search-field 기준으로
+      rect = searchFieldRefs.current["destination"].getBoundingClientRect();
     } else if (event) {
       rect = event.target.getBoundingClientRect();
     }
@@ -264,8 +264,12 @@ const Home = () => {
                       <div className="gallery-subtitle">{item.subtitle}</div>
                       <div className="gallery-description">{item.description}</div>
                       <div className="gallery-buttons">
-                        <button className="gallery-button">게시글 보기</button>
-                        <button className="gallery-button">일정 보기</button>
+                      <button
+                        className="gallery-button"
+                        onClick={() => navigate("/gallery-detail")}
+                      >
+                        게시글 보기
+                      </button>
                       </div>
                     </>
                   )}
@@ -344,6 +348,7 @@ const Home = () => {
           </div>
         </div>
       )}
+      {/* 임시 다중 선택창 */}
       {activeModal === "destinationSearch" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
