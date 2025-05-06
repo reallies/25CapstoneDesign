@@ -194,6 +194,9 @@
     align-items: center;
     padding: 0 40px;
     margin-left: -35px;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
 }
 
 .schedule .day-tab {
@@ -298,6 +301,7 @@
 .schedule .day-title {
     font-family: "SUITE-ExtraBold";
     font-size: 20px;
+    font-weight: 600;
     color: #000;
 }
 
