@@ -145,7 +145,7 @@ export const Schedule = () => {
               <div className="menu-text">초대</div>
             </div>
             <div className="menu-item">
-              <div className="menu-text">내 기록</div>
+              <div className="menu-text">여행 일정</div>
             </div>
           </div>
 
