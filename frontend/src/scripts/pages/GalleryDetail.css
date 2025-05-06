@@ -251,3 +251,17 @@
     width: 600px;
     height: auto;
 }
+
+.edit-delete-top-right {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 14px;
+    color: #717171;
+    margin-bottom: 10px;
+  }
+  
+  .edit-delete-top-right span {
+    cursor: pointer;
+    margin: 0 4px;
+  }
+  
