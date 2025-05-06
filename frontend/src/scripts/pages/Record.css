@@ -96,22 +96,22 @@
 /* ===== 등록 버튼 ===== */
 .record-submit-btn {
     background: #00ADB5;
-    font-size: 15px;
+    font-size: 16px;
     color: white;
     border: none;
     padding: 10px 26px;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
 }
 
 /* ===== 취소 버튼 ===== */
 .record-cancel-btn {
     background: white;
-    font-size: 15px;
+    font-size: 16px;
     border: 1px solid #00ADB5;
     color: #00ADB5;
     padding: 10px 26px;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
 }
 
