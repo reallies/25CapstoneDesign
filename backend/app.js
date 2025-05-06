@@ -64,6 +64,9 @@ app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 const scheduleRoutes = require("./src/routes/scheduleRoutes");
 app.use("/schedule",scheduleRoutes);
 
+//피드백
+const feedbackRoutes = require("./src/routes/feedbackRoutes");
+app.use("/feedback",feedbackRoutes);
 
 // 글로벌 에러 핸들러
 app.use((err, req, res, next) => {

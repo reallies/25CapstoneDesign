@@ -48,5 +48,20 @@ router.delete("/:trip_id", authenticateJWT, tripController.deleteTripController)
 //9. AI 추천 일정 자동 생성 - 무시
 router.post("/:trip_id/generate-days", authenticateJWT, tripController.generateDaysController);
 
+//11. 시간추가
+router.patch("/day/:day_id/dayplace/:dayplace_id/time",async(req,res) => {
+  const {dayplace_id} = req.params;
+  const {dayplace_time} = req.body;
+
+  try{
+    const updated = await prisma.dayPlace.update({
+      where:{dayplace_id: Number(dayplace_id)},
+      data:{dayplace_time: dayplace_time },
+    });
+    res.json(updated);
+  }catch(error){
+    res.status(500).json({ error: 'dayPlace_time 저장 중 오류' });
+  }
+})
 
 module.exports = router;

@@ -10,18 +10,24 @@ import AddFriendModal from "../components/AddFriendModal";
 import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
 import FeedbackModal from "../components/FeedbackModal";
+import TimePickerModal from "../components/TimePIckerModal"
 
 const Schedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
-  
+
   // 새로운 상태 추가
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
 
-  const [showFeedback, setShowFeedback] = useState(false); //피드백 받기 
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState();
+  const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
+  const [selectedDayPlaceId, setSelectedDayPlaceId] = useState(null);
+  const [selectedDayId, setSelectedDayId] = useState(null);
+  const [dayPlaceTimeMap, setDayPlaceTimeMap] = useState({});
 
   const { trip_id } = useParams();
   const navigate = useNavigate();
@@ -53,6 +59,16 @@ const Schedule = () => {
   const handleAddFriendClick = () => {
     setIsAddFriendModalOpen(true);
   };
+
+  const handleFeedback = () =>{
+    setShowFeedback(true);
+    setLoadingFeedbacks(true);
+  }
+  const handleDayplaceTime = (dayId, dayPlaceId) =>{
+    setSelectedDayId(dayId);
+    setSelectedDayPlaceId(dayPlaceId);
+    setIsTimeModalOpen(true);
+  }
 
   // 기존 함수
   const toggleWeatherDropdown = () => {
@@ -146,7 +162,7 @@ const Schedule = () => {
           <div className="feedback-btn-wrap">
           <button
             className="feedback-btn-alone"
-            onClick={() => setShowFeedback(prev => !prev)}
+            onClick={handleFeedback}
           >
             ? 피드백 받기
           </button>
@@ -168,7 +184,7 @@ const Schedule = () => {
             )}
 
             {showFeedback && (
-              <FeedbackModal onClose={() => setShowFeedback(false)} />
+              <FeedbackModal tripId={trip_id} onClose={() => setShowFeedback(false)} />
             )}
 
             {/* 장소 추가 모달 */}
@@ -178,6 +194,24 @@ const Schedule = () => {
                   isOpen={isModalOpen}
                   onClose={handleCloseModal}
                   onSelect={(place) => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}
+                />
+              </div>
+            )}
+
+            {/* 시간 추가 모달 */}
+            {isTimeModalOpen && (
+              <div className="place-modal-overlay">
+                <TimePickerModal
+                  dayId={selectedDayId}
+                  dayPlaceId={selectedDayPlaceId}
+                  onClose={() => setIsTimeModalOpen(false)}
+                  onTimeConfirm={(dayPlaceId, time) => {
+                    setDayPlaceTimeMap((prev) => ({
+                      ...prev,
+                      [dayPlaceId]: time,
+                    }));
+                    setIsTimeModalOpen(false);
+                  }}
                 />
               </div>
             )}
@@ -222,13 +256,20 @@ const Schedule = () => {
                                           >
                                             <div className="item-number">
                                               {itemIndex + 1}
-                                            </div>
+                                            </div> 
                                             <div className="item-content">
-                                              <div className="place-type">{item.placeType}</div>
+                                              <div className="item-content2">
+                                                <div className="place-type">{item.placeType}</div>
+                                                <div className="time" onClick={() => handleDayplaceTime(Number(day.id.replace("day-","")), item.dayPlaceId)}>
+                                                  {dayPlaceTimeMap[item.dayPlaceId] || "time"}
+                                                </div>
+                                              </div>
                                               <div className="place-name">{item.name}</div>
                                             </div>
-                                            <img src={deleteIcon} alt="삭제" className="delete-icon" onClick={() => handleDeletePlace(day.id, item.dayPlaceId)} />
-                                            <div className="item-drag">≡</div>
+                                            <div className="item-actions">
+                                              <img src={deleteIcon} alt="삭제" className="delete-icon" onClick={() => handleDeletePlace(day.id, item.dayPlaceId)} />
+                                              <div className="item-drag">≡</div>
+                                            </div>
                                           </div>
                                         )}
                                       </Draggable>
