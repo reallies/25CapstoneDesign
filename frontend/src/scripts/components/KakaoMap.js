@@ -1,6 +1,7 @@
 // KakaoMap.js
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import "./KakaoMap.css";
 
 const KakaoMap = ({ days }) => {
   const mapRef = useRef(null);
@@ -8,17 +9,27 @@ const KakaoMap = ({ days }) => {
   const markersRef = useRef([]);
   const polylineRef = useRef([]);
 
+  const roadviewClientRef = useRef(null);
+  const roadviewRef = useRef(null);
+  const roadviewContainerRef = useRef(null);
+
+  const [isRoadviewMode, setIsRoadviewMode] = useState(false);
+  const [isRoadviewVisible, setIsRoadviewVisible] = useState(false);// 로드뷰 화면 오버레이
+  const [selectedPosition, setSelectedPosition] = useState(null);   // 클릭된 마커 좌표
+
+
   useEffect(() => {
 
     const loadScript = () => {
       return new Promise((resolve) => {
         if (window.kakao?.maps) {
-          return resolve(window.kakao);
+          return resolve(window.kakao.maps);
         }
 
         const script = document.createElement("script");
         const kakaomap_js_key = process.env.REACT_APP_KAKAO_JAVASCRIPT_KEY;
-        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaomap_js_key}&autoload=false`;
+        script.src =
+        `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaomap_js_key}&libraries=services,clusterer&autoload=false`;        
         script.onload = () => {
           window.kakao.maps.load(() => {
             resolve(window.kakao.maps);
@@ -32,10 +43,19 @@ const KakaoMap = ({ days }) => {
       const container = mapRef.current;
       const options = {
         center: new kakaoMaps.LatLng(36.5, 127.8),
-        level: 7,
+        level: 12,
       };
 
       kakaoMapRef.current = new kakaoMaps.Map(container, options);
+        console.log("🎬 Roadview 초기화 직전:", kakaoMaps.Roadview);
+      roadviewRef.current = new kakaoMaps.Roadview(
+        roadviewContainerRef.current,
+        { visible: false }
+      );
+        console.log("✅ Roadview 인스턴스 생성됨:", roadviewRef.current);
+      roadviewClientRef.current = new kakaoMaps.RoadviewClient();
+        console.log("✅ RoadviewClient 인스턴스 생성됨:", roadviewClientRef.current);
+
     });
   }, []);
 
@@ -48,41 +68,56 @@ const KakaoMap = ({ days }) => {
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
     // 기존 폴리라인 제거
-      polylineRef.current.forEach((line) => line.setMap(null));
-      polylineRef.current = [];
+    polylineRef.current.forEach((line) => line.setMap(null));
+    polylineRef.current = [];
 
     // 좌표 및 Bounds 생성
     const bounds = new kakaoMaps.LatLngBounds();
 
     days.forEach((day) => {
       // day.color에 따라 선/마커 색상 결정
-      let color = "#FF5F5F";
-      if (day.color === "red") color = "#f39f9f";
-      else if (day.color === "orange") color = "#f7c59f";
-      else if (day.color === "purple") color = "#c3b1e1";
+      let color = { red: "#f39f9f", orange: "#f7c59f", purple: "#c3b1e1" }[day.color] || "#FF5F5F";
 
       let counter = 1;
       const path = [];
 
-      const places = (day.items || []).filter((i) => i.type === "place");
-      places.forEach((place) => {
-        const lat = place.latitude || place.place_latitude;
-        const lng = place.longitude || place.place_longitude;
-        if (lat == null || lng == null) return;
+      (day.items || []).filter((i) => i.type === "place")
+        .forEach((place) => {
+          const lat = place.latitude || place.place_latitude;
+          const lng = place.longitude || place.place_longitude;
+          if (lat == null || lng == null) return;
+          const position = new kakaoMaps.LatLng(lat, lng);
+          bounds.extend(position);
+          path.push(position);
 
-        const position = new kakaoMaps.LatLng(lat, lng);
-        // 각 day용 Path에 추가
-        path.push(position);
-        bounds.extend(position);
+          // 번호가 표시된 마커 이미지 생성
+          const marker = new kakaoMaps.Marker({
+            position,
+            map,
+            image: createNumberedMarkerImage(counter++, color, kakaoMaps),
+          });
+          markersRef.current.push(marker);
 
-        // 번호가 표시된 마커 이미지 생성
-        const marker = new kakaoMaps.Marker({
-          position,
-          map,
-          image: createNumberedMarkerImage(counter++, color, kakaoMaps),
+
+          // 로드뷰 모드일 때만 클릭 이벤트 등록
+          if (isRoadviewMode) {
+            kakaoMaps.event.addListener(marker, "click", () => {
+              // 클릭된 좌표 저장
+              setSelectedPosition(position);
+              // 오버레이 띄우기
+              setIsRoadviewVisible(true);
+              // 로드뷰 panoId 가져와서 보여주기
+              roadviewClientRef.current.getNearestPanoId(
+                position, 200, (panoId) => {
+                  if (panoId) {
+                    roadviewRef.current.setPanoId(panoId, position);
+                    roadviewRef.current.setVisible(true);
+                  }
+                }
+              );
+            });
+          }
         });
-        markersRef.current.push(marker);
-      });
 
       // day별 폴리라인 생성
       if (path.length >= 2) {
@@ -101,9 +136,9 @@ const KakaoMap = ({ days }) => {
     if (!bounds.isEmpty()) {
       map.setBounds(bounds);
     }
-  }, [days]);
+  }, [days, isRoadviewMode]);
 
-  // 번호가 마커 이미지 생성 함수
+  // 번호 마커 이미지 생성 함수
   const createNumberedMarkerImage = (number, color, kakaoMaps) => {
     const svg = `
       <svg width="36" height="42" xmlns="http://www.w3.org/2000/svg">
@@ -118,7 +153,38 @@ const KakaoMap = ({ days }) => {
     );
   };
 
-  return <div ref={mapRef} style={{ width: "100%", height: "100%", borderRadius: "12px" }} />;
-};
+  const toggleRoadview = () => {
+    setIsRoadviewMode((prev) => {
+
+      if (prev) {
+        roadviewRef.current?.setVisible(false);
+        setIsRoadviewVisible(false);
+        setSelectedPosition(null);
+      }
+      return !prev;
+    });
+  };
+
+  return (
+    <div className="map-wrapper">
+
+      <div ref={mapRef} className="map-view" />
+
+      <button
+        className={`roadview-toggle-btn${isRoadviewMode ? " active" : ""}`}
+        onClick={toggleRoadview}
+      >
+        {isRoadviewMode ? "로드뷰 모드 해제" : "로드뷰 보기"}
+      </button>
+
+      <div ref={roadviewContainerRef} 
+        className="roadview-container"
+        style={{ display: isRoadviewVisible ? "flex" : "none" }}
+      >
+
+      </div>
+    </div>
+  )
+}
 
 export default KakaoMap;

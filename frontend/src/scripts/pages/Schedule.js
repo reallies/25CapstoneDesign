@@ -92,7 +92,7 @@ const Schedule = () => {
                   className="dropdown-item"
                   key={d}
                   onClick={() => {
-                    setSelectedCity(d); // ✅ 도시 선택
+                    setSelectedCity(d); // 도시 선택
                     setIsWeatherDropdownOpen(false); // 드롭다운 닫기
                   }}
                 >
@@ -245,9 +245,6 @@ const Schedule = () => {
             </div>
           </div>
 
-          <div className="satellite">
-            <div className="satellite-text">위성 보기</div>
-          </div>
         </div>
 
 
