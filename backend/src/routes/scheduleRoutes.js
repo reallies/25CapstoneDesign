@@ -45,8 +45,8 @@ router.delete("/:trip_id/day/:day_id/dayplace/:dayplace_id",authenticateJWT, tri
 //8. 여행 삭제
 router.delete("/:trip_id", authenticateJWT, tripController.deleteTripController)
 
-//9. AI 추천 일정 자동 생성 - 무시
-router.post("/:trip_id/generate-days", authenticateJWT, tripController.generateDaysController);
+//9. AI 추천 일정 자동 생성 - 주석처리
+// router.post("/:trip_id/generate-days", authenticateJWT, tripController.generateDaysController);
 
 
 module.exports = router;

@@ -388,12 +388,12 @@
     color: #fff;
     font-family: "SUITE-ExtraBold";
     font-size: 15px;
-    padding: 15px 0;
+    padding: 15px 65px;
     border-radius: 30px;
     text-align: center;
     cursor: pointer;
-    width: 60%;
-    min-width: 400px;
+    width: fit-content;
+    margin-top: 10px;
   }
   
 

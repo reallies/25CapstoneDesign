@@ -46,65 +46,71 @@ const LoginModal = ({ isOpen, onClose, user, onFriendClick, isFriendModalOpen, o
   };
 
   return (
-    <div className="login-modal-backdrop" onClick={(e) => {
-      {/* 전체 모달 영역 클릭 시 닫힘 */ }
-      e.stopPropagation();
-      onClose();
-    }}>
-      {/* 모달 박스 본문 */}
-      <div
-        className="login-modal-box"
-        ref={loginModalRef}
-        onClick={(e) => e.stopPropagation()}
+    <>
+      {/* 전체 모달 영역 클릭 시 닫힘 */}
+      <div className="login-modal-backdrop"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
       >
-        {/* 상단 유저 정보 영역 */}
-        <div className="login-modal-top">
-          <img src={user?.image_url && !user.nickname?.startsWith("temp_") ? user.image_url : userIcon}
-            alt="user"
-            className="login-user-icon"
-            style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-          />
-          <div className="login-nickname">
-            {user?.nickname && !user.nickname.startsWith("temp_") ? (
-              <>
-                <strong>{user?.nickname || "사용자"}</strong>
-                <span className="nickname-suffix">님</span>
-              </>
-            ) : (
-              <strong>아이디를 입력해주세요!</strong>
-            )}
+        {/* 모달 박스 본문 */}
+        <div
+          className="login-modal-box"
+          ref={loginModalRef}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* 상단 유저 정보 영역 */}
+          <div className="login-modal-top">
+            <img src={user?.image_url && !user.nickname?.startsWith("temp_") ? user.image_url : userIcon}
+              alt="user"
+              className="login-user-icon"
+              style={{ width: "40px", height: "40px", borderRadius: "50%" }}
+            />
+            <div className="login-nickname">
+              {user?.nickname && !user.nickname.startsWith("temp_") ? (
+                <>
+                  <strong>{user?.nickname || "사용자"}</strong>
+                  <span className="nickname-suffix">님</span>
+                </>
+              ) : (
+                <strong>아이디를 입력해주세요!</strong>
+              )}
+            </div>
+            <button className="logout-btn" onClick={handleLogout}>로그아웃</button>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>로그아웃</button>
+        
+
+
+
+        <div className="login-menu-container">
+          <div className="login-menu">
+            <span onClick={handleMyPageClick} style={{ cursor: "pointer" }}>마이페이지</span>
+            <div className="menu-divider" />
+            <span onClick={handleMyScheduleClick} style={{ cursor: "pointer" }}>
+              나의 일정
+            </span>
+            <div className="menu-divider" />
+            <span>나의 친구</span>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    </div >
 
-  <div className="login-menu-container">
-    <div className="login-menu">
-      <span>마이페이지</span>
-      <div className="menu-divider" />
-      <span onClick={handleMyScheduleClick} style={{ cursor: "pointer" }}>
-        나의 일정
-      </span>
-      <div className="menu-divider" />
-      <span>나의 친구</span>
-    </div>
-  </div>
-  {
-    isFriendModalOpen && (
-      <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 100 }}>
-        <InviteModal
-          onClose={onCloseFriendModal}
-          onAddFriendClick={() => { }}
-          modalRef={null}
-        />
-      </div>
-    )
-  }
-      </div >
+    {
+      isFriendModalOpen && (
+        <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 100 }}>
+          <InviteModal
+            onClose={onCloseFriendModal}
+            onAddFriendClick={() => { }}
+            modalRef={null}
+          />
+        </div>
+      )
+}
 
-  {/* 친구 초대 모달 */ }
+
+{/* 친구 초대 모달 */ }
 {
   isInviteOpen && (
     <div className="invite-wrapper" ref={inviteWrapperRef} onClick={(e) => e.stopPropagation()}>
@@ -132,7 +138,8 @@ const LoginModal = ({ isOpen, onClose, user, onFriendClick, isFriendModalOpen, o
     </div>
   )
 }
-    </>
+  </>
   );
 };
+
 export default LoginModal;

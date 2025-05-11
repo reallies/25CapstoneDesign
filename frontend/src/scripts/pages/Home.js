@@ -8,16 +8,21 @@ import plusIcon from "../../assets/images/plus.svg";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../components/AlertModal";
 
-const Main = () => {
+const Home = () => {
   const [activeModal, setActiveModal] = useState(null);
+  const [destinationInput, setDestinationInput] = useState("");
   const [selectedDestination, setSelectedDestination] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
-
-  const searchFieldRefs = useRef({});
   const navigate = useNavigate();
+  const searchFieldRefs = useRef({});
+  const alertShownRef = useRef(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+
+
 
   const themeMap = {
     "모험·액티비티": "ADVENTURE",
@@ -43,8 +48,6 @@ const Main = () => {
     "동호회·취미": "HOBBY_GROUP",
     "기타": "OTHER",
   };
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertText, setAlertText] = useState("");
 
   // 모달 위치
   const [destinationModalPosition, setDestinationModalPosition] = useState({ top: 250, left: 100 });
@@ -71,14 +74,15 @@ const Main = () => {
         return prev;
       }
     });
-  
-    
-      }
-      const updated = [...selectedDestinations, region];
-      setSelectedDestinations(updated);
-      setDestinationInput(updated.join(", "));
-    }
-  
+
+
+
+    const updated = [...selectedDestination, region];
+    setSelectedDestination(updated);
+    setDestinationInput(updated.join(", "));
+
+
+  };
 
   // 여행 테마 토글 핸들러
   const toggleTheme = (theme) => {
@@ -113,7 +117,7 @@ const Main = () => {
       const [start, end] = calendarDate;
       const diffInMs = Math.abs(end - start);
       const diffInDays = diffInMs / (1000 * 60 * 60 * 24) + 1;
-  
+
       if (diffInDays > 7) {
         alert("최대 7일까지 선택할 수 있습니다.");
         return;
@@ -136,11 +140,11 @@ const Main = () => {
     } else if (event) {
       rect = event.target.getBoundingClientRect();
     }
-  
+
     if (rect) {
       let leftPos = Math.floor(rect.left + window.scrollX + rect.width / 2 - 175);
       leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - 350 - 10));
-  
+
       switch (modalType) {
         case "destination":
         case "destinationSearch":
@@ -160,7 +164,7 @@ const Main = () => {
       }
       setActiveModal(modalType);
     }
-  };  
+  };
 
   const closeModal = () => {
     setActiveModal(null);
@@ -227,14 +231,6 @@ const Main = () => {
 
       if (data.success && data.trip) {
         const tripId = data.trip.trip_id;
-
-        if (selectedMode === "ai") {
-          await fetch(`http://localhost:8080/schedule/${tripId}/generate-days`, {
-            method: "POST",
-            credentials: "include",
-          });
-        }
-
         navigate(`/schedule/${tripId}`);
       } else {
         console.error("tripData가 존재하지 않음:", data);
@@ -335,12 +331,12 @@ const Main = () => {
                       <div className="gallery-subtitle">{item.subtitle}</div>
                       <div className="gallery-description">{item.description}</div>
                       <div className="gallery-buttons">
-                      <button
-                        className="gallery-button"
-                        onClick={() => navigate("/gallery-detail")}
-                      >
-                        게시글 보기
-                      </button>
+                        <button
+                          className="gallery-button"
+                          onClick={() => navigate("/gallery-detail")}
+                        >
+                          게시글 보기
+                        </button>
                       </div>
                     </>
                   )}
@@ -384,35 +380,35 @@ const Main = () => {
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
             <h2>여행 지역을 선택해 주세요</h2>
             <div className="region-buttons">
-            {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "전북", "경남", "제주"].map((region) => (
-              <button
-                key={region}
-                className={`region-btn ${selectedDestinations.includes(region) ? "active" : ""}`}
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setSelectedDestinations((prev) => {
-                    let updated;
-                    if (prev.includes(region)) {
-                      updated = prev.filter((r) => r !== region);
-                    } else {
-                      if (prev.length >= 3) {
-                        setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
-                        setAlertOpen(true);
-                        return prev;
-                      }                      
-                      updated = [...prev, region];
-                    }
-                    setDestinationInput(updated.join(", "));
-                    return updated;
-                  });
-                }}
-              >
-                {region}
-              </button>
-            ))}
+              {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "전북", "경남", "제주"].map((region) => (
+                <button
+                  key={region}
+                  className={`region-btn ${selectedDestination.includes(region) ? "active" : ""}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedDestination((prev) => {
+                      let updated;
+                      if (prev.includes(region)) {
+                        updated = prev.filter((r) => r !== region);
+                      } else {
+                        if (prev.length >= 3) {
+                          setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
+                          setAlertOpen(true);
+                          return prev;
+                        }
+                        updated = [...prev, region];
+                      }
+                      setDestinationInput(updated.join(", "));
+                      return updated;
+                    });
+                  }}
+                >
+                  {region}
+                </button>
+              ))}
             </div>
             <button className="close-btn" onClick={() => {
-              setDestinationInput(selectedDestinations.join(", "));
+              setDestinationInput(selectedDestination.join(", "));
               closeModal();
             }}>완료</button>
           </div>
@@ -430,7 +426,7 @@ const Main = () => {
                 .map((region) => (
                   <button
                     key={region}
-                    className={`region-btn ${selectedDestinations.includes(region) ? "active" : ""}`}
+                    className={`region-btn ${selectedDestination.includes(region) ? "active" : ""}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleSelectDestination(region);
@@ -438,7 +434,7 @@ const Main = () => {
                   >
                     {region}
                   </button>
-              ))}
+                ))}
             </div>
             <button className="close-btn" onClick={closeModal}>완료</button>
           </div>
@@ -464,7 +460,7 @@ const Main = () => {
                     return;
                   }
                 }
-                setCalendarDate(date);
+                handleDateChange(date);
               }}
               value={calendarDate}
               minDate={new Date()}
@@ -477,7 +473,6 @@ const Main = () => {
               defaultView="month"
               showNeighboringMonth={true}
 
-              
             />
             <button className="close-btn" onClick={confirmDateSelection}>완료</button>
           </div>
@@ -536,7 +531,7 @@ const Main = () => {
 
       {/* 하단 챗봇 컴포넌트 */}
       <ChatBot />
-      
+
       {/* 경고 모달 */}
       {alertOpen && (
         <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
@@ -545,4 +540,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default Home;
