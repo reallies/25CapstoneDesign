@@ -6,7 +6,7 @@ import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
 import { useNavigate } from "react-router-dom";
-
+import AlertModal from "../components/AlertModal";
 
 const Main = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -15,7 +15,6 @@ const Main = () => {
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
-  const [selectedMode, setSelectedMode] = useState("ai");
 
   const searchFieldRefs = useRef({});
   const navigate = useNavigate();
@@ -44,11 +43,8 @@ const Main = () => {
     "동호회·취미": "HOBBY_GROUP",
     "기타": "OTHER",
   };
-
-  // AI / 직접 일정 핸들러
-  const handleModeChange = (mode) => {
-    setSelectedMode(mode);
-  };
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
 
   // 모달 위치
   const [destinationModalPosition, setDestinationModalPosition] = useState({ top: 250, left: 100 });
@@ -64,11 +60,25 @@ const Main = () => {
       } else if (prev.length < 3) {
         return [...prev, region];
       } else {
-        alert("최대 3개의 여행지만 선택할 수 있습니다.");
+        if (!alertShownRef.current) {
+          alertShownRef.current = true;
+          setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
+          setAlertOpen(true);
+          setTimeout(() => {
+            alertShownRef.current = false;
+          }, 1000);
+        }
         return prev;
       }
     });
-  };
+  
+    
+      }
+      const updated = [...selectedDestinations, region];
+      setSelectedDestinations(updated);
+      setDestinationInput(updated.join(", "));
+    }
+  
 
   // 여행 테마 토글 핸들러
   const toggleTheme = (theme) => {
@@ -122,7 +132,7 @@ const Main = () => {
   const openModal = (modalType, event) => {
     let rect;
     if ((modalType === "destinationSearch" || modalType === "destination") && searchFieldRefs.current["destination"]) {
-      rect = searchFieldRefs.current["destination"].getBoundingClientRect();  // 무조건 search-field 기준으로
+      rect = searchFieldRefs.current["destination"].getBoundingClientRect();
     } else if (event) {
       rect = event.target.getBoundingClientRect();
     }
@@ -238,27 +248,13 @@ const Main = () => {
     <div className="main-container">
       {/* 검색 바 */}
       <div className="search-box" style={{ height: "auto" }}>
-        <div className="button-container">
-          <button
-            className={`rounded-button ${selectedMode === "ai" ? "active" : ""}`}
-            onClick={() => handleModeChange("ai")}
-          >
-            AI 일정
-          </button>
-          <button
-            className={`text-button ${selectedMode === "manual" ? "active" : ""}`}
-            onClick={() => handleModeChange("manual")}
-          >
-            직접 짜기
-          </button>
-        </div>
         <div className="search-content">
           <div
             className="search-field"
             ref={(el) => (searchFieldRefs.current["destination"] = el)}
             onClick={(e) => openModal("destination", e)}
           >
-            <span className="placeholder-text">여행지</span>
+            <span className="placeholder-text">여행지 검색</span>
             {selectedDestination && <span className="selected-text">{selectedDestination.join(", ")}</span>}
           </div>
           <div
@@ -323,15 +319,31 @@ const Main = () => {
           <div className="gallery-title">여행 갤러리</div>
           <div className="gallery-container">
             {galleryData.map((item, index) => (
-              <div className={`gallery-card ${item.isLast ? "last-card" : ""}`} key={index}>
+              <div
+                className={`gallery-card ${item.isLast ? "last-card" : ""}`}
+                key={index}
+                onClick={() => {
+                  if (item.isLast) navigate("/gallery");
+                }}
+                style={{ cursor: item.isLast ? "pointer" : "default" }}
+              >
                 <div className="gallery-card-inner">
                   <img className="gallery-image" src={item.img} alt="여행 이미지" />
-                  {!item.isLast && <div className="gallery-subtitle">{item.subtitle}</div>}
-                  <div className="gallery-description">{item.description}</div>
-                  <div className="gallery-buttons">
-                    <button className="gallery-button">DAY 보기</button>
-                    <button className="gallery-button">여행 코스 보기</button>
-                  </div>
+
+                  {!item.isLast && (
+                    <>
+                      <div className="gallery-subtitle">{item.subtitle}</div>
+                      <div className="gallery-description">{item.description}</div>
+                      <div className="gallery-buttons">
+                      <button
+                        className="gallery-button"
+                        onClick={() => navigate("/gallery-detail")}
+                      >
+                        게시글 보기
+                      </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -350,6 +362,9 @@ const Main = () => {
                 key={index}
                 className={`record-card ${record.isLast ? "last-rcard" : ""}`}
                 style={!record.isLast ? { backgroundImage: `url(${record.img})` } : {}}
+                onClick={() => {
+                  if (record.isLast) navigate("/record");
+                }}
               >
                 {!record.isLast ? (
                   <div className="record-text">{record.text}</div>
@@ -369,10 +384,60 @@ const Main = () => {
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
             <h2>여행 지역을 선택해 주세요</h2>
             <div className="region-buttons">
-              {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"].map((region) => (
-                <button key={region} className={`region-btn ${selectedDestination === region ? "active" : ""}`} onClick={() => handleSelectDestination(region)}>
-                  {region}
-                </button>
+            {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "전북", "경남", "제주"].map((region) => (
+              <button
+                key={region}
+                className={`region-btn ${selectedDestinations.includes(region) ? "active" : ""}`}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setSelectedDestinations((prev) => {
+                    let updated;
+                    if (prev.includes(region)) {
+                      updated = prev.filter((r) => r !== region);
+                    } else {
+                      if (prev.length >= 3) {
+                        setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
+                        setAlertOpen(true);
+                        return prev;
+                      }                      
+                      updated = [...prev, region];
+                    }
+                    setDestinationInput(updated.join(", "));
+                    return updated;
+                  });
+                }}
+              >
+                {region}
+              </button>
+            ))}
+            </div>
+            <button className="close-btn" onClick={() => {
+              setDestinationInput(selectedDestinations.join(", "));
+              closeModal();
+            }}>완료</button>
+          </div>
+        </div>
+      )}
+      {/* 임시 다중 선택창 */}
+      {activeModal === "destinationSearch" && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
+            <h2>검색 결과</h2>
+            <h5 className="theme-subtitle">다중 선택 가능</h5>
+            <div className="region-buttons">
+              {["영종도", "여수", "인천", "양양", "전주", "전남", "전국"]
+                .filter(region => region.includes(destinationInput))
+                .map((region) => (
+                  <button
+                    key={region}
+                    className={`region-btn ${selectedDestinations.includes(region) ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectDestination(region);
+                    }}
+                  >
+                    {region}
+                  </button>
               ))}
             </div>
             <button className="close-btn" onClick={closeModal}>완료</button>
@@ -386,7 +451,21 @@ const Main = () => {
           <div className="modal" style={{ ...dateModalPosition }} onClick={(e) => e.stopPropagation()}>
             <h2>여행 날짜를 선택해 주세요</h2>
             <Calendar
-              onChange={handleDateChange}
+              onChange={(date) => {
+                if (Array.isArray(date) && date.length === 2) {
+                  const start = date[0];
+                  const end = date[1];
+                  const diffInTime = end.getTime() - start.getTime();
+                  const diffInDays = diffInTime / (1000 * 3600 * 24);
+
+                  if (diffInDays > 7) {
+                    setAlertText("여행 기간은 최대 7일까지 선택 가능합니다.");
+                    setAlertOpen(true);
+                    return;
+                  }
+                }
+                setCalendarDate(date);
+              }}
               value={calendarDate}
               minDate={new Date()}
               selectRange={true}
@@ -455,7 +534,13 @@ const Main = () => {
         </div>
       )}
 
-    <ChatBot />
+      {/* 하단 챗봇 컴포넌트 */}
+      <ChatBot />
+      
+      {/* 경고 모달 */}
+      {alertOpen && (
+        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+      )}
     </div>
   );
 };

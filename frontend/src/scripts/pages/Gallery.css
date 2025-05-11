@@ -1,0 +1,207 @@
+/* 갤러리 페이지 전체 레이아웃 */
+.gallery-wrapper {
+  padding: 32px;
+  font-family: "SUITE", sans-serif;
+  width: 1440px;
+  margin: 0 auto;
+}
+
+/* 섹션 제목 (내 기록, 친구의 여행기 등) */
+.gallery-section-title {
+  font-size: 25px;
+  font-weight: bold;
+  margin-top: 36px;
+}
+
+/* 상단 헤더 영역: 제목 + 기록 쓰기 버튼 */
+.gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 기록 쓰기 버튼 스타일 */
+.gallery-record-btn {
+  background-color: #00ADB5;
+  font-size: 16px;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* 내 기록 썸네일 목록 */
+.gallery-my-records {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+/* 개별 썸네일 카드 */
+.gallery-thumbnail {
+  width: 200px;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #d9d9d9;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 썸네일 이미지 영역 */
+.gallery-thumb-img {
+  flex: 3;
+  background-color: #d9d9d9;
+}
+
+/* 썸네일 하단 제목 캡션 */
+.gallery-thumb-caption {
+  flex: 0.5;
+  background-color: #828282;
+  color: #ffffff;
+  font-size: 15px;
+  padding: 6px;
+  text-align: center;
+  font-weight: 400;
+}
+
+/* 친구 여행기가 없을 때 안내 메시지 */
+.gallery-empty-msg {
+  text-align: center;
+  color: #000000;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 60px;
+  margin-bottom: 60px;
+}
+
+/* 친구 여행기 전체 목록 영역 */
+.gallery-friend-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 친구 여행기 1개 행 */
+.gallery-post-row {
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+/* 친구 프로필과 메타 정보 */
+.gallery-post-meta {
+  display: flex;
+  align-items: center;
+}
+
+/* 친구 프로필 동그라미 */
+.gallery-profile-circle {
+  width: 36px;
+  height: 36px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+/* 프로필 우측 텍스트들 */
+.gallery-meta-text {
+  margin-left: 12px;
+  font-size: 13px;
+}
+
+/* 친구 닉네임 텍스트 */
+.gallery-nickname {
+  font-weight: bold;
+}
+
+/* 게시 시간 표시 */
+.gallery-time {
+  color: #888;
+  font-size: 12px;
+}
+
+/* 친구 추가 버튼 */
+.gallery-friend-link {
+  color: #00b5ad;
+  font-weight: 500;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* 친구 요청 중일 때 색상 변경 */
+.gallery-friend-link.pending {
+  color: #FFA500;
+  background: none;
+}
+
+.gallery-friend-link:focus {
+  outline: none;
+}
+
+/* 여행기 본문 전체 영역 */
+.gallery-post-content {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 20px;
+  cursor: pointer;
+}
+
+/* 본문 텍스트 영역 */
+.gallery-post-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 여행기 제목 */
+.gallery-post-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* 여행기 본문 요약 내용 */
+.gallery-post-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #000000;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+/* 썸네일 박스 (우측 이미지) */
+.gallery-thumb-box {
+  width: 140px;
+  height: 100px;
+  background-color: #ccc;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* 정렬 탭 버튼 영역 */
+.gallery-tabs {
+  display: flex;
+  gap: 16px;
+  margin: 30px 0;
+}
+
+/* 정렬 버튼 기본 스타일 */
+.gallery-sort-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 20px;
+  background-color: transparent;
+  color: black;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* 정렬 버튼 선택됨 */
+.gallery-sort-btn.active {
+  background-color: #00ADB5;
+  color: white;
+}

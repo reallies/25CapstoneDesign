@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Expenses.css";
 import InviteModal from "../components/InviteModal";
@@ -33,6 +33,8 @@ export const Expenses = () => {
   const [isLoading, setIsLoading] = useState(false);
   const inviteModalRef = useRef(null);
   const addModalRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const categories = [
     { label: "교통", type: "TRANSPORT", icon: <Traffic />, class: "traffic" },
@@ -232,7 +234,9 @@ export const Expenses = () => {
             <div className="expense-menu">
               <Link to={`/expenses/${trip_id}`} className="expense-menu-item">가계부</Link>
               <div className="expense-menu-item" onClick={() => setIsInviteOpen(true)}>초대</div>
-              <div className="expense-menu-item">내 기록</div>
+              <div className="expense-menu-item" onClick={() => navigate("/schedules")}>
+                여행 일정
+              </div>
             </div>
           </div>
 

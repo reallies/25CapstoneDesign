@@ -1,15 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import map from "../../assets/images/map.svg";
+import back from "../../assets/images/back.svg";
+import search2 from "../../assets/images/search2.svg";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useSchedule } from "../hooks/useSchedule";
 import deleteIcon from "../../assets/images/delete.svg"
 import KakaoMap from "../components/KakaoMap";
+import InviteModal from "../components/InviteModal";
+import AddFriendModal from "../components/AddFriendModal";
+import FeedbackModal from "../components/FeedbackModal";
 import PlaceSearchModal from "../components/PlaceSearchModal";
 import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
 
-const Schedule = () => {
+export const Schedule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const [showFeedback, setShowFeedback] = useState(false);  // 피드백 받기
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const inviteModalRef = useRef(null);
+  const addModalRef = useRef(null);
+  const inviteButtonRef = useRef(null);;
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
   const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
@@ -36,7 +49,42 @@ const Schedule = () => {
 
   const toggleWeatherDropdown = () => {
     setIsWeatherDropdownOpen((prev) => !prev);
+    const handleClickOutside = (e) => {
+      const invite = inviteModalRef.current;
+      const add = addModalRef.current;
+
+      const clickedOutsideInvite = invite && !invite.contains(e.target);
+      const clickedOutsideAdd = add && !add.contains(e.target);
+
+      // 친구 추가만 열려 있고 바깥 클릭일 때
+      if (isAddOpen && !isInviteOpen && clickedOutsideAdd) {
+        setIsAddOpen(false);
+        return;
+      }
+
+      // 친구 목록만 열려 있고 바깥 클릭일 때
+      if (isInviteOpen && !isAddOpen && clickedOutsideInvite) {
+        setIsInviteOpen(false);
+        return;
+      }
+
+      // 둘 다 열려 있고, 둘 다 바깥 클릭일 때만 닫기
+      if (
+        isAddOpen &&
+        isInviteOpen &&
+        clickedOutsideAdd &&
+        clickedOutsideInvite
+      ) {
+        setIsAddOpen(false);
+        setIsInviteOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   };
+
+
 
   const filteredDays = activeDay === "ALL" ? days : [days[activeDay]];
 
@@ -66,9 +114,15 @@ const Schedule = () => {
             ))}
           </div>
           <div className="menu">
-            <div className="menu-item"><div className="menu-text">가계부</div></div>
-            <div className="menu-item"><div className="menu-text">초대</div></div>
-            <div className="menu-item"><div className="menu-text">내 기록</div></div>
+            <div className="menu-item" onClick={() => navigate("/expenses")}>
+              <div className="menu-text">가계부</div>
+            </div>
+            <div className="menu-item" onClick={() => setIsInviteOpen(true)} ref={inviteButtonRef}>
+              <div className="menu-text">초대</div>
+            </div>
+            <div className="menu-item">
+              <div className="menu-text">여행 일정</div>
+            </div>
           </div>
         </div>
 
@@ -101,22 +155,38 @@ const Schedule = () => {
               ))}
             </div>
           )}
-          {selectedCity && <WeatherBox city={selectedCity} destinations={trip.destinations || []}/>
-        }
+          {selectedCity && <WeatherBox city={selectedCity} destinations={trip.destinations || []} />
+          }
         </div>
 
-        {/* 탭 */}
+        {/* 탭 - 피드백 받기 버튼 추가*/}
         <div className="schedule-tab">
-          <div className={`day-tab ${activeDay === "ALL" ? "active" : ""}`} onClick={() => setActiveDay("ALL")}>전체 보기</div>
-          {days.map((_, idx) => (
+          <div className="day-tabs-left">
             <div
-              className={`day-tab ${activeDay === idx ? "active" : ""}`}
-              key={idx}
-              onClick={() => setActiveDay(idx)}
+              className={`day-tab ${activeDay === "ALL" ? "active" : ""}`}
+              onClick={() => setActiveDay("ALL")}
             >
-              DAY {idx + 1}
+              전체 보기
             </div>
-          ))}
+            {days.map((_, idx) => (
+              <div
+                className={`day-tab ${activeDay === idx ? "active" : ""}`}
+                key={idx}
+                onClick={() => setActiveDay(idx)}
+              >
+                DAY {idx + 1}
+              </div>
+            ))}
+          </div>
+
+          <div className="feedback-btn-wrap">
+            <button
+              className="feedback-btn-alone"
+              onClick={() => setShowFeedback(prev => !prev)}
+            >
+              ? 피드백 받기
+            </button>
+          </div>
         </div>
 
         {/* 일정 */}
@@ -177,7 +247,7 @@ const Schedule = () => {
                             </Droppable>
                             {/*MEMO 순서 변경 부분*/}
                             <Droppable droppableId={`${day.id}-memo`} type="MEMO">
-                              {(provided) => (  
+                              {(provided) => (
                                 <div ref={provided.innerRef} {...provided.droppableProps}>
                                   {day.items
                                     .filter((item) => item.type === "memo")

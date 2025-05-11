@@ -1,0 +1,150 @@
+/* 전체 컨테이너 */
+.feedback-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* 모달 기본 박스 */
+.feedback-modal {
+  position: absolute;
+  top: 27px;
+  left: 475px;
+  width: 940px;
+  height: 871px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  font-family: "SUITE", sans-serif;
+  scrollbar-width: none;
+  z-index: 10;
+}
+
+/* 모달을 담는 view */
+.view {
+  position: relative;
+  width: 1440px;
+  height: 924px;
+}
+
+/* 모달 내부 내용 박스 */
+.feedback-box {
+  padding: 24px;
+  font-size: 16px;
+}
+
+/* 모달 상단: 프로필, 제목, 시간 */
+.feedback-header {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.feedback-profile {
+  width: 71px;
+  height: 80px;
+  border-radius: 8px;
+  background-color: transparent;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.feedback-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: black;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.feedback-time {
+  font-size: 16px;
+  font-weight: 500;
+  color: gray;
+}
+
+/* '일정 체크 완료' 메시지 */
+.feedback-message {
+  background: #00ADB5;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px 0px 10px 26px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.check-title {
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.check-desc {
+  font-size: 18px;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+.check-desc strong {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 17px;
+}
+
+/* 피드백 메시지 버블 */
+.feedback-bubble {
+  background: #EDEDED;
+  border-radius: 12px;
+  padding: 10px 0px 10px 26px;
+  margin-bottom: 16px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.bubble-label {
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.bubble-highlight {
+  font-weight: 600;
+  font-size: 16px;
+  color: #FF5353;
+}
+
+/* 버튼 그룹 */
+.feedback-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* 개별 버튼 스타일 */
+.feedback-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  border: none;
+}
+
+/* 버튼 세부 스타일 */
+.feedback-btn.black {
+  background: #000;
+  color: #fff;
+}

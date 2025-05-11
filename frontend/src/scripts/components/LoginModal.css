@@ -1,3 +1,4 @@
+/* 전체 화면을 덮는 투명 배경 (모달 바깥 클릭 감지용) */
 .login-modal-backdrop {
     position: fixed;
     top: 0;
@@ -8,7 +9,7 @@
     z-index: 999;
 }
   
-  /* 모달 컨테이너 */
+/* 모달 본문 박스 */
 .login-modal-box {
     position: fixed;
     top: 70px;
@@ -20,7 +21,7 @@
     overflow: hidden;
 }
   
-  /* 상단 유저 정보 */
+/* 유저 정보 영역 */
 .login-modal-top {
     display: flex;
     align-items: center;
@@ -61,14 +62,13 @@
     margin-right: -8px;
 }
   
-/* 메뉴 컨테이너 */
+/* 메뉴 영역 */
 .login-menu-container {
     background-color: #f2f2f2;
     padding: 16px 0;
     border-radius: 0 0 16px 16px;
 }
   
-/* 메뉴 내부 정렬 */
 .login-menu {
     display: flex;
     justify-content: space-around;
@@ -84,8 +84,26 @@
     cursor: pointer;
 }
   
+/* 메뉴 항목 구분선 */
 .menu-divider {
     width: 1px;
     height: 16px;
     background-color: #ccc;
 }
+  
+/* 친구 초대 모달 위치 */
+.invite-wrapper {
+    position: absolute;
+    top: 100px;
+    right: 640px;
+    z-index: 3000;
+}
+  
+/* 친구 추가 모달 위치 */
+.addfriend-wrapper {
+    position: absolute;
+    top: 100px;
+    right: 1700px;
+    z-index: 3001;
+}
+  

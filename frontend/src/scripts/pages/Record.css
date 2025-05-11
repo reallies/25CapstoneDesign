@@ -1,0 +1,121 @@
+/* ===== 전체 컨테이너 및 제목 ===== */
+.record-write-container {
+    padding: 20px;
+    font-family: "SUITE", sans-serif;
+}
+
+.record-write-title {
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+/* ===== 입력 박스 ===== */
+.record-write-box {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 입력 필드 그룹 ===== */
+.record-write-form-group {
+    margin-bottom: 20px;
+}
+
+/* ===== 라벨 ===== */
+.record-write-label {
+    display: inline-block;
+    width: 70px;
+    font-size: 18px;
+    font-weight: bold;
+    vertical-align: top;
+}
+
+/* ===== 입력 필드 및 텍스트에어리어 ===== */
+.record-write-input,
+.record-write-textarea {
+    width: calc(100% - 90px);
+    padding: 10px;
+    background: #f9f9fb;
+    border: none;
+    border-radius: 10px;
+    resize: none;
+    font-size: 14px;
+}
+
+.record-write-textarea {
+    height: 200px;
+}
+
+/* ===== 이미지 업로드 및 미리보기 ===== */
+.record-photo-upload {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.record-photo-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.record-preview-img {
+    width: 100px;
+    height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #d9d9d9;
+}
+
+/* ===== 업로드 버튼 ===== */
+.record-upload-btn {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #B3B3B3;
+    font-weight: 500;
+}
+
+/* ===== 하단 버튼 영역 ===== */
+.record-button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ===== 등록 버튼 ===== */
+.record-submit-btn {
+    background: #00ADB5;
+    font-size: 16px;
+    color: white;
+    border: none;
+    padding: 10px 26px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* ===== 취소 버튼 ===== */
+.record-cancel-btn {
+    background: white;
+    font-size: 16px;
+    border: 1px solid #00ADB5;
+    color: #00ADB5;
+    padding: 10px 26px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* ===== 포커스 효과 제거 ===== */
+.record-write-textarea:focus {
+    outline: none;
+}

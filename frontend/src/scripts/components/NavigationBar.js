@@ -52,8 +52,8 @@ const NavigationBar = () => {
       <div className="nav-menu">
         <span onClick={() => navigate("/")}>홈</span>
         <span onClick={handleLatestTrip}>여행 일정</span>
-        <span>커뮤니티</span>
-        <span>내 기록</span>
+        <span onClick={() => navigate("/gallery")}>여행 갤러리</span>
+        <span onClick={() => navigate("/record")}>기록 쓰기</span>
       </div>
 
       {/* 검색창 */}
