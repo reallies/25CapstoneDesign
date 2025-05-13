@@ -1,7 +1,9 @@
 // KakaoMap.js
 
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import "./KakaoMap.css";
+import AlertModal from "../components/AlertModal";
+
 
 const KakaoMap = ({ days }) => {
   const mapRef = useRef(null);
@@ -15,7 +17,9 @@ const KakaoMap = ({ days }) => {
 
   const [isRoadviewMode, setIsRoadviewMode] = useState(false);
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false);// 로드뷰 화면 오버레이
-  const [selectedPosition, setSelectedPosition] = useState(null);   // 클릭된 마커 좌표
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+
 
 
   useEffect(() => {
@@ -29,7 +33,7 @@ const KakaoMap = ({ days }) => {
         const script = document.createElement("script");
         const kakaomap_js_key = process.env.REACT_APP_KAKAO_JAVASCRIPT_KEY;
         script.src =
-        `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaomap_js_key}&libraries=services,clusterer&autoload=false`;        
+          `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaomap_js_key}&libraries=services,clusterer&autoload=false`;
         script.onload = () => {
           window.kakao.maps.load(() => {
             resolve(window.kakao.maps);
@@ -47,14 +51,12 @@ const KakaoMap = ({ days }) => {
       };
 
       kakaoMapRef.current = new kakaoMaps.Map(container, options);
-        console.log("🎬 Roadview 초기화 직전:", kakaoMaps.Roadview);
+      console.log("🎬 Roadview 초기화 직전:", kakaoMaps.Roadview);
       roadviewRef.current = new kakaoMaps.Roadview(
         roadviewContainerRef.current,
         { visible: false }
       );
-        console.log("✅ Roadview 인스턴스 생성됨:", roadviewRef.current);
       roadviewClientRef.current = new kakaoMaps.RoadviewClient();
-        console.log("✅ RoadviewClient 인스턴스 생성됨:", roadviewClientRef.current);
 
     });
   }, []);
@@ -102,16 +104,24 @@ const KakaoMap = ({ days }) => {
           // 로드뷰 모드일 때만 클릭 이벤트 등록
           if (isRoadviewMode) {
             kakaoMaps.event.addListener(marker, "click", () => {
-              // 클릭된 좌표 저장
-              setSelectedPosition(position);
+
               // 오버레이 띄우기
               setIsRoadviewVisible(true);
-              // 로드뷰 panoId 가져와서 보여주기
+
+              // panoId로 로드뷰 세팅 
               roadviewClientRef.current.getNearestPanoId(
-                position, 200, (panoId) => {
+                position,
+                200,
+                (panoId) => {
                   if (panoId) {
+                    console.log("로드뷰 panoId:", panoId);
                     roadviewRef.current.setPanoId(panoId, position);
-                    roadviewRef.current.setVisible(true);
+                  }
+                  else {
+                    setAlertText("장소 근방에 조회 가능한 로드뷰가 없습니다.");
+                    setAlertOpen(true);
+                    setIsRoadviewVisible(false);
+                    return;
                   }
                 }
               );
@@ -154,14 +164,15 @@ const KakaoMap = ({ days }) => {
   };
 
   const toggleRoadview = () => {
-    setIsRoadviewMode((prev) => {
+    setIsRoadviewMode(prev => {
+      const next = !prev;
 
-      if (prev) {
-        roadviewRef.current?.setVisible(false);
+      // 로드뷰 모드를 끌 때만 화면에서 숨기고 선택 해제
+      if (!next) {
         setIsRoadviewVisible(false);
-        setSelectedPosition(null);
       }
-      return !prev;
+
+      return next;
     });
   };
 
@@ -177,12 +188,14 @@ const KakaoMap = ({ days }) => {
         {isRoadviewMode ? "로드뷰 모드 해제" : "로드뷰 보기"}
       </button>
 
-      <div ref={roadviewContainerRef} 
+      <div ref={roadviewContainerRef}
         className="roadview-container"
         style={{ display: isRoadviewVisible ? "flex" : "none" }}
-      >
-
-      </div>
+      />
+      {/* 경고 모달 */}
+      {alertOpen && (
+        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+      )}
     </div>
   )
 }

@@ -91,7 +91,7 @@ const LoginModal = ({ isOpen, onClose, user, onFriendClick, isFriendModalOpen, o
               나의 일정
             </span>
             <div className="menu-divider" />
-            <span>나의 친구</span>
+            <span onClick={onFriendClick} style={{ cursor: "pointer" }} >나의 친구</span>
           </div>
         </div>
       </div>

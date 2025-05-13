@@ -226,6 +226,7 @@
     display: flex;
     flex-direction: row;
     border-radius: 20px;
+    box-shadow: 5px 5px 10px 5px #00000040;
     height: 924px;
     position: relative;
     overflow: hidden;
@@ -287,14 +288,15 @@
 .schedule .day-card {
     background-color: #fff;
     border-radius: 20px;
-    box-shadow: 0 0 10px #00000040;
+    border: 1px outset #63636738;
+    box-shadow: 0 0 5px #00000040;
     padding: 20px;
     margin-bottom: 20px;
     width: 430px;
     max-width: 430px;
     box-sizing: border-box;
 }
-  
+
 /* DAY 헤더 */
 .schedule .day-header {
     display: flex;
@@ -394,8 +396,8 @@
     cursor: pointer;
     width: fit-content;
     margin-top: 10px;
-  }
-  
+}
+
 
 .schedule .day-card.red .item-number {
     background-color: #f39f9f;
@@ -469,6 +471,7 @@
     cursor: grab;
     color: #999999;
 }
+
 /* 장소 추가 모달 */
 .place-modal-wrap {
     position: absolute;
@@ -477,16 +480,6 @@
     width: 450px;
     z-index: 1000;
     margin-top: 7px;
-}
-
-.place-modal {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 20px;
-    width: 100%;
-    height: 70%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    overflow-y: auto;
 }
 
 .back {
@@ -577,7 +570,7 @@
 .feedback-btn-wrap {
     margin-left: auto;
 }
-  
+
 /* 피드백 받기 버튼 */
 .feedback-btn-alone {
     background-color: #000000;
