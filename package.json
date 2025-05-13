@@ -8,11 +8,10 @@
     ],
     "scripts": {
         "setup": "npm install",
-        "start": "concurrently \"npm start --workspace=backend\" \"npm start --workspace=frontend\"",
-        "build": "npm run build --workspace=frontend",
-        "client": "cd frontend && npm start",
+        "dev": "concurrently \"npm start --workspace=frontend\" \"npm run dev --workspace=backend\"", 
+        "build": "cd frontend && npm run build",
         "server": "cd backend && npm start",
-        "dev": "concurrently \"npm run server\" \"npm run client\""
+        "start": "concurrently \"npm run build\" \"npm run server\""
     },
     "devDependencies": {
         "concurrently": "^8.2.0"
