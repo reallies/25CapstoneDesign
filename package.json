@@ -8,22 +8,16 @@
     ],
     "scripts": {
         "setup": "npm install",
-        "start": "concurrently \"npm start --workspace=backend\" \"npm start --workspace=frontend\"",
-        "build": "npm run build --workspace=frontend",
-        "client": "cd frontend && npm start",
+        "dev": "concurrently \"npm start --workspace=frontend\" \"npm run dev --workspace=backend\"",
+        "build": "cd frontend && npm run build",
         "server": "cd backend && npm start",
-        "dev": "concurrently \"npm run server\" \"npm run client\""
+        "start": "concurrently \"npm run build\" \"npm run server\""
     },
     "devDependencies": {
         "concurrently": "^8.2.0"
     },
     "dependencies": {
         "axios": "^1.8.3",
-        "csv-parser": "^3.2.0",
-        "openai": "^4.97.0",
-        "passport-naver-v2": "^2.0.8",
-        "react-datepicker": "^8.3.0",
-        "redis": "^5.0.1",
         "short-uuid": "^5.2.0"
     }
 }
