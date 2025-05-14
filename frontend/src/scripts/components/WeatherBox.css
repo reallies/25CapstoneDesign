@@ -4,26 +4,51 @@
     height: 60%;
     background-color: #76a6c5;
     align-items: center;
-    padding: 6px;
+    padding: 12px;
     border-radius: 20px;
+    display: flex;
+    box-sizing: border-box;
 }
 
-.weather-day {
-    width: 100px;
-    height: 100px;
-    text-align: center;
-    margin-right: 8px;
-    display: inline-block;
+.weather-city {
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 65px;
+    white-space: nowrap;
+    color: #fff;
+
 }
 
 .weather-days {
+    margin-left: 20px;
     display: flex;
-    height: 50px;
-    gap: 16px;
+    width: 100%;
+    height: 90%;
+    gap: 12px;      
+    justify-content: flex-start;
+
 }
+
+.weather-day {
+    width: 80px;
+    height: 70px;
+    text-align: center;
+    display: inline-block;
+}
+
+.weather-icon {
+    color: #fff;
+}
+
+.day-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+}
+
 .temp-range {
     font-size: 12px;
     font-weight: 700;
     color: #fff;
-    margin-top: 4px;
 }
+

@@ -1,47 +1,165 @@
 const express = require("express");
 const prisma = require("../../prisma/prismaClient");
 const router = express.Router();
-const { authenticateJWT } = require("../middleware/authMiddleware");
 const OpenAI = require("openai");
 const axios = require("axios");
+const fs = require("fs");
+
+const weatherCache = new Map();
+const path = require("path");
+const csvParser = require("csv-parser");
 
 // OpenAI 설정
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-const getWeather = async (lat, lon) => {
-    const trip = await prisma.trip.findUnique({
-        where: {trip_id},
-        select: {
-            start_date: true,
-            end_date: true,
-            destinations: true,
-        }
+// gpt 요청
+async function gptRes(prompt){
+    const res = await openai.chat. completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+        { role: "system", content: "너는 여행 일정 전문가로, 다음 여행 일정을 보고 친절하고 간단한 피드백을 제공해줘." },
+        { role: "user", content: prompt }
+    ],
+    temperature: 0.5,
     });
-    const start = new Date(trip.start_date);
-    const end = new Date(trip.end_date);
+    return res.choices[0].message.content;
+}
 
-    const filteredDays = weatherData.daily.filter((day)=>{
-        const date = new Date(day.dt * 1000);
-        return date >= start && date <= end;
-    })
+//place_address에서 시/군/구만 추출
+function extractRegion(address) {
+    if (!address) return "알 수 없음";
+    
+    const match = address.match(/\s(\S+(구|시|군))/);
+    return match ? match[1] : "알 수 없음";
+}
 
-    try{
+//가까운 관측소 id 찾기
+async function extractStationsId(avgLat,avgLon){
+    const FilePath = path.join(__dirname, "stationsId.csv");
+    
+    return new Promise((resolve,reject)=>{
+        const stations = [];
+
+        fs.createReadStream(FilePath)
+            .pipe(csvParser())
+            .on("data", (row) => {
+                const stnId = row.stnId;
+                const lat = parseFloat(row.latitude);
+                const lon = parseFloat(row.longitude);
+
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    const simpleDist = Math.abs(lat - avgLat) + Math.abs(lon - avgLon);
+                    stations.push({ stnId, name: row.name, lat, lon, simpleDist });
+                }
+            })
+            .on("end", () => {
+                stations.sort((a, b) => a.simpleDist - b.simpleDist);
+                resolve(stations[0]); // 가장 가까운 관측소
+            })
+            .on("error", reject);
+    });
+}
+
+function changeDateYYYYMMDD(date){
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 0~11 이라 +1
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}${month}${day}`;
+}
+
+async function getPastWeatherFromKMA(region, visitDate, avgLat, avgLon) {
+    const saveFilePath = `./weather_past_${region}_${visitDate.toISOString().split("T")[0]}.json`;
+
+    const baseDate = new Date(visitDate);
+    baseDate.setDate(baseDate.getDate() - 365); // 작년 같은 날 기준
+    const tm = changeDateYYYYMMDD(baseDate);
+    
+    const nearStations = await extractStationsId(avgLat, avgLon);
+    const stnId = nearStations.stnId; // 예시: 서울 종로구 기준 관측소 (기상청 코드)
+
+    const url = `https://apihub.kma.go.kr/api/typ01/url/kma_sfcdd.php?tm=${tm}&stn=${stnId}&help=1&authKey=${process.env.WEATHER_API_KEY2}`;
+
+    try {
+        const res = await axios.get(url);
+        const data = res.data;
+
+        fs.writeFileSync(saveFilePath, JSON.stringify(data, null, 2));
+        
+        const sample = data?.info?.rows?.[0];
+        const summary = sample ? `작년(${baseDateStr}) 평균기온 ${sample.avgTa}도, 강수량 ${sample.sumRn}mm` : "기록 없음";
+
+        return {
+            message: `8일 이후의 날씨는 예측하기 어렵습니다. 작년 날씨를 참고하세요.\n작년 날씨: ${summary}`
+        };
+        
+    } catch (error) {
+        console.error("기상청 과거 날씨 API 오류:", error.message);
+        return [{ message: "기상청 과거 날씨 조회 실패" }];
+    }
+}
+
+async function getWeather(region, visitDate, regionPlaces) {
+    //같은 좌표 + 같은 날짜에 대해 이미 요청했다면 재요청하지 않고 캐시 데이터 사용
+    const cacheKey = `${region}:${visitDate.toISOString().split("T")[0]}`;
+    if (weatherCache.has(cacheKey)) {
+        return weatherCache.get(cacheKey);
+    }
+
+    const validPlaces = regionPlaces.filter(p =>
+        p.place.place_latitude && p.place.place_longitude &&
+        Math.abs(p.place.place_latitude) <= 90 && Math.abs(p.place.place_longitude) <= 180
+    );
+    if (validPlaces.length === 0) {
+        return { message: "유효한 좌표 없음" };
+    }
+
+    const avgLat = validPlaces.reduce((sum, p) => sum + p.place.place_latitude, 0) / validPlaces.length;
+    const avgLon = validPlaces.reduce((sum, p) => sum + p.place.place_longitude, 0) / validPlaces.length;
+
+    const now = new Date();
+    const daysDiff = Math.ceil((visitDate - now) / (1000 * 60 * 60 * 24));
+
+    try {
+        if (daysDiff >= 8) {
+            const result = await getPastWeatherFromKMA(region, visitDate, avgLat, avgLon);
+            weatherCache.set(cacheKey, result);
+            return result;
+        }
+
+        console.log("Weather 요청:", { region, avgLat, avgLon, visitDate: visitDate.toISOString() });
         const res = await axios.get(
-            `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}&units=metric&lang=kr`
+            `https://api.openweathermap.org/data/3.0/onecall?lat=${avgLat}&lon=${avgLon}&exclude=minutely,hourly,current&appid=${process.env.WEATHER_API_KEY}&units=metric&lang=kr`,
+            { timeout: 5000 } //5초내로 응답 없으면 요청 중단
         );
 
-        const badWeather = res.data.list.filter((entry)=>{
-            const hour = new Date(entry.dt * 1000).getHours();
-            return hour >=9 && hour <=21 && entry.weather.some(w => w.main === "Rain" || w.main === "Snow");
+        //원하는 날짜 날씨만 추출
+        const targetDateStr = visitDate.toISOString().split('T')[0];
+        const daily = res.data.daily.find((d) => {
+            const dDateStr = new Date(d.dt * 1000).toISOString().split('T')[0];
+            return dDateStr === targetDateStr;
         });
 
-        if(badWeather.length > 0){
-            const description = badWeather.map
+        if (!daily) {
+            console.warn("날씨 데이터 없음:", { lat: avgLat, lon: avgLon, targetDateStr });
+            return { message: "날씨 데이터 없음" };
         }
-    } catch(error){
 
+        const result = {
+            description: daily.weather[0].description, //대략적인 날씨
+            pop: daily.pop * 100, //강수 확률
+            temp: daily.temp.day, // 낮 기온
+            isBad: ["Rain", "Snow", "Thunderstorm"].includes(daily.weather[0].main) || daily.pop * 100 >= 50,
+        };
+
+        console.log("Weather 결과:", result);
+        weatherCache.set(cacheKey, result);
+        return result;
+    } catch (error) {
+        console.error("getWeather 실패:", error.message);
+        return { message: "날씨 정보 가져오기 실패" };
     }
 }
 
@@ -66,11 +184,8 @@ router.get("/:trip_id", async(req, res)=>{
             }
         });
 
-        if(!trip) return res.status(404).json({error: "trip 없음"})
-
         const feedbacks = await Promise.all(
             trip.days.map(async (day)=>{
-
                 if (day.places.length === 0) {
                     return {
                     day: day.day_order,
@@ -81,61 +196,90 @@ router.get("/:trip_id", async(req, res)=>{
                 if (day.places.length === 1) {
                     return {
                     day: day.day_order,
-                    feedback: `DAY ${day.day_order}에는 '${day.places[0].place.place_name}' 하나만 포함되어 있어 동선 피드백은 어렵습니다. 주변 관광지를 함께 구성해보세요!`,
+                    feedback: `DAY ${day.day_order}에는 '${day.places[0].place.place_name}' 하나만 포함되어 있어 피드백은 어렵습니다. 주변 관광지를 함께 구성해보세요!`,
                     };
                 }
 
-                const placeNames = day.places.map((p)=> p.place.place_name);
-                const placeAddress = day.places.map((p)=> p.place.place_address);
-                const prompt = `
-                    다음은 사용자의 DAY ${day.day_order} 일정입니다.
-                    장소 목록: ${placeNames.join(", ")}
+                const placeNames = day.places.map((p) => p.place.place_name);
+                const regions = day.places.map((p) => extractRegion(p.place.place_address));
+                const visitDate = new Date(trip.start_date.getTime() + (day.day_order - 1) * 86400000);
 
-                    1. 먼저 일반 설명을 1~2문단 작성해줘.
-                    2. 마지막 문단은 반드시 핵심 제안이고, 강조할 내용은 [하이라이트]로 감싸줘.
-
-                    ### 요청 사항
-                    1. 이동 동선 피드백 — 필수 작성  
-                    이동 동선이 비효율적인 경우,더 나은 순서를 제안해 주세요.
-
-                    2. 브레이크 타임 피드백
-                    
-                    3. [날씨 피드백] — 야외 활동 중 **가장 핵심적인 장소 1곳만** 분석  
-                    비/눈/태풍 등 날씨 문제가 있을 경우에만 작성
-
-                    ### 형식
-                    다음 JSON 형식으로 응답해주세요. 필요 없는 항목은 null로 남기세요.  
-                    전체 분량은 400자 이내로 제한해주세요.
-
-
-                    다음 JSON 형식에 맞게 피드백을 주세요:
-                    {
-                        "day": ${day.day_order},
-                        "distance_feedback": "동선 관련 피드백이 있다면 여기에 작성",
-                        "breaktime_feedback": "브레이크 타임 관련 피드백이 있다면 여기에 작성",
-                        "weather_feedback": "날씨 관련 피드백이 있다면 여기에 작성"
+                //지역별 장소 묶기
+                const regionMap = new Map();
+                for (const p of day.places) {
+                    const region = extractRegion(p.place.place_address);
+                    if (!regionMap.has(region)) {
+                        regionMap.set(region, []);
                     }
-
-                    각 피드백 항목은 필요할 경우에만 작성하고, 필요 없으면 null을 반환하세요.
-                `;
-
-                const response = await openai.chat.completions.create({
-                    model: "gpt-4o-mini",
-                    messages: [
-                        {role: "system", content: "너는 여행일정 피드백 전문가야." },
-                        {role: "user", content: prompt, }
-                    ],
-                    temperature: 0.5,
-                });
-
-                return {
-                    day: day.day_order,
-                    feedback: response.choices[0].message.content,
+                    regionMap.get(region).push(p);
                 }
-            })
-        );
 
-        res.json({ feedbacks });
+                //지역별 평균 좌표 기반 날씨 요청
+                const regionWeatherMap = new Map();
+                for (const [region, regionPlaces] of regionMap.entries()) {
+                    const weather = await getWeather(region, visitDate, regionPlaces);
+                    regionWeatherMap.set(region, weather);
+                }
+
+                //지역 날씨피드백
+                const placeFeedbacks = await Promise.all(
+                    day.places.map(async (p, i) => {
+                        const region = extractRegion(p.place.place_address);
+                        const weather = regionWeatherMap.get(region);
+
+                        let feedback = "문제 없음";
+                        if (weather.isBad) {
+                            feedback = await gptRes(
+                                `이 장소는 ${region}의 날씨 정보에 따라 실외 활동에 적합하지 않을 수 있습니다.`
+                            );
+                        }
+
+                        return {
+                            place_name: p.place.place_name,
+                            region,
+                            weather: weather.message || `${weather.description} (강수확률: ${weather.pop}%)`,
+                            feedback,
+                        };
+                    })
+                );
+
+            const badWeatherPlaces = placeFeedbacks.filter((p) => p.feedback !== "문제 없음");
+            let weather_feedback;
+            if (badWeatherPlaces.length === 0) {
+                    const anyWeather = regionWeatherMap.values().next().value;
+                    weather_feedback = `예상 날씨는 "${anyWeather.description}"입니다. 계획된 일정대로 진행하셔도 좋을 것 같아요!.`;
+                } else {
+                    const problemPlaceDescriptions = badWeatherPlaces
+                        .map((p) => `- ${p.place_name} (${p.region}): ${p.weather}. ${p.feedback}`)
+                        .join("\n");
+
+                    weather_feedback = await gptRes(
+                        `당신은 여행 일정 전문가입니다. DAY ${day.day_order} 일정 중 날씨로 인해 문제가 있는 장소들이 다음과 같습니다:\n${problemPlaceDescriptions}\n이러한 상황을 고려하여 실외 활동에 어떤 영향을 줄 수 있는지 간략히 설명하고, 대체 가능한 실내 장소나 일정을 제안해주세요. 200자 이내로 작성해주세요.`
+                    );
+                }
+
+                const [distance_feedback, breaktime_feedback] = await Promise.all([
+                gptRes(
+                    `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내.`
+                ),
+                gptRes(
+                    `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 브레이크 타임 부족 시 쉼터 제안. 200자 이내.`
+                ),
+                ]);
+
+            return {
+            day: day.day_order,
+            feedback: {
+                distance_feedback,
+                breaktime_feedback,
+                weather_feedback,
+            },
+            places: placeFeedbacks,
+            };
+        })
+    );
+
+    res.json({ feedbacks });
     } catch (error) {
         console.log(error, "feedback routes 에러");
         res.status(500).json({error: "feedback routes 중 오류"})

@@ -13,7 +13,7 @@ const handleAuthCallback = async (req, res) => {
 
         // AccessToken & RefreshToken을 쿠키로 저장
         res.cookie("accessToken", accessToken, {
-            httpOnly: true,
+            httpOnly: false,
             secure: false,
             sameSite: "Lax"
         });

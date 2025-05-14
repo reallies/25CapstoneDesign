@@ -62,10 +62,13 @@ const FeedbackModal = ({ onClose,tripId }) => {
                 </div>
             )}
     
-            {feedbacks.map((feedbacks, idx)=>(
-                <div className="feedback-bubble"key={idx}>
-                    <p className="bubble-label">💬 DAY {feedbacks.day} 일정 피드백이에요!</p>
-                    <p>{feedbacks.feedback}</p>
+            {feedbacks.map((item)=>(
+                <div key={item.day} className="feedback-bubble">
+                    <p className="bubble-label">💬 DAY {item.day} 일정 피드백이에요!</p>
+
+                    <p>{item.feedback.distance_feedback}</p>
+                    <p>{item.feedback.breaktime_feedback}</p>
+                    <p>{item.feedback.weather_feedback}</p>
                 </div>
             ))}
         </div>

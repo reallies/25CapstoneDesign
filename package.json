@@ -19,9 +19,11 @@
     },
     "dependencies": {
         "axios": "^1.8.3",
+        "csv-parser": "^3.2.0",
         "openai": "^4.97.0",
         "passport-naver-v2": "^2.0.8",
         "react-datepicker": "^8.3.0",
+        "redis": "^5.0.1",
         "short-uuid": "^5.2.0"
     }
 }

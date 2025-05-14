@@ -2,6 +2,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./WeatherBox.css";
+import {
+    WiDaySunny,
+    WiNightClear,
+    WiDayCloudy,
+    WiNightAltCloudy,
+    WiCloudy,
+    WiShowers,
+    WiRain,
+    WiStormShowers,
+    WiSnow,
+    WiFog
+} from "react-icons/wi";
 
 const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
@@ -25,42 +37,70 @@ const cityCoordinates = {
     "제주": { lat: 33.4996, lon: 126.5312 }
 };
 
-const WeatherBox = ({ city, destinations }) => {
-    const [selectedCity, setSelectedCity] = useState(city);
+// OpenWeather API icon => react-icons component mapping
+const iconMapping = {
+    "01d": WiDaySunny,
+    "01n": WiNightClear,
+    "02d": WiDayCloudy,
+    "02n": WiNightAltCloudy,
+    "03d": WiCloudy,
+    "03n": WiCloudy,
+    "04d": WiCloudy,
+    "04n": WiCloudy,
+    "09d": WiShowers,
+    "09n": WiShowers,
+    "10d": WiRain,
+    "10n": WiRain,
+    "11d": WiStormShowers,
+    "11n": WiStormShowers,
+    "13d": WiSnow,
+    "13n": WiSnow,
+    "50d": WiFog,
+    "50n": WiFog
+};
+
+const WeatherBox = ({ city }) => {
     const [weatherData, setWeatherData] = useState([]);
 
-    useEffect(() => {
-        const { lat, lon } = cityCoordinates[selectedCity];
-        if (!lat || !lon) return;
 
+    useEffect(() => {
+        if (!city) return;
+        const coords = cityCoordinates[city];
+        if (!coords) return;
+
+
+        const { lat, lon } = coords;
         const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=kr`;
 
-        axios.get(url)
+        axios
+            .get(url)
             .then((res) => {
                 setWeatherData(res.data.daily.slice(0, 7));
             })
             .catch(console.error);
-    }, [selectedCity]);
-
-    const formatDay = (unix) => {
-        return new Date(unix * 1000).toLocaleDateString("ko-KR", { weekday: "short" });
-    };
+    }, [city]);
 
     return (
         <div className="weather-box">
+            <div className="weather-city">{city}시</div>
             <div className="weather-days">
-                {weatherData.map((day, idx) => (
-                    <div className="weather-day" key={idx}>
-                        <div className="day-name">{formatDay(day.dt)}</div>
-                        <img
-                            style={{ height: '70px' }}
-                            src={`http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
-                            alt={day.weather[0].description}
-                        />
-                        <div className="temp-range">{Math.round(day.temp.min)}° / {Math.round(day.temp.max)}°</div>
-                    </div>
-                ))}
+                {weatherData.map((day, idx) => {
+                    const code = day.weather[0].icon;
+                    const Icon = iconMapping[code] || WiDaySunny;
+                    return (
+                        <div className="weather-day" key={idx}>
+                            <div className="day-name">
+                                {new Date(day.dt * 1000).toLocaleDateString("ko-KR", { weekday: 'short' })}
+                            </div>
+                            <Icon className="weather-icon" size={55} />
+                            <div className="temp-range">
+                                {Math.round(day.temp.max)}°/ {Math.round(day.temp.min)}°
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
+
         </div>
     );
 };

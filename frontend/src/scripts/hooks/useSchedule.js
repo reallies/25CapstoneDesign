@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 export const useSchedule = (trip_id) => {
     const [trip, setTrip] = useState(null);
@@ -6,7 +6,7 @@ export const useSchedule = (trip_id) => {
     const [activeDay, setActiveDay] = useState("ALL");
   
     // 여행 정보 불러오기
-    const fetchTrip = async () => {
+    const fetchTrip = useCallback(async () => {
         try {
             const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
                 credentials: "include",
@@ -35,6 +35,8 @@ export const useSchedule = (trip_id) => {
                         type: "place",
                         placeType: p.place_type || "관광명소",
                         name: p.place.place_name,
+                        latitude: p.place.place_latitude,    
+                        longitude: p.place.place_longitude,  
                         })),
                     };
                 });
@@ -43,11 +45,10 @@ export const useSchedule = (trip_id) => {
         } catch (err) {
             console.error("여행 정보를 불러오지 못함:", err);
         }
-    };
+    }, [trip_id]);
 
     //장소 추가
     const handlePlaceSelect = async (dayIndex, place, setIsModalOpen) => {
-        console.log("✅ 선택된 place 정보", place);
 
         const day = days[dayIndex];
         const dayId = Number(day.id.replace("day-", ""));
@@ -89,37 +90,6 @@ export const useSchedule = (trip_id) => {
         }
     };
 
-    //메모추가
-    const handleAddMemo = (dayIndex) => {
-        const newDays = [...days];
-        newDays[dayIndex].items.push({
-            id: `memo-${Date.now()}`,
-            type: "memo",
-            content: "",
-            });
-        setDays(newDays);
-    };
-
-    const handleMemoChange = (dayIndex, itemIndex, value) => {
-        const newDays = [...days];
-        newDays[dayIndex].items[itemIndex].content = value;
-        setDays(newDays);
-    };
-
-    const extractDayId = (id) => id.replace(/-place|-memo/, "");
-
-    //메모 드래그
-    const handleMemoDragEnd = (result) => {
-        const { source, destination } = result;
-        const sourceDayIndex = days.findIndex((d) => d.id === extractDayId(source.droppableId));
-        const destDayIndex = days.findIndex((d) => d.id === extractDayId(destination.droppableId));
-
-        const newDays = [...days];
-        const [removed] = newDays[sourceDayIndex].items.splice(source.index, 1);
-        newDays[destDayIndex].items.splice(destination.index, 0, removed);
-        setDays(newDays);
-    };
-
     //날짜 드래그
     const handleDayDragEnd = async (result) => {
         const { source, destination } = result;
@@ -143,6 +113,8 @@ export const useSchedule = (trip_id) => {
             console.error("DAY 순서 변경 실패:", error);
         }
     };
+
+    const extractDayId = (id) => id.replace(/-place|-memo/, "");
 
     //장소 드래그
     const handlePlaceDragEnd = async (result) => {
@@ -188,9 +160,6 @@ export const useSchedule = (trip_id) => {
         case "PLACE":
             handlePlaceDragEnd(result);
             break;
-        case "MEMO":
-            handleMemoDragEnd(result);
-            break;
         default:
             break;
         }
@@ -225,7 +194,7 @@ export const useSchedule = (trip_id) => {
 
     useEffect(() => {
         if (trip_id) fetchTrip();
-    }, [trip_id]);
+    }, [trip_id, fetchTrip]);
 
     return {
         trip,
@@ -235,9 +204,6 @@ export const useSchedule = (trip_id) => {
         setActiveDay,
         fetchTrip,
         handlePlaceSelect,
-        handleAddMemo,
-        handleMemoChange,
-        handleMemoDragEnd,
         handleDayDragEnd,
         handlePlaceDragEnd,
         onDragEnd,
