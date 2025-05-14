@@ -19,7 +19,7 @@ const KakaoMap = ({ days }) => {
   const [isRoadviewVisible, setIsRoadviewVisible] = useState(false);// 로드뷰 화면 오버레이
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState("");
-
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
 
   useEffect(() => {
@@ -58,6 +58,7 @@ const KakaoMap = ({ days }) => {
       );
       roadviewClientRef.current = new kakaoMaps.RoadviewClient();
 
+      setIsMapLoaded(true);
     });
   }, []);
 
@@ -146,7 +147,7 @@ const KakaoMap = ({ days }) => {
     if (!bounds.isEmpty()) {
       map.setBounds(bounds);
     }
-  }, [days, isRoadviewMode]);
+  }, [days,isMapLoaded, isRoadviewMode]);
 
   // 번호 마커 이미지 생성 함수
   const createNumberedMarkerImage = (number, color, kakaoMaps) => {

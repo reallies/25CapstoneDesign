@@ -98,8 +98,8 @@ const Schedule = () => {
 
   //피드백 기능
   const handleFeedback = () =>{
-    setShowFeedback(true);
-    setLoadingFeedbacks(true);
+    setShowFeedback((prev) => !prev);
+    setLoadingFeedbacks((prev) => !prev);
   }
   const handleDayplaceTime = (dayId, dayPlaceId) =>{
     setSelectedDayId(dayId);
@@ -201,7 +201,7 @@ const Schedule = () => {
             className="feedback-btn-alone"
             onClick={handleFeedback}
           >
-            ? 피드백 받기
+            {showFeedback ? "지도로 돌아가기" : "? 피드백 받기"}
           </button>
           </div>
         </div>

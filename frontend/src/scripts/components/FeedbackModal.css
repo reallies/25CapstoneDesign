@@ -150,10 +150,10 @@
   }
 
   .skeleton {
-    background-color: #e6e6e6;
+    background-color: #d8d8d8;
     border-radius: 8px;
-    animation: pulse 1.8s infinite;
-    height: 200px;
+    animation: pulse 1.5s infinite;
+    height: 190px;
     margin: 10px 0;
   }
 

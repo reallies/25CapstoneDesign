@@ -62,15 +62,17 @@ async function extractStationsId(avgLat,avgLon){
     });
 }
 
+//YYYYMMDD로 시간 형태 변경
 function changeDateYYYYMMDD(date){
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 0~11 이라 +1
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
     const day = date.getDate().toString().padStart(2, '0');
 
     return `${year}${month}${day}`;
 }
 
-async function getPastWeatherFromKMA(region, visitDate, avgLat, avgLon) {
+//기상청으로 과거날씨 가져오기
+async function getPastWeather(region, visitDate, avgLat, avgLon) {
     const saveFilePath = `./weather_past_${region}_${visitDate.toISOString().split("T")[0]}.json`;
 
     const baseDate = new Date(visitDate);
@@ -78,7 +80,7 @@ async function getPastWeatherFromKMA(region, visitDate, avgLat, avgLon) {
     const tm = changeDateYYYYMMDD(baseDate);
     
     const nearStations = await extractStationsId(avgLat, avgLon);
-    const stnId = nearStations.stnId; // 예시: 서울 종로구 기준 관측소 (기상청 코드)
+    const stnId = nearStations.stnId; 
 
     const url = `https://apihub.kma.go.kr/api/typ01/url/kma_sfcdd.php?tm=${tm}&stn=${stnId}&help=1&authKey=${process.env.WEATHER_API_KEY2}`;
 
@@ -94,7 +96,6 @@ async function getPastWeatherFromKMA(region, visitDate, avgLat, avgLon) {
         return {
             message: `8일 이후의 날씨는 예측하기 어렵습니다. 작년 날씨를 참고하세요.\n작년 날씨: ${summary}`
         };
-        
     } catch (error) {
         console.error("기상청 과거 날씨 API 오류:", error.message);
         return [{ message: "기상청 과거 날씨 조회 실패" }];
@@ -124,7 +125,7 @@ async function getWeather(region, visitDate, regionPlaces) {
 
     try {
         if (daysDiff >= 8) {
-            const result = await getPastWeatherFromKMA(region, visitDate, avgLat, avgLon);
+            const result = await getPastWeather(region, visitDate, avgLat, avgLon);
             weatherCache.set(cacheKey, result);
             return result;
         }
@@ -186,6 +187,7 @@ router.get("/:trip_id", async(req, res)=>{
 
         const feedbacks = await Promise.all(
             trip.days.map(async (day)=>{
+                //고정된 응답 - 일정이 0,1개일 경우
                 if (day.places.length === 0) {
                     return {
                     day: day.day_order,
@@ -200,11 +202,10 @@ router.get("/:trip_id", async(req, res)=>{
                     };
                 }
 
+                //날씨 - 장소별 지역 묶기
                 const placeNames = day.places.map((p) => p.place.place_name);
                 const regions = day.places.map((p) => extractRegion(p.place.place_address));
                 const visitDate = new Date(trip.start_date.getTime() + (day.day_order - 1) * 86400000);
-
-                //지역별 장소 묶기
                 const regionMap = new Map();
                 for (const p of day.places) {
                     const region = extractRegion(p.place.place_address);
@@ -214,14 +215,14 @@ router.get("/:trip_id", async(req, res)=>{
                     regionMap.get(region).push(p);
                 }
 
-                //지역별 평균 좌표 기반 날씨 요청
+                //날씨 - 지역별 평균 좌표 기반 날씨 요청
                 const regionWeatherMap = new Map();
                 for (const [region, regionPlaces] of regionMap.entries()) {
                     const weather = await getWeather(region, visitDate, regionPlaces);
                     regionWeatherMap.set(region, weather);
                 }
 
-                //지역 날씨피드백
+                //날씨 - 지역 날씨 정보 return
                 const placeFeedbacks = await Promise.all(
                     day.places.map(async (p, i) => {
                         const region = extractRegion(p.place.place_address);
@@ -243,11 +244,12 @@ router.get("/:trip_id", async(req, res)=>{
                     })
                 );
 
-            const badWeatherPlaces = placeFeedbacks.filter((p) => p.feedback !== "문제 없음");
-            let weather_feedback;
-            if (badWeatherPlaces.length === 0) {
-                    const anyWeather = regionWeatherMap.values().next().value;
-                    weather_feedback = `예상 날씨는 "${anyWeather.description}"입니다. 계획된 일정대로 진행하셔도 좋을 것 같아요!.`;
+                //날씨 - 안좋은 날씨인 지역만 골라내서 gpt 응답 받기
+                const badWeatherPlaces = placeFeedbacks.filter((p) => p.feedback !== "문제 없음");
+                let weather_feedback;
+                if (badWeatherPlaces.length === 0) {
+                        const anyWeather = regionWeatherMap.values().next().value;
+                        weather_feedback = `예상 날씨는 "${anyWeather.description}"입니다. 계획된 일정대로 진행하셔도 좋을 것 같아요!.`;
                 } else {
                     const problemPlaceDescriptions = badWeatherPlaces
                         .map((p) => `- ${p.place_name} (${p.region}): ${p.weather}. ${p.feedback}`)
@@ -258,32 +260,33 @@ router.get("/:trip_id", async(req, res)=>{
                     );
                 }
 
+                //동선, 브레이크 타임 피드백
                 const [distance_feedback, breaktime_feedback] = await Promise.all([
-                gptRes(
-                    `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내.`
-                ),
-                gptRes(
-                    `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 브레이크 타임 부족 시 쉼터 제안. 200자 이내.`
-                ),
+                    gptRes(
+                        `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내.`
+                    ),
+                    gptRes(
+                        `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 브레이크 타임 부족 시 쉼터 제안. 200자 이내.`
+                    ),
                 ]);
 
-            return {
-            day: day.day_order,
-            feedback: {
-                distance_feedback,
-                breaktime_feedback,
-                weather_feedback,
-            },
-            places: placeFeedbacks,
-            };
-        })
-    );
+                return {
+                    day: day.day_order,
+                    feedback: {
+                        distance_feedback,
+                        breaktime_feedback,
+                        weather_feedback,
+                    },
+                    places: placeFeedbacks,
+                };
+            })
+        );
 
-    res.json({ feedbacks });
-    } catch (error) {
-        console.log(error, "feedback routes 에러");
-        res.status(500).json({error: "feedback routes 중 오류"})
-    }
+        res.json({ feedbacks });
+        } catch (error) {
+            console.log(error, "feedback routes 에러");
+            res.status(500).json({error: "feedback routes 중 오류"})
+        }
 });
 
 module.exports = router;

@@ -14,7 +14,7 @@ const FeedbackModal = ({ onClose,tripId }) => {
             try {
                 const res = await fetch(`http://localhost:8080/feedback/${tripId}`);
                 const data = await res.json();
-
+                
                 setFeedbacks(data.feedbacks);
             } catch (error) {
                 console.error("피드백 불러오기 오류");
@@ -66,9 +66,15 @@ const FeedbackModal = ({ onClose,tripId }) => {
                 <div key={item.day} className="feedback-bubble">
                     <p className="bubble-label">💬 DAY {item.day} 일정 피드백이에요!</p>
 
-                    <p>{item.feedback.distance_feedback}</p>
-                    <p>{item.feedback.breaktime_feedback}</p>
-                    <p>{item.feedback.weather_feedback}</p>
+                    {typeof item.feedback === "string" ? (
+                        <p>{item.feedback}</p>
+                    ) : (
+                    <>
+                        <p>{item.feedback?.distance_feedback}</p>
+                        <p>{item.feedback?.breaktime_feedback}</p>
+                        <p>{item.feedback?.weather_feedback}</p>
+                    </>
+                    )}
                 </div>
             ))}
         </div>
