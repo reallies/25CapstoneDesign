@@ -79,7 +79,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지!
 
 ## 🎨 디자인
 
-- [📎 Figma Design 바로가기](https://www.figma.com/design/43bODe77hYu02GHCPcvaD1/2025-1-%EC%BA%A1%EC%8A%A4%ED%86%A4-%EB%94%94%EC%9E%90%EC%9D%B8?node-id=0-1&t=JjS8VRgIPhXlqtoS-1)
+- 
 
 ---
 
@@ -88,7 +88,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지!
 | Profile                                                      | Name    | Role                                         | Contact                                                      |
 | ------------------------------------------------------------ | ------- | -------------------------------------------- | ------------------------------------------------------------ |
 | <img src="https://github.com/reallies.png" width="50" height="50"> | 👑오현석 | Backend Developer                            | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
-| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수  | UX/UI · Frontend / Developer                 | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
+| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수  | UX / UI / Frontend Developer                 | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
 | <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현  | Backend Developer / Database Manager         | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
 | <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환  | External API Integrator / Deployment Manager | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
 
