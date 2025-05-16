@@ -1,121 +1,256 @@
-/* ===== 전체 컨테이너 및 제목 ===== */
-.record-write-container {
-    padding: 20px;
-    font-family: "SUITE", sans-serif;
+/* ===== 전체 컨테이너 설정 ===== */
+.record-container {
+    max-width: 1280px;
+    margin: 40px auto;
+    font-family: 'SUITE', sans-serif;
+    padding: 0 20px;
 }
 
-.record-write-title {
-    font-size: 25px;
-    margin-bottom: 20px;
-}
-
-/* ===== 입력 박스 ===== */
-.record-write-box {
-    background: #fff;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-/* ===== 입력 필드 그룹 ===== */
-.record-write-form-group {
-    margin-bottom: 20px;
-}
-
-/* ===== 라벨 ===== */
-.record-write-label {
-    display: inline-block;
-    width: 70px;
-    font-size: 18px;
+/* ===== 제목 및 설명 영역 ===== */
+.record-title {
+    text-align: center;
+    font-size: 30px;
     font-weight: bold;
-    vertical-align: top;
 }
 
-/* ===== 입력 필드 및 텍스트에어리어 ===== */
-.record-write-input,
-.record-write-textarea {
-    width: calc(100% - 90px);
-    padding: 10px;
-    background: #f9f9fb;
-    border: none;
-    border-radius: 10px;
-    resize: none;
+.record-subtitle {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-top: 20px;
+}
+
+.record-title,
+.record-subtitle,
+.record-placeholder {
+  border: none;
+  background: none;
+  outline: none;
+  text-align: center;
+  width: 100%;
+}
+
+.record-placeholder {
+  resize: none;
+  height: auto;
+  font-family: 'SUITE', sans-serif;
+  line-height: 1.6;
+}
+
+/* ===== 작성자 정보 메타 영역 ===== */
+.record-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.profile-circle {
+    width: 48px;
+    height: 48px;
+    background-color: #ccc;
+    border-radius: 50%;
+}
+
+.record-meta-text {
+    flex: 1;
+    margin-left: 12px;
+    font-size: 13px;
+}
+
+.record-nickname {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.record-time {
     font-size: 14px;
+    font-weight: 500;
+    color: #888;
 }
 
-.record-write-textarea {
-    height: 200px;
-}
-
-/* ===== 이미지 업로드 및 미리보기 ===== */
-.record-photo-upload {
+.record-buttons {
     display: flex;
-    align-items: flex-start;
-    gap: 15px;
-}
-
-.record-photo-preview {
-    display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
-    flex-grow: 1;
-    min-width: 0;
+}
+
+.record-icon {
+    width: 50px;
+    height: 50px;
+    padding: 0px;
+    cursor: pointer;
+}
+
+.record-submit {
+    background-color: #00ADB5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.record-cancel {
+    border: 1px solid #00ADB5;
+    background-color: white;
+    color: #00ADB5;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* ===== 구분선 ===== */
+.record-divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+
+/* ===== 수정 영역 ===== */
+.record-placeholder {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+    margin-top: 40px;
+}
+
+/* ===== 이미지 미리보기 ===== */
+.record-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
 }
 
 .record-preview-img {
-    width: 100px;
-    height: 70px;
-    border-radius: 8px;
-    object-fit: cover;
-    background-color: #d9d9d9;
+    width: 600px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #ccc;
 }
 
-/* ===== 업로드 버튼 ===== */
-.record-upload-btn {
+/* ===== 장소 추가 모달 ===== */
+.pin-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.record-modal-popup {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    z-index: 1000;
+    width: 450px;
     background: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 8px 10px;
-    cursor: pointer;
-    font-size: 14px;
-    height: 36px;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-height: 500px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.record-modal {
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.record-modal-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: #B3B3B3;
-    font-weight: 500;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
 }
 
-/* ===== 하단 버튼 영역 ===== */
-.record-button-group {
+.record-back {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.record-search-container {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-/* ===== 등록 버튼 ===== */
-.record-submit-btn {
-    background: #00ADB5;
-    font-size: 16px;
-    color: white;
-    border: none;
-    padding: 10px 26px;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-/* ===== 취소 버튼 ===== */
-.record-cancel-btn {
-    background: white;
-    font-size: 16px;
-    border: 1px solid #00ADB5;
-    color: #00ADB5;
-    padding: 10px 26px;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-/* ===== 포커스 효과 제거 ===== */
-.record-write-textarea:focus {
+    align-items: center;
+    width: 80%;
+    padding: 10px 15px;
+    border-radius: 30px;
+    background: rgba(0, 0, 0, 0.05);
     outline: none;
+    border: none;
+}
+
+.record-modal-search {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 30px;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.record-search-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.record-place-list {
+    max-height: calc(100% - 90px);
+    overflow-y: auto;
+}
+
+.record-place-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.record-place-thumb {
+    width: 50px;
+    height: 50px;
+    background: #ccc;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+
+.record-place-info {
+    flex-grow: 1;
+}
+
+.record-place-name {
+    font-weight: bold;
+}
+
+.record-place-location {
+    font-size: 14px;
+    color: #777;
+}
+
+.record-select-btn {
+    background-color: #eee;
+    border-radius: 15px;
+    padding: 5px 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.record-modal-popup::-webkit-scrollbar,
+.record-modal::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
