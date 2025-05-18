@@ -70,13 +70,27 @@ const FeedbackModal = ({ onClose,tripId }) => {
                         <p>{item.feedback}</p>
                     ) : (
                     <>
-                        <p>{item.feedback?.distance_feedback}</p>
-                        <p>{item.feedback?.breaktime_feedback}</p>
-                        <p>{item.feedback?.weather_feedback}</p>
+                        <div className="feedback-block">
+                            <p className="feedback-label">🗺️ 동선 피드백</p>
+                            <p className="feedback-content">{item.feedback?.distance_feedback}</p>
+                        </div>
+
+                        <div className="feedback-block">
+                            <p className="feedback-label">🕒 브레이크 타임 피드백</p>
+                            <p className="feedback-content">{item.feedback?.distance_feedback}</p>
+                        </div>
+
+                        <div className="feedback-block">
+                            <p className="feedback-label">🌤️ 날씨 피드백</p>
+                            <p className="feedback-content">{item.feedback?.weather_feedback.summary.main} </p>
+                            <p className="feedback-content"><b>최고 온도: {item.feedback?.weather_feedback.summary.maxTemp}</b>, <b>최저 온도: {item.feedback?.weather_feedback.summary.minTemp}</b></p>
+                            <p className="feedback-content">{item.feedback?.weather_feedback.gpt}</p>
+                        </div>
                     </>
                     )}
                 </div>
             ))}
+            
         </div>
         </div>
     );
