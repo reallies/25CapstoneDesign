@@ -116,8 +116,8 @@
   
   .bubble-label {
     font-weight: bold;
-    font-size: 20px;
-    margin-bottom: 4px;
+    font-size: 25px;
+    margin-bottom: px;
   }
   
   .bubble-highlight {
@@ -175,9 +175,16 @@
 
 .feedback-label {
   font-weight: bold;
+  font-size: 19px;
   margin-bottom: 4px;
 }
 
 .feedback-content {
   margin-top: 0;
+  margin-bottom: 26px;
+}
+
+.feedback-content p {
+  margin: 2px 0;         /* 위아래 여백 줄이기 */
+  line-height: 1.7;      /* 줄 간격도 좁게 */
 }

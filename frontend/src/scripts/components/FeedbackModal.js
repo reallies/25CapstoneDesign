@@ -74,17 +74,48 @@ const FeedbackModal = ({ onClose,tripId }) => {
                             <p className="feedback-label">🗺️ 동선 피드백</p>
                             <p className="feedback-content">{item.feedback?.distance_feedback}</p>
                         </div>
-
+                        <hr />
                         <div className="feedback-block">
                             <p className="feedback-label">🕒 브레이크 타임 피드백</p>
                             <p className="feedback-content">{item.feedback?.distance_feedback}</p>
                         </div>
-
+                        <hr />
                         <div className="feedback-block">
-                            <p className="feedback-label">🌤️ 날씨 피드백</p>
-                            <p className="feedback-content">{item.feedback?.weather_feedback.summary.main} </p>
-                            <p className="feedback-content"><b>최고 온도: {item.feedback?.weather_feedback.summary.maxTemp}</b>, <b>최저 온도: {item.feedback?.weather_feedback.summary.minTemp}</b></p>
-                            <p className="feedback-content">{item.feedback?.weather_feedback.gpt}</p>
+                            <p className="feedback-label">🔭 날씨 피드백</p>
+                            
+                            {item.feedback.weather_info?.some(rw => rw.summary.main?.includes("작년")) && (
+                                <p style={{ fontSize: "0.9rem", color: "#777", marginBottom: "0.9rem", marginTop:"-0.1rem" }}>
+                                ※ 날씨 예보는 현재 날짜의 8일만 주어집니다. 작년 날씨 데이터를 제공할게요.
+                                </p>
+                            )}
+
+                            {Array.isArray(item.feedback.weather_info) &&
+                            item.feedback.weather_info.map((regionWeather, idx) => (
+                                <div key={idx} className="feedback-content">
+                                {/* 장소들 + 지역명 */}
+                                <p>📍 <b>{regionWeather.places.join(", ")} ({regionWeather.region})</b></p>
+
+                                {/* 날씨요약 */}
+                                {regionWeather.summary.main?.includes("작년") ? (
+                                    <p>
+                                    <b>최고 온도: {regionWeather.summary.maxTemp}</b> ｜ 
+                                    <b style={{ marginLeft: "8px" }}>최저 온도: {regionWeather.summary.minTemp}</b> ｜ 
+                                    <b style={{ marginLeft: "8px" }}>평균 습도: {regionWeather.summary.humidity}</b>
+                                    </p>
+                                ) : (
+                                    <p>
+                                    <b>{regionWeather.summary.main}</b> ｜ 
+                                    <b style={{ marginLeft: "8px" }}>최고 온도: {regionWeather.summary.maxTemp}</b> ｜ 
+                                    <b style={{ marginLeft: "8px" }}>최저 온도: {regionWeather.summary.minTemp}</b>
+                                    </p>
+                                )}
+                                </div>
+                            ))}
+
+                            {/* Day별 전체 요약 피드백 */}
+                            {item.feedback.weather_feedback && (
+                            <p style={{ marginTop: "1rem" }}>👉 {item.feedback.weather_feedback}</p>
+                            )}
                         </div>
                     </>
                     )}
