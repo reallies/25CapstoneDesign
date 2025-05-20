@@ -152,14 +152,14 @@ function getVisitDay(startDate, dayOrder) {
 
 // 운영시간 프롬프트 생성
 function createOperatingHoursPrompt(day, places, operatingHours, plannedTimes) {
-  let prompt = `DAY ${day} (요일)의 장소:\n`;
-  places.forEach((place, index) => {
-    const hours = operatingHours[index] ? JSON.stringify(operatingHours[index]) : "운영시간 정보 없음";
-    const plannedTime = plannedTimes[index] || "방문 예정 시간 없음";
-    prompt += `- ${place}: 운영시간 ${hours}, 방문 예정 시간 ${plannedTime}\n`;
-  });
-  prompt += "친근하고 간결한 대화체로 피드백을 제공해 주세요. 예를 들어, '통인시장은 6시에 닫으니 5시 전에 가세요'처럼 간단하게 말해 주세요. 특수문자나 형식적인 표현은 피하고, 늦게 열거나 일찍 닫는 곳에 대한 경고를 포함하세요.";
-  return prompt;
+    let prompt = `DAY ${day} (요일)의 장소:\n`;
+    places.forEach((place, index) => {
+        const hours = operatingHours[index] ? JSON.stringify(operatingHours[index]) : "운영시간 정보 없음";
+        const plannedTime = plannedTimes[index] || "방문 예정 시간 없음";
+        prompt += `- ${place}: 운영시간 ${hours}, 방문 예정 시간 ${plannedTime}\n`;
+    });
+    prompt += "친근하고 간결한 대화체로 피드백을 제공해 주세요. 항상 존대말(예: '가세요', '확인해 주세요')을 사용하고, 반말(예: '가', '체크해')은 절대 사용하지 마세요. 예를 들어, '통인시장은 오후 6시에 닫으니 5시 전에 방문해 주세요'처럼 간단하고 정중하게 말해 주세요. 특수문자(예: *, -)나 번호 매기기는 피하고, 늦게 열거나 일찍 닫는 곳에 대한 경고를 포함하세요.";
+    return prompt;
 }
 
 // 운영시간 피드백 생성
