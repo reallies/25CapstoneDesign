@@ -152,6 +152,49 @@ router.get("/invite/pending", authenticateJWT, async (req, res) => {
   }
 });
 
+// 수락한 초대된 여행 일정 조회 (ACCEPTED)
+router.get("/invitations/accepted", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user;
+
+    const invitations = await prisma.tripInvitation.findMany({
+      where: {
+        invited_user_id: user.user_id,
+        status: "ACCEPTED",
+      },
+      include: {
+        Trip: {
+          select: {
+            trip_id: true,
+            title: true,
+            start_date: true,
+            end_date: true,
+            destinations: true,
+            updated_at: true,
+          },
+        },
+        User: { select: { nickname: true } },
+      },
+    });
+
+    const formattedInvitations = invitations.map((invitation) => ({
+      invitation_id: invitation.invitation_id,
+      trip_id: invitation.trip_id,
+      trip_title: invitation.Trip.title,
+      start_date: invitation.Trip.start_date,
+      end_date: invitation.Trip.end_date,
+      destinations: invitation.Trip.destinations,
+      updated_at: invitation.Trip.updated_at,
+      inviter_nickname: invitation.User.nickname,
+    }));
+
+    res.json({ message: "수락한 초대 일정 조회 성공", invitations: formattedInvitations });
+  } catch (error) {
+    console.error("수락한 초대 일정 조회 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 // 일정 조회
 router.get("/:trip_id", authenticateJWT, async (req, res) => {
   try {
