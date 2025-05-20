@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+# 🧭 Travel Scheduler & Recommender
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### ⚔️ Team SLAY
 
-## Available Scripts
+> 맞춤형 여행 일정 추천 / 사용자 일정 관리 · 공유 플랫폼
 
-In the project directory, you can run:
+![Thumbnail](docs/Thumbnail.png)
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 📌 프로젝트 개요
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+> **여행 준비, SLAY와 함께면 충분해요.** 
 
-### `npm test`
+AI 여행지 추천부터 일정 · 지출 관리까지!  
+복잡한 과정을 간단하게 만들어주는 여행 전용 웹 플랫폼 **SLAY**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 📋 주요 기능 한눈에 보기
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> 복잡한 앱 전전은 그만,  
+> **더 간편하게, 더 똑똑하게, 더 즐겁게**  
+> **SLAY**와 함께 가뿐한 여행을 시작하세요.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### ✔️ 핵심 기능
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- 🧠 **AI 맞춤 추천**, 내 여행 성향에 꼭 맞는 장소 자동 추천
+- 📆 **드래그 앤 드롭 일정 관리**, UI로 직관적인 여행 설계
+- 🗺️ **지도 + 날씨 통합 제공**, 여행지 상황까지 한눈에
+- 💸 **지출 관리와 후기 작성**, 여행의 기록을 더 가치 있게
+- 🤝 **실시간 공동 편집**, 동행자와 함께 만드는 일정
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🛠 기술 스택
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 🖥️ Front-End
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- <img src="https://img.shields.io/badge/react-%2361DAFB.svg?&style=for-the-badge&logo=react&logoColor=black" align="left" />
+- <img src="https://img.shields.io/badge/figma-%23F24E1E.svg?&style=for-the-badge&logo=figma&logoColor=white" align="left" />
 
-## Learn More
+### ⚙️ Back-End
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- <img src="https://img.shields.io/badge/node.js-%23339933.svg?&style=for-the-badge&logo=node.js&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/visual%20studio%20code-%23007ACC.svg?&style=for-the-badge&logo=visual%20studio%20code&logoColor=white" align="left" />
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 🗄️ Database
 
-### Code Splitting
+- <img src="https://img.shields.io/badge/postgresql-%23336791.svg?&style=for-the-badge&logo=postgresql&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/prisma-%232D3748.svg?&style=for-the-badge&logo=prisma&logoColor=white" align="left" />
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 🌐 API & Integration
 
-### Analyzing the Bundle Size
+- <img src="https://img.shields.io/badge/kakao%20map-%23FFCD00.svg?&style=for-the-badge&logo=kakao&logoColor=black" align="left" />
+- <img src="https://img.shields.io/badge/openweather-%23007396.svg?&style=for-the-badge&logo=openweather&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/openai-%23412991.svg?&style=for-the-badge&logo=openai&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/google%20calendar-%234285F4.svg?&style=for-the-badge&logo=google-calendar&logoColor=white" align="left" />
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 🔐 Authentication
 
-### Making a Progressive Web App
+- <img src="https://img.shields.io/badge/JWT-%23007ACC.svg?&style=for-the-badge&logo=jsonwebtokens&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/OAuth%202.0-%2326A69A.svg?&style=for-the-badge&logo=oauth&logoColor=white" align="left" />
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### 🚀 Deployment
 
-### Advanced Configuration
+- <img src="https://img.shields.io/badge/amazon%20aws-%23232F3E.svg?&style=for-the-badge&logo=amazon-aws&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/nginx-%23269539.svg?&style=for-the-badge&logo=nginx&logoColor=white" align="left" />
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 🧩 Collaboration Tool
 
-### Deployment
+- <img src="https://img.shields.io/badge/github-%23181717.svg?&style=for-the-badge&logo=github&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/notion-%23000000.svg?&style=for-the-badge&logo=notion&logoColor=white" align="left" />
+- <img src="https://img.shields.io/badge/kakaotalk-%23FFCD00.svg?&style=for-the-badge&logo=kakaotalk&logoColor=black" align="left" />
+- <img src="https://img.shields.io/badge/discord-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white" align="left" />
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## 🎨 디자인
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- 
+
+---
+
+## 👥 팀 소개
+
+| Profile                                                      | Name    | Role                                         | Contact                                                      |
+| ------------------------------------------------------------ | ------- | -------------------------------------------- | ------------------------------------------------------------ |
+| <img src="https://github.com/reallies.png" width="50" height="50"> | 👑오현석 | Backend Developer                            | gitHub: [@reallies](https://github.com/reallies)<br>Email: 0323eric@naver.com |
+| <img src="https://github.com/mamemomif.png" width="50" height="50"> | 강연수  | UX / UI / Frontend Developer                 | gitHub: [@mamemomif](https://github.com/mamemomif)<br>Email: yskang009@gmail.com |
+| <img src="https://github.com/hyeonn9.png" width="50" height="50"> | 구정현  | Backend Developer / Database Manager         | gitHub: [@hyeonn9](https://github.com/hyeonn9)<br>Email: 1319ono@gmail.com |
+| <img src="https://github.com/gihwan1112.png" width="50" height="50"> | 김기환  | External API Integrator / Deployment Manager | gitHub: [@gihwan1112](https://github.com/gihwan1112)<br>Email: gihwan494@gmail.com |
+
+---
+
+> 👏 **"여행을 준비하는 모든 순간, SLAY가 함께합니다."**
