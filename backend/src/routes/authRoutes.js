@@ -11,12 +11,9 @@ const handleAuthCallback = async (req, res) => {
   try {
     const { accessToken, refreshToken, isNewUser = false } = req.authInfo || {};
 
-    // 토큰 콘솔 출력 추가 (삭제)
-    console.log("AccessToken:", accessToken);
-
         // AccessToken & RefreshToken을 쿠키로 저장
         res.cookie("accessToken", accessToken, {
-            httpOnly: false,//배포 시 변경
+            httpOnly: true,
             secure: false,
             sameSite: "Lax"
         });
