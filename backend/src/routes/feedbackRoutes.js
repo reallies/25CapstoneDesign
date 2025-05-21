@@ -4,11 +4,16 @@ const router = express.Router();
 const OpenAI = require("openai");
 const axios = require("axios");
 const fs = require("fs");
-
-const weatherCache = new Map();
 const path = require("path");
 const csvParser = require("csv-parser");
 const iconv = require("iconv-lite");
+
+const weatherCache = new Map();
+
+// Google Maps API Key
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+
+// ### 공통 함수 ###
 
 // OpenAI 설정
 const openai = new OpenAI({
@@ -28,6 +33,8 @@ async function gptRes(prompt){
     return res.choices[0].message.content;
 }
 
+// ================== 거리 피드백 함수 ==================
+
 //거리피드백
 async function getDistanceFeedback(day) {
     const placeNames = day.places.map(p => p.place.place_name);
@@ -35,15 +42,153 @@ async function getDistanceFeedback(day) {
     return await gptRes(`DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내.`);
 }
 
-//브레이크 타임 피드백
-async function getBreaktimeFeedback(day) {
-    const placeNames = day.places.map(p => p.place.place_name);
-    return await gptRes(`DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 브레이크 타임 부족 시 쉼터 제안. 200자 이내.`);
+// ================== 운영시간 피드백 함수 ==================
+
+// Kakao Map API에서 가져온 장소 이름으로 Google Maps에서 place_id 찾기
+async function findPlaceId(placeName, lat, lng, address) {
+    const searchUrl = `https://places.googleapis.com/v1/places:searchText`;
+    let query = placeName;
+    if (address) {
+        query = `${placeName} ${address}`; // 이름과 주소를 결합해 검색
+    }
+    
+    const searchBody = {
+    textQuery: query,
+    locationBias: {
+      circle: {
+        center: { latitude: lat, longitude: lng },
+        radius: 2000.0,
+      },
+    },
+  };
+
+  try {
+    const response = await axios.post(searchUrl, searchBody, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        "X-Goog-FieldMask": "places.id",
+      },
+    });
+    if (response.data.places && response.data.places.length > 0) {
+      return response.data.places[0].id;
+    } else {
+      console.warn(`장소 검색 결과 없음: ${placeName}`);
+      return null;
+    }
+  } catch (error) {
+    console.error("Place Search 오류:", error.message);
+    return null;
+  }
+}
+
+// Google Maps API에서 운영시간 가져오기
+async function getOperatingHours(placeId) {
+  const detailsUrl = `https://places.googleapis.com/v1/places/${placeId}`;
+
+  try {
+    const response = await axios.get(detailsUrl, {
+      headers: {
+        "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        "X-Goog-FieldMask": "regularOpeningHours",
+      },
+    });
+    const openingHours = response.data.regularOpeningHours;
+    return openingHours ? openingHours.periods : null;
+  } catch (error) {
+    console.error("운영시간 조회 오류:", error.message);
+    return null;
+  }
+}
+
+// 운영시간 파싱
+function parseOperatingHours(periods) {
+  if (!periods) return null;
+
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const result = {};
+
+  periods.forEach((period) => {
+    const day = days[period.open.day];
+    const openTime = `${period.open.hour.toString().padStart(2, "0")}:${period.open.minute
+      .toString()
+      .padStart(2, "0")}`;
+    const closeTime = period.close
+      ? `${period.close.hour.toString().padStart(2, "0")}:${period.close.minute.toString().padStart(2, "0")}`
+      : "24:00";
+    if (!result[day]) result[day] = [];
+    result[day].push(`${openTime}-${closeTime}`);
+  });
+
+  return result;
+}
+
+// 모든 장소의 운영시간을 병렬로 가져오기
+async function getAllOperatingHours(places) {
+  const batchSize = 5; // 한 번에 처리할 장소 수
+  const batches = [];
+  for (let i = 0; i < places.length; i += batchSize) {
+    batches.push(places.slice(i, i + batchSize));
+  }
+
+  const results = [];
+  for (const batch of batches) {
+    const batchResults = await Promise.all(
+      batch.map(async (place) => {
+        const placeId = await findPlaceId(place.place_name, place.place_latitude, place.place_longitude, place.place_address);
+        if (placeId) {
+          const hours = await getOperatingHours(placeId);
+          return parseOperatingHours(hours);
+        }
+        return null;
+      })
+    );
+    results.push(...batchResults);
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // 1초 대기
+  }
+  return results;
+}
+
+// 방문 요일 계산
+function getVisitDay(startDate, dayOrder) {
+  const date = new Date(startDate);
+  date.setDate(date.getDate() + (dayOrder - 1));
+  return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
+}
+
+// 운영시간 프롬프트 생성
+function createOperatingHoursPrompt(day, places, operatingHours, plannedTimes) {
+    let prompt = `DAY ${day} (요일)의 장소:\n`;
+    places.forEach((place, index) => {
+        const hours = operatingHours[index] ? JSON.stringify(operatingHours[index]) : "운영시간 정보 없음";
+        const plannedTime = plannedTimes[index] || "방문 예정 시간 없음";
+        prompt += `- ${place}: 운영시간 ${hours}, 방문 예정 시간 ${plannedTime}\n`;
+    });
+    prompt += "친근하고 간결한 대화체로 피드백을 제공해 주세요. 항상 존대말(예: '가세요', '확인해 주세요')을 사용하고, 반말(예: '가', '체크해')은 절대 사용하지 마세요. 예를 들어, '통인시장은 오후 6시에 닫으니 5시 전에 방문해 주세요'처럼 간단하고 정중하게 말해 주세요. 특수문자(예: *, -)나 번호 매기기는 피하고, 늦게 열거나 일찍 닫는 곳에 대한 경고를 포함하세요.";
+    return prompt;
+}
+
+// 운영시간 피드백 생성
+async function getOperatingHoursFeedback(day, places, plannedTimes, tripStartDate) {
+  const operatingHours = await getAllOperatingHours(places);
+  if (!operatingHours || operatingHours.every((h) => !h)) {
+    return "운영시간 정보를 확인할 수 없습니다.";
+  }
+
+  const visitDay = getVisitDay(tripStartDate, day.day_order);
+  const prompt = createOperatingHoursPrompt(
+    day.day_order,
+    places.map((p) => p.place_name),
+    operatingHours,
+    plannedTimes
+  );
+  const feedback = await gptRes(prompt);
+  return feedback || "운영시간 피드백 생성에 실패했습니다.";
 }
 
 
+// ================== 날씨 관련 함수 ==================
 
-// =============================날씨 ==============================
 //과거 날씨 데이터 저장 폴더
 const dir=path.join(__dirname, '../../public/weather_data');
 if(!fs.existsSync(dir)){
@@ -293,12 +438,11 @@ async function getWeatherFeedback(day, tripStartDate) {
     return daysDiff >= 8
         ? await getWeatherFeedbackFromKMA(day, visitDate)
         : await getWeatherFeedbackFromOpen(day, visitDate);
-    }
-// =============================날씨 ==============================
+}
 
 
 
-
+// ### 라우터 ###
 router.get("/:trip_id", async(req, res)=>{
     const { trip_id } = req.params;
 
@@ -337,17 +481,21 @@ router.get("/:trip_id", async(req, res)=>{
                     feedback: `DAY ${day.day_order}에는 '${day.places[0].place.place_name}' 하나만 포함되어 있어 피드백은 어렵습니다. 주변 관광지를 함께 구성해보세요!`,
                     };
                 }
+                
+                const places = day.places.map((p) => p.place);
+                const plannedTimes = day.places.map((p) => p.dayplace_time || null);
+
                 const {weather_info, weather_feedback} = await getWeatherFeedback(day, trip.start_date);
                 const distance_feedback = await getDistanceFeedback(day);
-                const breaktime_feedback = await getBreaktimeFeedback(day);
+                const operating_hours_feedback = await getOperatingHoursFeedback(day, places, plannedTimes, trip.start_date);
 
                 return {
                     day: day.day_order,
                     feedback: {
                         distance_feedback,
-                        breaktime_feedback,
                         weather_info,
                         weather_feedback,
+                        operating_hours_feedback,
                     },
                 };
             })

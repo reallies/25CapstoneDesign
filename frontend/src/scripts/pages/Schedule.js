@@ -24,7 +24,7 @@ const Schedule = () => {
   const inviteModalRef = useRef(null);
   const addModalRef = useRef(null);
   const inviteButtonRef = useRef(null);;
-
+  
   //피드백 기능
   const [showFeedback, setShowFeedback] = useState(false);
   const [loadingFeedbacks, setLoadingFeedbacks] = useState();
@@ -32,7 +32,8 @@ const Schedule = () => {
   const [selectedDayPlaceId, setSelectedDayPlaceId] = useState(null);
   const [selectedDayId, setSelectedDayId] = useState(null);
   const [dayPlaceTimeMap, setDayPlaceTimeMap] = useState({});
-
+  const [feedbacks, setFeedbacks] = useState([]);
+  
   const { trip_id } = useParams();
   const navigate = useNavigate();
   const {
@@ -96,11 +97,33 @@ const Schedule = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   };
 
+
   //피드백 기능
-  const handleFeedback = () =>{
-    setShowFeedback((prev) => !prev);
-    setLoadingFeedbacks((prev) => !prev);
-  }
+  const handleFeedback = async () => {
+    if (!showFeedback) {
+      if (feedbacks.length === 0) {
+        setShowFeedback(true);
+        setLoadingFeedbacks(true);
+        try {
+          const res = await fetch(`http://localhost:8080/feedback/${trip_id}`);
+          const data = await res.json();
+          setFeedbacks(data.feedbacks);
+        } catch (err) {
+          console.error(" 첫 피드백 요청 실패", err);
+          return; // fetch 실패하면 모달 안 열게 막기
+        } finally {
+          setLoadingFeedbacks(false);
+        }
+      }
+
+      // 피드백 생성 or 캐시 완료되었을 때만 열기
+      setShowFeedback(true);
+    } else {
+      // 다시 누르면 닫기
+      setShowFeedback(false);
+    }
+};
+
   const handleDayplaceTime = (dayId, dayPlaceId) =>{
     setSelectedDayId(dayId);
     setSelectedDayPlaceId(dayPlaceId);
@@ -218,9 +241,16 @@ const Schedule = () => {
             )}
 
             {showFeedback && (
-              <FeedbackModal tripId={trip_id} onClose={() => setShowFeedback(false)} />
+              <FeedbackModal
+                tripId={trip_id}
+                feedbacks={feedbacks}
+                loading={loadingFeedbacks}
+                onClose={() => setShowFeedback(false)}
+                setFeedbacks={setFeedbacks}
+                setLoadingFeedbacks={setLoadingFeedbacks}
+              />
             )}
-
+            
             {/* 장소 추가 모달 */}
             {isModalOpen && (
               <div className="place-modal-overlay">

@@ -37,12 +37,19 @@
   .feedback-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     font-size: 14px;
     font-weight: bold;
     margin-bottom: 15px;
-    gap: 10px;
   }
   
+  .feedback-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
   .feedback-profile {
     width: 71px;
     height: 80px;
@@ -54,26 +61,10 @@
     justify-content: center;
   }
   
-  .feedback-profile img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-  
   .feedback-title {
     font-size: 18px;
     font-weight: 700;
     color: black;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .feedback-time {
-    font-size: 16px;
-    font-weight: 500;
-    color: gray;
   }
   
   /* '일정 체크 완료' 메시지 */
@@ -108,7 +99,7 @@
   .feedback-bubble {
     background: #EDEDED;
     border-radius: 12px;
-    padding: 10px 0px 10px 26px;
+    padding: 10px 10px 10px 26px;
     margin-bottom: 16px;
     color: #333;
     line-height: 1.6;
@@ -142,7 +133,7 @@
     cursor: pointer;
     border: none;
   }
-  
+
   /* 버튼 세부 스타일 */
   .feedback-btn.black {
     background: #000;
@@ -169,8 +160,17 @@
     }
   }
 
-  .feedback-block {
+.feedback-block {
   margin-top: 8px;
+  width: 100%;
+}
+
+.feedback-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 10px;
+  margin-top: -15px;
+  margin-bottom: 15px;
 }
 
 .feedback-label {
@@ -187,4 +187,9 @@
 .feedback-content p {
   margin: 2px 0;         /* 위아래 여백 줄이기 */
   line-height: 1.7;      /* 줄 간격도 좁게 */
+}
+
+.feedback-regenerate{
+  cursor: pointer;
+  margin-right: 10px;
 }

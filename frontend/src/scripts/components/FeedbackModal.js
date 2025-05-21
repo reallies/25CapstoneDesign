@@ -1,30 +1,23 @@
 import React from "react";
 import "./FeedbackModal.css";
 import icon from "../../assets/images/icon.svg";
-
-import {useEffect, useState} from "react";
+import regenerate from "../../assets/images/regenerate.svg"
 
 // 지도 대신 화면 오른쪽에 피드백 내용을 띄움
-const FeedbackModal = ({ onClose,tripId }) => {
-    const [loading, setLoading] = useState(true);
-    const [feedbacks, setFeedbacks] = useState([]);
-    
-    useEffect(()=>{
-        const feedback = async ()=>{
-            try {
-                const res = await fetch(`http://localhost:8080/feedback/${tripId}`);
-                const data = await res.json();
-                
-                setFeedbacks(data.feedbacks);
-            } catch (error) {
-                console.error("피드백 불러오기 오류");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        feedback();
-    },[tripId]);
+const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoadingFeedbacks }) => {
+    const regeneratefeedback = async ()=>{
+        setLoadingFeedbacks(true);
+        try {
+            const res = await fetch(`http://localhost:8080/feedback/${tripId}`);
+            const data = await res.json();
+            
+            setFeedbacks(data.feedbacks);
+        } catch (error) {
+            console.error("피드백 불러오기 오류");
+        } finally {
+            setLoadingFeedbacks(false);
+        }
+    };
 
     return (
         // 모달 전체 영역 (바깥 클릭 시 onClose 실행)
@@ -34,8 +27,16 @@ const FeedbackModal = ({ onClose,tripId }) => {
             
             {/* 모달 상단 - 프로필 사진, 제목, 시간 표시 */}
             <div className="feedback-header">
-            <img src={icon} alt="profile" className="feedback-profile" />
-            <div className="feedback-title">slay support</div>
+                <div className="feedback-header-left">
+                    <img src={icon} alt="profile" className="feedback-profile" />
+                    <div className="feedback-title">slay support</div>
+                </div>
+
+                {/* 피드백 재생성 버튼 */}
+                {!loading && (
+                    <img src={regenerate} alt="피드백 재생" className="feedback-regenerate" onClick={regeneratefeedback} />
+                )}
+
             </div>
 
             {loading ? (
@@ -73,11 +74,9 @@ const FeedbackModal = ({ onClose,tripId }) => {
                         <div className="feedback-block">
                             <p className="feedback-label">🗺️ 동선 피드백</p>
                             <p className="feedback-content">{item.feedback?.distance_feedback}</p>
-                        </div>
-                        <hr />
-                        <div className="feedback-block">
-                            <p className="feedback-label">🕒 브레이크 타임 피드백</p>
-                            <p className="feedback-content">{item.feedback?.distance_feedback}</p>
+                            <div className="feedback-btn-wrapper">
+                                <button className="feedback-btn black">추천 순서로 재정렬하기</button>
+                            </div>
                         </div>
                         <hr />
                         <div className="feedback-block">
@@ -85,7 +84,7 @@ const FeedbackModal = ({ onClose,tripId }) => {
                             
                             {item.feedback.weather_info?.some(rw => rw.summary.main?.includes("작년")) && (
                                 <p style={{ fontSize: "0.9rem", color: "#777", marginBottom: "0.9rem", marginTop:"-0.1rem" }}>
-                                ※ 날씨 예보는 현재 날짜의 8일만 주어집니다. 작년 날씨 데이터를 제공할게요.
+                                ※ 날씨 예보는 최대 8일까지만 제공되어, 가장 가까운 관측소의 작년 날씨 데이터를 참고했어요.
                                 </p>
                             )}
 
@@ -117,12 +116,16 @@ const FeedbackModal = ({ onClose,tripId }) => {
                             <p style={{ marginTop: "1rem" }}>👉 {item.feedback.weather_feedback}</p>
                             )}
                         </div>
+                        <hr />
+                        <div className="feedback-block">
+                            <p className="feedback-label">⏰ 운영시간 피드백</p>
+                            <p className="feedback-content">{item.feedback.operating_hours_feedback}</p>
+                        </div>
                     </>
                     )}
                 </div>
             ))}
-            
-        </div>
+            </div>
         </div>
     );
 };

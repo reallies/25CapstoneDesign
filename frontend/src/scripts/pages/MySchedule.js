@@ -89,34 +89,32 @@ const MySchedule = () => {
   const regions = destinations.slice(0, 3); // 최대 3개까지만 사용
   const images = regions.map(region => imageMap[region] || imageMap["기본"]);
 
-  if (images.length === 1) {
-    return (
-      <div className="image-single" style={{ backgroundImage: `url(${images[0]})` }} />
-    );
-  }
+  return (
+    <div className="image-single" style={{ backgroundImage: `url(${images[0]})` }} />
+  );
 
-  if (images.length === 2) {
-    return (
-      <div className="image-diagonal">
-        <div className="diagonal-half left" style={{ backgroundImage: `url(${images[0]})` }} />
-        <div className="diagonal-half right" style={{ backgroundImage: `url(${images[1]})` }} />
-      </div>
-    );
-  }
+//   if (images.length === 2) {
+//     return (
+//       <div className="image-diagonal">
+//         <div className="diagonal-half left" style={{ backgroundImage: `url(${images[0]})` }} />
+//         <div className="diagonal-half right" style={{ backgroundImage: `url(${images[1]})` }} />
+//       </div>
+//     );
+//   }
 
-  // 3개인 경우 ㅅ 모양
-  if (images.length === 3) {
-    return (
-      <div className="image-split-s">
-        <div className="slice slice1" style={{ backgroundImage: `url(${images[0]})` }} />
-        <div className="slice slice2" style={{ backgroundImage: `url(${images[1]})` }} />
-        <div className="slice slice3" style={{ backgroundImage: `url(${images[2]})` }} />
-      </div>
-    );
-  }
+//   // 3개인 경우 ㅅ 모양
+//   if (images.length === 3) {
+//     return (
+//       <div className="image-split-s">
+//         <div className="slice slice1" style={{ backgroundImage: `url(${images[0]})` }} />
+//         <div className="slice slice2" style={{ backgroundImage: `url(${images[1]})` }} />
+//         <div className="slice slice3" style={{ backgroundImage: `url(${images[2]})` }} />
+//       </div>
+//     );
+//   }
 
-  return null;
-};
+//   return null;
+ };
 
   return (
     <div className="myschedule-wrapper">
