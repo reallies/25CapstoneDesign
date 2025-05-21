@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useCallback, useState, useEffect, useContext, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Expenses.css";
@@ -17,7 +17,8 @@ export const Expenses = () => {
   const { trip_id } = useParams();
   const { token, user } = useContext(AuthContext);
   const currentUserNickname = user?.nickname || "Unknown";
-
+  
+  const [trip, setTrip] = useState(null);
   const [dayTabs, setDayTabs] = useState([]);
   const [activeDay, setActiveDay] = useState("");
   const [expenses, setExpenses] = useState([]);
@@ -64,38 +65,35 @@ export const Expenses = () => {
     OTHER: "etc",
   };
 
-  useEffect(() => {
-    const fetchTrip = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/trip/${trip_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch trip");
-        const data = await response.json();
-        const tripDays = data.trip?.days || [];
+useEffect(() => {
+  const fetchTrip = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.trip) {
+        setTrip(data.trip);
+
+        const tripDays = data.trip.days || [];
+
         const preparationTab = { label: "여행 준비", day_id: null };
         const dayTabsArray = tripDays.map((day, index) => ({
           label: `DAY ${index + 1}`,
           day_id: day.day_id,
         }));
+
         setDayTabs([preparationTab, ...dayTabsArray]);
         setActiveDay(preparationTab.label);
-        const participants = data.participants || [];
-        setParticipants(participants);
-        console.log("Trip Response:", data);
-        console.log("Day Tabs:", [preparationTab, ...dayTabsArray]);
-        console.log("Participants:", participants);
-      } catch (error) {
-        console.error("Error fetching trip:", error);
-        setDayTabs([]);
-        setParticipants([]);
-      } finally {
-        setIsLoading(false);
       }
-    };
-    fetchTrip();
-  }, [trip_id, token]);
+    } catch (err) {
+      console.error("여행 정보를 불러오지 못함:", err);
+    }
+  };
+
+  if (trip_id) fetchTrip();
+}, [trip_id]);
+
 
   useEffect(() => {
     const fetchSettlement = async () => {
@@ -215,13 +213,13 @@ export const Expenses = () => {
           <div className="expense-header">
             <div className="expense-title-sub">AI 일정과 함께하는</div>
             <div className="travel-title-wrap">
-              <div className="travel-title">전북 여행</div>
+              <div className="travel-title">{trip?.title}</div>
               <div className="travel-edit">편집</div>
             </div>
             <div className="expense-tags">
-              <div className="expense-tag">#전주시</div>
-              <div className="expense-tag">#익산시</div>
-              <div className="expense-tag">#군산시</div>
+              {trip?.destinations?.map((d) => (
+                <div className="expense-tag" key={d}>#{d}</div>
+              ))}
             </div>
             <div className="expense-menu">
               <Link to={`/schedule/${trip_id}`} className="expense-menu-item">일정</Link>
@@ -348,9 +346,7 @@ export const Expenses = () => {
         )}
 
         <div className="expense-days">
-          {isLoading ? (
-            <p>탭을 불러오는 중...</p>
-          ) : dayTabs.length > 0 ? (
+          {dayTabs.length > 0 &&
             dayTabs.map((tab) => (
               <div
                 key={tab.label}
@@ -359,17 +355,14 @@ export const Expenses = () => {
               >
                 {tab.label}
               </div>
-            ))
-          ) : (
-            <p>여행 일정이 없습니다.</p>
-          )}
+            ))}
         </div>
 
         <div className="expense-list">
           <div className="expense-category-list">
-            {isLoading ? (
-              <p>지출 내역 로딩 중...</p>
-            ) : expenses.length > 0 ? (
+            {!isLoading && expenses.length === 0 ? (
+              <p>지출 내역이 없습니다.</p>
+            ) : (
               expenses.map((expense, index) => (
                 <div className="expense-item" key={index}>
                   <div className={`expense-icon ${typeToClass[expense.type] || "etc"}`}>
@@ -379,8 +372,6 @@ export const Expenses = () => {
                   <div className="expense-cost">-{expense.price.toLocaleString()}원</div>
                 </div>
               ))
-            ) : (
-              <p>지출 내역이 없습니다.</p>
             )}
           </div>
 
