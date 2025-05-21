@@ -92,7 +92,7 @@
   line-height: 1.6;
   color: #333333;
   margin-top: -20px;
-  margin-bottom: 100px;
+  margin-bottom: 20px;
   max-width: 70%;
   display: inline-block;
   margin-left: 10%;
@@ -109,6 +109,7 @@
   justify-content: center;
   gap: 10px;
   margin-bottom: 24px;
+  margin-top: 20px;
 }
   
 .chatbot-quick-btn {
@@ -184,4 +185,24 @@
   width: 16px;
   height: 16px;
   display: block;
+}
+
+/* 사용자 메시지 말풍선 */
+.chatbot-user-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.chatbot-user-message {
+  background: #00ADB5;
+  color: white;
+  border-radius: 12px;
+  padding: 4px 16px;
+  width: calc(100% - 180px);
+  max-width: 100%;
+  font-size: 16px;
+  line-height: 0.1;
+  word-break: break-word;
 }

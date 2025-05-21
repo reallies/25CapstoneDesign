@@ -31,6 +31,13 @@ const ChatBot = () => {
               <p>어디로 떠날지 고민되시나요?<br />AI 추천부터 일정 정리까지 도와드릴게요.</p>
               <p>✈️ 당신의 여행, 어디부터 도와드릴까요?</p>
             </div>
+
+            <div className="chatbot-user-wrapper">
+              <div className="chatbot-user-message">
+                <p>인기 여행지 추천해줘</p>
+              </div>
+            </div>
+
             <div className="chatbot-buttons">
               {[
                 "AI 일정 생성 어떻게 해?",
