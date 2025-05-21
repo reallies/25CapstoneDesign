@@ -68,6 +68,56 @@ const MySchedule = () => {
     }
   };
 
+  //이미지 리스트
+  const imageMap = {
+    "제주": "/regionImages/jeju.jpg",
+    "서울": "/regionImages/seoul.jpg",
+    "부산": "/regionImages/busan.jpg",
+    "대전": "/regionImages/daejeon.jpg",
+    "대구": "/regionImages/daegu.jpg",
+    "광주": "/regionImages/gwangju.jpg",
+    "인천": "/regionImages/incheon.jpg",
+    "경주": "//regionImages/gyeongju.jpg",
+    "강릉": "/regionImages/gangneung.jpg",
+    "여수": "/regionImages/yeosu.jpg",
+    "평창": "/regionImages/pyeongchang.jpg",
+    "거제": "/regionImages/geoje.jpg",
+    "기본": "/regionImages/default.jpg"
+  };
+
+  const getImageByDestinations = (destinations) => {
+  const regions = destinations.slice(0, 3); // 최대 3개까지만 사용
+  const images = regions.map(region => imageMap[region] || imageMap["기본"]);
+
+  if (images.length === 1) {
+    return (
+      <div className="image-single" style={{ backgroundImage: `url(${images[0]})` }} />
+    );
+  }
+
+  if (images.length === 2) {
+    return (
+      <div className="image-diagonal">
+        <div className="diagonal-half left" style={{ backgroundImage: `url(${images[0]})` }} />
+        <div className="diagonal-half right" style={{ backgroundImage: `url(${images[1]})` }} />
+      </div>
+    );
+  }
+
+  // 3개인 경우 ㅅ 모양
+  if (images.length === 3) {
+    return (
+      <div className="image-split-s">
+        <div className="slice slice1" style={{ backgroundImage: `url(${images[0]})` }} />
+        <div className="slice slice2" style={{ backgroundImage: `url(${images[1]})` }} />
+        <div className="slice slice3" style={{ backgroundImage: `url(${images[2]})` }} />
+      </div>
+    );
+  }
+
+  return null;
+};
+
   return (
     <div className="myschedule-wrapper">
       <div className="myschedule-header">
@@ -96,7 +146,10 @@ const MySchedule = () => {
       <div className="myschedule-list">
         {trips.map((trip) => (
             <div key={trip.trip_id} className="schedule-card">
-              <div className="schedule-placeholder" />
+              <div className="schedule-placeholder">
+                {getImageByDestinations(trip.destinations)}
+              </div>
+
               <div className="schedule-info">
                   <h3 className="schedule-title">{trip.title}</h3>
                   <div className="schedule-tags">

@@ -131,3 +131,49 @@
 .delete-btn:hover {
     background-color: #f6f6f6;
 }
+
+.image-single{
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+}
+
+.diagonal-half,
+.slice {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+}
+
+.diagonal-half.left {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  z-index: 1;
+}
+
+.diagonal-half.right {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  z-index: 2;
+}
+
+/* 대각선 1/3 왼쪽 위 삼각형 */
+.slice1 {
+  clip-path: polygon(0 0, 33.33% 0, 0 33.33%);
+  z-index: 3;
+}
+
+/* 대각선 1/3 중앙 평행 영역 */
+.slice2 {
+  clip-path: polygon(0 33.33%, 66.66% 0, 100% 0, 0 100%);
+  z-index: 2;
+}
+
+/* 대각선 1/3 오른쪽 아래 삼각형 */
+.slice3 {
+  clip-path: polygon(66.66% 100%, 100% 66.66%, 100% 100%);
+  z-index: 1;
+}

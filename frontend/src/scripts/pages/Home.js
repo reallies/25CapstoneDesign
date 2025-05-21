@@ -247,9 +247,29 @@ const Main = () => {
             ref={(el) => (searchFieldRefs.current["destination"] = el)}
             onClick={(e) => openModal("destination", e)}
           >
-            <span className="placeholder-text">여행지 검색</span>
-            {selectedDestination && <span className="selected-text">{selectedDestination.join(", ")}</span>}
+            <span className="field-label">여행지</span>
+
+            <div className="input-wrapper">
+            {destinationInput === "" && (
+              <span className="custom-placeholder">여행지 검색</span>
+            )}
+            <input
+              type="text"
+              value={destinationInput}
+              onClick={(e) => {
+                e.stopPropagation();
+                openModal("destination", e);
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                setDestinationInput(value);
+                if (value.trim() !== "") {
+                  openModal("destinationSearch", e);
+                }
+              }}
+            />
           </div>
+        </div>
           <div
             className="search-field"
             ref={(el) => (searchFieldRefs.current["date"] = el)}
@@ -370,14 +390,14 @@ const Main = () => {
         </div>
       </div>
 
-       {/* 모달 구현 */}
+      {/* 모달 구현 */}
       {/* 여행지 선택 모달 */}
       {activeModal === "destination" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
             <h2>여행 지역을 선택해 주세요</h2>
             <div className="region-buttons">
-              {["서울", "부산", "대구", "광주", "대전", "인천", "경기", "강원", "충북", "전북", "경남", "제주"].map((region) => (
+              {["서울", "부산", "대구", "광주", "대전", "인천", "경주", "강릉", "여수", "평창", "거제", "제주"].map((region) => (
                 <button
                   key={region}
                   className={`region-btn ${selectedDestination.includes(region) ? "active" : ""}`}
@@ -412,7 +432,7 @@ const Main = () => {
         </div>
       )}
 
-       {/* 임시 다중 선택창 */}
+      {/* 임시 다중 선택창 */}
       {activeModal === "destinationSearch" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
