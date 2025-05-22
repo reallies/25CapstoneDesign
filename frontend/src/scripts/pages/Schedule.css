@@ -350,10 +350,10 @@
 }
 
 .schedule .item-content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-left: 10px;
 }
 
 .schedule .item-content2 {
@@ -361,7 +361,8 @@
     gap: 8px;
     align-items: center;
 }
-.schedule .item-actions{
+
+.schedule .item-actions {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -430,12 +431,12 @@
     background-color: #c3b1e1;
 }
 
-/* 위성 보기 버튼*/
+/* 위성 보기 버튼 */
 .schedule .satellite {
     align-items: center;
     background-color: #00ADB5;
     border-radius: 30px;
-    display: flex; 
+    display: flex;
     gap: 10px;
     height: 32px;
     justify-content: center;
@@ -584,7 +585,7 @@
 .feedback-btn-wrap {
     margin-left: auto;
 }
-  
+
 /* 피드백 받기 버튼 */
 .feedback-btn-alone {
     background-color: #000000;
@@ -598,4 +599,55 @@
     font-weight: 400;
     margin-right: -35px;
     cursor: pointer;
+}
+
+/* 초대 버튼 */
+.schedule-icon,
+.category-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedule .invite-modal {
+    top: 210px !important;
+}
+
+.schedule .add-friend-modal {
+    top: 210px !important;
+}
+
+/* New styles for title editing */
+.title-edit-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title-input {
+    font-family: "SUITE-SemiBold", Helvetica;
+    font-size: 50px;
+    font-weight: 600;
+    color: #000000;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    width: 300px;
+}
+
+.title-edit-container button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.title-edit-container button:first-of-type {
+    background-color: #00ADB5;
+    color: white;
+}
+
+.title-edit-container button:last-of-type {
+    background-color: #ccc;
+    color: white;
 }

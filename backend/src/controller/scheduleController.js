@@ -121,4 +121,23 @@ async function generateDaysController(req, res) {
     }
 }
 
-module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController, generateDaysController};
+async function updateTripTitleController(req, res) {
+    try {
+        const { trip_id } = req.params;
+        const { title } = req.body;
+        const user_id = req.user.user_id;
+
+        const updatedTrip = await tripService.updateTripTitleService(user_id, trip_id, title);
+
+        if (!updatedTrip) {
+            return res.status(404).json({ message: "Trip not found or you don't have permission to edit it." });
+        }
+
+        return res.status(200).json({ success: true, trip: updatedTrip });
+    } catch (error) {
+        console.error("updateTripTitleController error:", error);
+        return res.status(500).json({ message: "Failed to update trip title", error });
+    }
+}
+
+module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController, generateDaysController, updateTripTitleController};

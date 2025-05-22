@@ -379,4 +379,24 @@ async function generateDaysService(trip_id) {
   }
 }
 
-module.exports = { createTripService, getTripIdService, addPlaceToDayService, reorderPlaceService, reorderDayService, deletePlaceService, getMyTripsService, deleteTripService, generateDaysService };
+async function updateTripTitleService(user_id, trip_id, newTitle) {
+    try {
+        const updatedTrip = await prisma.trip.update({
+            where: {
+                trip_id: trip_id,
+                user_id: user_id,
+            },
+            data: {
+                title: newTitle,
+            },
+        });
+        return updatedTrip;
+    } catch (error) {
+        if (error.code === 'P2025') { // Prisma error code for record not found
+            return null;
+        }
+        throw error;
+    }
+}
+
+module.exports = { createTripService, getTripIdService, addPlaceToDayService, reorderPlaceService, reorderDayService, deletePlaceService, getMyTripsService, deleteTripService, generateDaysService, updateTripTitleService };

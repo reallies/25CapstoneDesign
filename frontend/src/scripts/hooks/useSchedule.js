@@ -190,7 +190,26 @@ export const useSchedule = (trip_id) => {
         } catch (error) {
             console.error("PLACE 삭제 실패:", error);
         }
-    }
+    };
+
+    const handleUpdateTitle = async (newTitle) => {
+        try {
+            const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ title: newTitle }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setTrip((prevTrip) => ({ ...prevTrip, title: newTitle }));
+            } else {
+                console.error("Failed to update title:", data.message);
+            }
+        } catch (error) {
+            console.error("Error updating title:", error);
+        }
+    };
 
     useEffect(() => {
         if (trip_id) fetchTrip();
@@ -208,5 +227,6 @@ export const useSchedule = (trip_id) => {
         handlePlaceDragEnd,
         onDragEnd,
         handleDeletePlace,
+        handleUpdateTitle
     }
 };
