@@ -245,13 +245,6 @@
     box-sizing: border-box;
 }
 
-.modal {
-    width: 100%;
-    max-height: 500px;
-    overflow-y: auto;
-    box-sizing: border-box;
-}
-
 .record-modal-header {
     display: flex;
     align-items: center;
