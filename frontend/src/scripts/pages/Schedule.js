@@ -33,8 +33,6 @@ const Schedule = () => {
     const [selectedDayId, setSelectedDayId] = useState(null);
     const [dayPlaceTimeMap, setDayPlaceTimeMap] = useState({});
     const [feedbacks, setFeedbacks] = useState([]);
-
-    // New states for title editing
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState("");
 
@@ -73,16 +71,19 @@ const Schedule = () => {
             const clickedOutsideInvite = invite && !invite.contains(e.target);
             const clickedOutsideAdd = add && !add.contains(e.target);
 
+            // 친구 추가만 열려 있고 바깥 클릭일 때
             if (isAddOpen && !isInviteOpen && clickedOutsideAdd) {
                 setIsAddOpen(false);
                 return;
             }
 
+            // 친구 목록만 열려 있고 바깥 클릭일 때
             if (isInviteOpen && !isAddOpen && clickedOutsideInvite) {
                 setIsInviteOpen(false);
                 return;
             }
 
+            // 둘 다 열려 있고, 둘 다 바깥 클릭일 때만 닫기
             if (isAddOpen && isInviteOpen && clickedOutsideAdd && clickedOutsideInvite) {
                 setIsAddOpen(false);
                 setIsInviteOpen(false);
@@ -104,7 +105,7 @@ const Schedule = () => {
                     setFeedbacks(data.feedbacks);
                 } catch (err) {
                     console.error(" 첫 피드백 요청 실패", err);
-                    return;
+                    return; // fetch 실패하면 모달 안 열게 막기
                 } finally {
                     setLoadingFeedbacks(false);
                 }
@@ -213,6 +214,7 @@ const Schedule = () => {
                     />
                 )}
 
+                {/* 날씨 */}
                 <div className="weather">
                     <div className="weather-header">
                         <p className="weather-text">여행 기간 동안의 날씨 소식이에요</p>
@@ -224,6 +226,7 @@ const Schedule = () => {
                         </div>
                     </div>
 
+                    {/* 드롭다운 메뉴 */}
                     {isWeatherDropdownOpen && (
                         <div className="weather-dropdown">
                             {trip.destinations.map((d) => (
@@ -231,8 +234,8 @@ const Schedule = () => {
                                     className="dropdown-item"
                                     key={d}
                                     onClick={() => {
-                                        setSelectedCity(d);
-                                        setIsWeatherDropdownOpen(false);
+                                        setSelectedCity(d); // 도시 선택
+                                        setIsWeatherDropdownOpen(false); // 드롭다운 닫기
                                     }}
                                 >
                                     {d}
@@ -243,6 +246,7 @@ const Schedule = () => {
                     {selectedCity && <WeatherBox city={selectedCity} destinations={trip.destinations || []} />}
                 </div>
 
+                {/* 탭 */}
                 <div className="schedule-tab">
                     <div className="day-tabs-left">
                         <div className={`day-tab ${activeDay === "ALL" ? "active" : ""}`} onClick={() => setActiveDay("ALL")}>전체 보기</div>
@@ -257,6 +261,7 @@ const Schedule = () => {
                         ))}
                     </div>
 
+                    {/* 피드백 버튼 */}
                     <div className="feedback-btn-wrap">
                         <button className="feedback-btn-alone" onClick={handleFeedback}>
                             {showFeedback ? "지도로 돌아가기" : "? 피드백 받기"}
@@ -265,6 +270,7 @@ const Schedule = () => {
                 </div>
 
                 <div className="schedule-box">
+                  {/* 오른쪽 파트 */}
                     <div className="view">
                         {!showFeedback && (
                             <div className="kakao-map">
@@ -283,6 +289,7 @@ const Schedule = () => {
                             />
                         )}
 
+                        {/* 장소 추가 모달 */}
                         {isModalOpen && (
                             <div className="place-modal-overlay">
                                 <PlaceSearchModal
@@ -293,6 +300,7 @@ const Schedule = () => {
                             </div>
                         )}
 
+                        {/* 시간 추가 모달 */}
                         {isTimeModalOpen && (
                             <div className="place-modal-overlay">
                                 <TimePickerModal
@@ -329,6 +337,7 @@ const Schedule = () => {
                                                             <div className="day-date">{day.date}</div>
                                                             <div className="day-drag">≡</div>
                                                         </div>
+                                                        {/*Place 순서 변경 부분*/}
                                                         <Droppable droppableId={`${day.id}-place`} type="PLACE">
                                                             {(provided) => (
                                                                 <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -371,6 +380,7 @@ const Schedule = () => {
                                                             )}
                                                         </Droppable>
 
+                                                        {/* 추가 버튼 */}
                                                         <div className="add-buttons">
                                                             <div className="action-btn" onClick={() => { setSelectedDayIndex(days.indexOf(day)); setIsModalOpen(true); }}>장소 추가</div>
                                                         </div>
