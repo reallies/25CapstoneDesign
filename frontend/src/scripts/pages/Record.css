@@ -9,33 +9,51 @@
 /* ===== 제목 및 설명 영역 ===== */
 .record-title {
     text-align: center;
-    font-size: 30px;
+    font-size: 35px;
     font-weight: bold;
+    width: 20%;
+
 }
 
 .record-subtitle {
     text-align: center;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 500;
     color: #333;
-    margin-top: 20px;
+    width: 40%;
+}
+
+.record-title,
+.record-subtitle {
+    display: block;
+    margin: 10px auto;
+    line-height: 1.6;
 }
 
 .record-title,
 .record-subtitle,
 .record-placeholder {
-  border: none;
-  background: none;
-  outline: none;
-  text-align: center;
-  width: 100%;
+    border: none;
+    background: none;
+    outline: none;
+    text-align: center;
+
 }
 
 .record-placeholder {
-  resize: none;
-  height: auto;
-  font-family: 'SUITE', sans-serif;
-  line-height: 1.6;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 98%;
+    font-size: 18px;
+    color: #959393;
+    resize: none;
+    min-height: 800px;
+    overflow-y: auto;
+    font-family: 'SUITE', sans-serif;
+    line-height: 1.6;
+    border-radius: 20px;
+    text-align: left;
+    padding: 12px;
+    margin: 0 auto;
 }
 
 /* ===== 작성자 정보 메타 영역 ===== */
@@ -83,17 +101,13 @@
     cursor: pointer;
 }
 
-.record-submit {
-    background-color: #00ADB5;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
+.record-modal-box {
+    position: relative;
+    border-radius: 8px;
+    background: #fff;
 }
 
-.record-cancel {
+.record-button {
     border: 1px solid #00ADB5;
     background-color: white;
     color: #00ADB5;
@@ -103,6 +117,44 @@
     cursor: pointer;
 }
 
+.record-submit {
+
+    background-color: #00ADB5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 1px solid #fff;
+    background-color: rgb(243, 99, 99);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.trip-select-btn {
+    border: 1px solid #00ADB5;
+    background-color: white;
+    color: #00ADB5;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.record-trip-item {
+    margin-bottom: 10px;
+}
+
 /* ===== 구분선 ===== */
 .record-divider {
     border: none;
@@ -110,12 +162,49 @@
     margin: 20px 0;
 }
 
-/* ===== 수정 영역 ===== */
-.record-placeholder {
-    text-align: center;
-    font-size: 16px;
-    color: #777;
-    margin-top: 40px;
+.record-day-tabs {
+    margin: 10px 0;
+}
+
+.record-map-wrapper {
+    width: 100%;
+    height: 600px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    transition: border 0.3s;
+    margin: 0 auto 10px;
+}
+
+.record-day-tabs {
+  display: flex;
+  gap: 8px;                
+  margin-bottom: 16px;
+}
+
+.record-day-tabs .record-day-tab {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #fff;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.record-day-tabs .record-day-tab:hover {
+  background-color: #f0f0f0;
+}
+
+/* active 클래스가 붙었을 때 */
+.record-day-tabs .record-day-tab.active {
+  background-color: #00ADB5;    /* SLAY 테마색 또는 원하는 색 */
+  color: #fff;
+  border-color: #00ADB5;
 }
 
 /* ===== 이미지 미리보기 ===== */
@@ -146,21 +235,21 @@
     top: 60px;
     left: 0;
     z-index: 1000;
-    width: 450px;
+    width: 430px;
     background: white;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     max-height: 500px;
     overflow-y: auto;
     box-sizing: border-box;
 }
 
-.record-modal {
-  width: 100%;
-  max-height: 500px;
-  overflow-y: auto;
-  box-sizing: border-box;
+.modal {
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .record-modal-header {
@@ -251,6 +340,12 @@
 
 .record-modal-popup::-webkit-scrollbar,
 .record-modal::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+    width: 0;
+    height: 0;
+}
+
+.map-tooltip {
+    padding: 5px 10px;
+    font-size: 16px;
+    border-radius: 10px;
 }

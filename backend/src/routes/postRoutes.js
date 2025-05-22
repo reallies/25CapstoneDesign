@@ -18,9 +18,9 @@ router.post("/", authenticateJWT, async (req, res) => {
       return res.status(404).json({ message: "일정을 찾을 수 없습니다." });
     }
 
-    if (rating !== undefined && (rating < 0 || rating > 5)) {
-      return res.status(400).json({ message: "평점은 0~5 사이여야 합니다." });
-    }
+    // if (rating !== undefined && (rating < 0 || rating > 5)) {
+    //   return res.status(400).json({ message: "평점은 0~5 사이여야 합니다." });
+    // }
 
     const post = await prisma.post.create({
       data: {
@@ -28,9 +28,9 @@ router.post("/", authenticateJWT, async (req, res) => {
         user_id: user.user_id,
         title,
         content,
-        visibility: visibility || "PRIVATE",
+        visibility: visibility || "PUBLIC",
         image_urls: image_urls || [],
-        rating,
+        rating: rating != null ? rating : null,
       },
     });
 

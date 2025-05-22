@@ -288,14 +288,13 @@ const Main = () => {
         <div className="popular-title">인기 여행지</div>
         <div className="destination-list">
           {[
-            { name: "서울", subtext: "서울특별시", places: "경복궁, 인사동, 명동, 남산, 광화문, 성수동, 잠실" },
-            { name: "제주도", subtext: "제주특별자치도", places: "성산일출봉, 우도, 협재해변, 천지연폭포, 한라산" },
-            { name: "부산", subtext: "부산광역시", places: "해운대, 광안리, 감천문화마을, 태종대, 자갈치시장" },
-            { name: "인천", subtext: "인천광역시", places: "송도센트럴파크, 차이나타운, 을왕리해변, 강화도" },
-            { name: "경주", subtext: "경상북도 경주시", places: "불국사, 첨성대, 동궁과 월지, 경주월드, 황리단길" },
+            { name: "서울", subtext: "서울특별시", places: "경복궁, 인사동, 명동, 남산, 광화문, 성수동, 잠실", image:`${process.env.PUBLIC_URL}/images/Seoul_Scenery.webp` },
+            { name: "경주", subtext: "경상북도 경주시", places: "불국사, 첨성대, 동궁과 월지, 경주월드, 황리단길", image:`${process.env.PUBLIC_URL}/images/Gyeongju_Scenery.webp` },
+            { name: "부산", subtext: "부산광역시", places: "해운대, 광안리, 감천문화마을, 태종대, 자갈치시장", image:`${process.env.PUBLIC_URL}/images/Busan_Scenery.jpg` },
+            { name: "제주도", subtext: "제주특별자치도", places: "성산일출봉, 우도, 협재해변, 천지연폭포, 한라산", image:`${process.env.PUBLIC_URL}/images/Jeju_Scenery.jpg` },
           ].map((city, index) => (
             <div className="destination-card" key={index}>
-              <img className="destination-image" src={`https://placehold.co/116x145`} alt={city.name} />
+              <img className="destination-image" src={city.image} alt={city.name} />
               <div className="destination-info">{city.name}</div>
               <div className="destination-subtext">{city.subtext}</div>
               <div className="destination-places">
