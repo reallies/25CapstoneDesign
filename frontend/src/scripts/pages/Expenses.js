@@ -329,25 +329,26 @@ export const Expenses = () => {
         )}
 
         {isInviteOpen && (
-          <InviteModal
-            onClose={() => {
-              setIsInviteOpen(false);
-              setIsAddOpen(false);
-            }}
-            onAddFriendClick={() => setIsAddOpen(true)}
-            modalRef={inviteModalRef}
-            className="expenses-modal"
-          />
-        )}
+                    <InviteModal
+                        onClose={() => {
+                            setIsInviteOpen(false);
+                            setIsAddOpen(false);
+                        }}
+                        onAddFriendClick={() => setIsAddOpen(true)}
+                        modalRef={inviteModalRef}
+                        tripId={trip_id} // trip_id를 tripId로 전달
+                        className="expenses-modal"
+                    />
+                )}
 
-        {isAddOpen && (
-          <AddFriendModal
-            onClose={() => setIsAddOpen(false)}
-            anchorRef={inviteModalRef}
-            modalRef={addModalRef}
-            className="expenses-modal"
-          />
-        )}
+                {isAddOpen && (
+                    <AddFriendModal
+                        onClose={() => setIsAddOpen(false)}
+                        anchorRef={inviteModalRef}
+                        modalRef={addModalRef}
+                        className="expenses-modal"
+                    />
+                )}
 
         <div className="expense-days">
           {dayTabs.length > 0 &&

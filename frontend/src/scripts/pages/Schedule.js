@@ -201,6 +201,7 @@ const Schedule = () => {
                         }}
                         onAddFriendClick={() => setIsAddOpen(true)}
                         modalRef={inviteModalRef}
+                        tripId={trip_id} // trip_id를 tripId로 전달
                         className="schedule-modal"
                     />
                 )}
