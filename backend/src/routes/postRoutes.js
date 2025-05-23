@@ -1,7 +1,40 @@
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
 const prisma = require("../../prisma/prismaClient");
 const { authenticateJWT } = require("../middleware/authMiddleware");
+
+// ---- Multer 설정: 업로드 디렉토리와 파일명 지정 ----
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../../uploads/"));
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const basename = path.basename(file.originalname, ext);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, basename + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ dest: "uploads/" });
+
+// ---- 이미지 업로드 엔드포인트 ----
+// POST /posts/upload
+
+router.post(
+  "/upload",
+  authenticateJWT,
+  upload.single("image"),
+  (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "이미지 파일을 찾을 수 없습니다." });
+    }
+    // 정적 서빙 경로를 /uploads 로 매핑
+    const url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    return res.json({ url });
+  }
+);
 
 // 리뷰 작성
 router.post("/", authenticateJWT, async (req, res) => {
@@ -40,6 +73,27 @@ router.post("/", authenticateJWT, async (req, res) => {
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
+
+// (1) 갤러리용 모든 PUBLIC 리뷰 조회
+router.get(
+  "/gallery", 
+  authenticateJWT, 
+  async (req, res) => {
+    try {
+      // 공개(visibility: PUBLIC) 상태인 리뷰만
+      const posts = await prisma.post.findMany({
+        where: { visibility: "PUBLIC" },
+        include: {
+          user: { select: { user_id: true, nickname: true, image_url: true } },
+        },
+      });
+      res.json({ message: "갤러리용 리뷰 조회 성공", posts });
+    } catch (error) {
+      console.error("갤러리용 리뷰 조회 오류:", error);
+      res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    }
+  }
+);
 
 // 리뷰 조회
 router.get("/:trip_id", authenticateJWT, async (req, res) => {
@@ -82,5 +136,6 @@ async function checkFriendship(userId, postUserId) {
   });
   return !!friendship;
 }
+
 
 module.exports = router;

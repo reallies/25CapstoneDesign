@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import ChatBot from "../components/ChatBot";
 import Calendar from "react-calendar";
@@ -8,7 +8,7 @@ import plusIcon from "../../assets/images/plus.svg";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../components/AlertModal";
 
-const Main = () => {
+const Home = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [destinationInput, setDestinationInput] = useState("");
   const [selectedDestination, setSelectedDestination] = useState([]);
@@ -16,6 +16,8 @@ const Main = () => {
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
+  const [galleryData, setGalleryData] = useState([]);
+  const [posts, setPosts] = useState([]);
 
   const navigate = useNavigate();
   const searchFieldRefs = useRef({});
@@ -56,7 +58,23 @@ const Main = () => {
   const [themeModalPosition, setThemeModalPosition] = useState({ top: 350, left: 300 });
   const [peopleModalPosition, setPeopleModalPosition] = useState({ top: 400, left: 400 });
 
-// 여행지 선택 핸들러 - 최대 3개까지 선택
+  useEffect(() => {
+    fetch('http://localhost:8080/posts/gallery', {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        setPosts(data.posts || []);
+      })
+      .catch(console.error);
+  }, []);
+
+  // 앞 4개만, 나머지는 "더보기" 카드
+  const visiblePosts = posts.slice(0, 4);
+  const hasMore = posts.length > 4;
+
+
+  // 여행지 선택 핸들러 - 최대 3개까지 선택
   const handleSelectDestination = (region) => {
     setSelectedDestination((prev) => {
       if (prev.includes(region)) {
@@ -114,7 +132,7 @@ const Main = () => {
       const [start, end] = calendarDate;
       const diffInMs = Math.abs(end - start);
       const diffInDays = diffInMs / (1000 * 60 * 60 * 24) + 1;
-  
+
       if (diffInDays > 7) {
         alert("최대 7일까지 선택할 수 있습니다.");
         return;
@@ -137,11 +155,11 @@ const Main = () => {
     } else if (event) {
       rect = event.target.getBoundingClientRect();
     }
-  
+
     if (rect) {
       let leftPos = Math.floor(rect.left + window.scrollX + rect.width / 2 - 175);
       leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - 350 - 10));
-  
+
       switch (modalType) {
         case "destination":
         case "destinationSearch":
@@ -161,41 +179,41 @@ const Main = () => {
       }
       setActiveModal(modalType);
     }
-  };  
+  };
 
   const closeModal = () => {
     setActiveModal(null);
   };
 
-  /* 여행 갤러리 데이터 */
-  const galleryData = [
-    {
-      img: "https://placehold.co/215x160",
-      subtitle: "자연과 도시가 공존한 제주도",
-      description: "AI 일정 짜기로 예약해서 다녀봤는데 매일 가족끼리 동선짜고 돌아다니면서 온전히 가족에게만 집중할 수 있어서...",
-    },
-    {
-      img: "https://placehold.co/215x160",
-      subtitle: "감성 가득한 경주 여행",
-      description: "역사와 자연을 함께 즐길 수 있는 경주는 정말 멋진 여행지였습니다. 한옥에서 하룻밤 자며 전통을 느낄 수 있었어요!...",
-    },
-    {
-      img: "https://placehold.co/215x160",
-      subtitle: "여유로운 부산 바다 여행",
-      description: "광안리 해변에서 노을을 보며 힐링한 순간이 가장 기억에 남습니다. AI 추천 덕분에 맛집도 놓치지 않았어요....",
-    },
-    {
-      img: "https://placehold.co/215x160",
-      subtitle: "서울의 야경이 멋진 여행",
-      description: "남산 타워에서 내려다본 서울의 야경이 너무 예뻤어요! AI 일정 덕분에 혼잡한 시간대를 피할 수 있어서 좋았어요...",
-    },
-    {
-      img: moreIcon,
-      placeName: "",
-      description: "",
-      isLast: true,
-    }
-  ];
+  // /* 여행 갤러리 데이터 */
+  // const galleryData = [
+  //   {
+  //     img: "https://placehold.co/215x160",
+  //     subtitle: "자연과 도시가 공존한 제주도",
+  //     description: "AI 일정 짜기로 예약해서 다녀봤는데 매일 가족끼리 동선짜고 돌아다니면서 온전히 가족에게만 집중할 수 있어서...",
+  //   },
+  //   {
+  //     img: "https://placehold.co/215x160",
+  //     subtitle: "감성 가득한 경주 여행",
+  //     description: "역사와 자연을 함께 즐길 수 있는 경주는 정말 멋진 여행지였습니다. 한옥에서 하룻밤 자며 전통을 느낄 수 있었어요!...",
+  //   },
+  //   {
+  //     img: "https://placehold.co/215x160",
+  //     subtitle: "여유로운 부산 바다 여행",
+  //     description: "광안리 해변에서 노을을 보며 힐링한 순간이 가장 기억에 남습니다. AI 추천 덕분에 맛집도 놓치지 않았어요....",
+  //   },
+  //   {
+  //     img: "https://placehold.co/215x160",
+  //     subtitle: "서울의 야경이 멋진 여행",
+  //     description: "남산 타워에서 내려다본 서울의 야경이 너무 예뻤어요! AI 일정 덕분에 혼잡한 시간대를 피할 수 있어서 좋았어요...",
+  //   },
+  //   {
+  //     img: moreIcon,
+  //     placeName: "",
+  //     description: "",
+  //     isLast: true,
+  //   }
+  // ];
 
   //여정 추가
   const createTrip = async () => {
@@ -288,10 +306,10 @@ const Main = () => {
         <div className="popular-title">인기 여행지</div>
         <div className="destination-list">
           {[
-            { name: "서울", subtext: "서울특별시", places: "경복궁, 인사동, 명동, 남산, 광화문, 성수동, 잠실", image:`${process.env.PUBLIC_URL}/images/Seoul_Scenery.webp` },
-            { name: "경주", subtext: "경상북도 경주시", places: "불국사, 첨성대, 동궁과 월지, 경주월드, 황리단길", image:`${process.env.PUBLIC_URL}/images/Gyeongju_Scenery.webp` },
-            { name: "부산", subtext: "부산광역시", places: "해운대, 광안리, 감천문화마을, 태종대, 자갈치시장", image:`${process.env.PUBLIC_URL}/images/Busan_Scenery.jpg` },
-            { name: "제주도", subtext: "제주특별자치도", places: "성산일출봉, 우도, 협재해변, 천지연폭포, 한라산", image:`${process.env.PUBLIC_URL}/images/Jeju_Scenery.jpg` },
+            { name: "서울", subtext: "서울특별시", places: "경복궁, 인사동, 명동, 남산, 광화문, 성수동, 잠실", image: `${process.env.PUBLIC_URL}/images/Seoul_Scenery.webp` },
+            { name: "경주", subtext: "경상북도 경주시", places: "불국사, 첨성대, 동궁과 월지, 경주월드, 황리단길", image: `${process.env.PUBLIC_URL}/images/Gyeongju_Scenery.webp` },
+            { name: "부산", subtext: "부산광역시", places: "해운대, 광안리, 감천문화마을, 태종대, 자갈치시장", image: `${process.env.PUBLIC_URL}/images/Busan_Scenery.jpg` },
+            { name: "제주도", subtext: "제주특별자치도", places: "성산일출봉, 우도, 협재해변, 천지연폭포, 한라산", image: `${process.env.PUBLIC_URL}/images/Jeju_Scenery.jpg` },
           ].map((city, index) => (
             <div className="destination-card" key={index}>
               <img className="destination-image" src={city.image} alt={city.name} />
@@ -305,42 +323,68 @@ const Main = () => {
         </div>
       </div>
 
-      {/* 여행 갤러리 & 내 기록 */}
+      {/* 여행 갤러리 */}
       <div className="gallery-records-container">
         <div className="travel-gallery">
           <div className="gallery-title">여행 갤러리</div>
           <div className="gallery-container">
-            {galleryData.map((item, index) => (
+            {visiblePosts.map(post => {
+              // content를 부제목/본문으로 분리
+              const [subtitle, ...rest] = post.content.split(/\r?\n\r?\n/);
+              const mainContent = rest.join('\n\n');
+
+              // 이미지 URL이 없으면 placeholder
+              const imgUrl =
+                Array.isArray(post.image_urls) && post.image_urls[0]
+                  ? post.image_urls[0]
+                  : '/images/placeholder.png';
+
+              return (
+                <div key={post.post_id} className="gallery-card">
+                  <div className="gallery-card-inner">
+                    <img
+                      className="gallery-image"
+                      src={imgUrl}
+                      alt={post.title || '여행 이미지'}
+                    />
+                    <div className="gallery-subtitle">{post.title || '제목 없음'}</div>
+                    <p className="gallery-description">
+                      {mainContent.length > 60
+                        ? mainContent.slice(0, 60) + '…'
+                        : mainContent}
+                    </p>
+                    <button
+                      className="gallery-button"
+                      onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
+                    >
+                      게시글 보기
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {hasMore && (
               <div
-                className={`gallery-card ${item.isLast ? "last-card" : ""}`}
-                key={index}
-                onClick={() => {
-                  if (item.isLast) navigate("/gallery");
-                }}
-                style={{ cursor: item.isLast ? "pointer" : "default" }}
+                className="gallery-card last-card"
+                onClick={() => navigate('/gallery')}
               >
                 <div className="gallery-card-inner">
-                  <img className="gallery-image" src={item.img} alt="여행 이미지" />
-
-                  {!item.isLast && (
-                    <>
-                      <div className="gallery-subtitle">{item.subtitle}</div>
-                      <div className="gallery-description">{item.description}</div>
-                      <div className="gallery-buttons">
-                        <button
-                          className="gallery-button"
-                          onClick={() => navigate("/gallery-detail")}
-                        >
-                          게시글 보기
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <img
+                    className="more-icon"
+                    src={moreIcon}
+                    alt="더보기"
+                  />
                 </div>
               </div>
-            ))}
+            )}
           </div>
+
+
+
+
         </div>
+        {/* 내 기록 */}
         <div className="my-records">
           <div className="records-title">내 기록</div>
           <div className="records-container">
@@ -369,7 +413,7 @@ const Main = () => {
         </div>
       </div>
 
-       {/* 모달 구현 */}
+      {/* 모달 구현 */}
       {/* 여행지 선택 모달 */}
       {activeModal === "destination" && (
         <div className="modal-overlay" onClick={closeModal}>
@@ -411,7 +455,7 @@ const Main = () => {
         </div>
       )}
 
-       {/* 임시 다중 선택창 */}
+      {/* 임시 다중 선택창 */}
       {activeModal === "destinationSearch" && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" style={{ ...destinationModalPosition }} onClick={(e) => e.stopPropagation()}>
@@ -537,4 +581,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default Home;

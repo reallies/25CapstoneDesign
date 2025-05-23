@@ -1,20 +1,43 @@
-import { useState, useRef, useEffect, useContext } from 'react';
+//Record.js
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import './Record.css';
 import PlaceMap from '../components/PlaceMap'; // 지도 컴포넌트
 import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌트
-
-// 아이콘 이미지 import
 import photoIcon from '../../assets/images/camera.svg';
 import pinIcon from '../../assets/images/pin.svg';
 import back from '../../assets/images/back.svg';
 import search2 from '../../assets/images/search2.svg';
+import './Record.css';
 
 const Record = () => {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext); //유저 데이터
+
   const pinRef = useRef(null);         // 핀 아이콘 위치 참조
   const modalRef = useRef(null);       // 모달 감지용 참조
+
+  // 폼 필드 참조
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const contentRef = useRef(null);
+
+  // 검색 결과와 선택된 장소 상태
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+  // 상태 관리
+  const [trips, setTrips] = useState(null); // 여행 데이터
+  const [selectedTripId, setSelectedTripId] = useState(null); // 선택된 여행 ID
+  const [selectedTripData, setSelectedTripData] = useState(null); //선택된 여행 데이터
+  const [isTripModalOpen, setIsTripModalOpen] = useState(false); // 여행 선택 모달 열림 여부
+  const [recordImageList, setRecordImageList] = useState([]); // 업로드된 이미지 목록
+  const [isModalOpen, setIsModalOpen] = useState(false);      // 모달 열림 여부
+  const [searchText, setSearchText] = useState('');           // 검색 입력 텍스트
+  const [isFocused, setIsFocused] = useState(false);          // 검색창 포커스 상태
+  const [days, setDays] = useState([]);                       // day 데이터 상태
+  const [activeDay, setActiveDay] = useState('ALL');          // 전체 or 인덱스
+  
 
   // 현재 시간 포맷팅 (예: "2025. 05. 19 PM 09:03")
   const now = new Date();
@@ -25,30 +48,35 @@ const Record = () => {
     `${now.getFullYear()}. ${pad2(now.getMonth() + 1)}. ${pad2(now.getDate())} ` +
     `${ampm} ${pad2(hour12)}:${pad2(now.getMinutes())}`;
 
+  // 여행 리스트 불러오기
+  useEffect(() => {
+    async function fetchTrips() {
+      try {
+        const res = await fetch('http://localhost:8080/schedule/myTrips', { credentials: 'include' });
+        const data = await res.json();
+        // 최신 순 정렬
+        const sorted = [...data.trips].sort(
+          (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+        );
+        setTrips(sorted);
+      } catch (err) {
+        console.error('여행 목록 불러오기 실패:', err);
+      }
+    };
+    fetchTrips();
+  }, []);
 
-  // 폼 필드 참조
-  const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
-  const contentRef = useRef(null);
-
-  // 상태 관리
-  const { user } = useContext(AuthContext); //유저 데이터
-  const [trips, setTrips] = useState(null); // 여행 데이터
-  const [selectedTripId, setSelectedTripId] = useState(null); // 선택된 여행 ID
-  const [selectedTripData, setSelectedTripData] = useState(null); //선택된 여행 데이터
-  const [isTripModalOpen, setIsTripModalOpen] = useState(false); // 여행 선택 모달 열림 여부
-  const [recordImageList, setRecordImageList] = useState([]); // 업로드된 이미지 목록
-  const [isModalOpen, setIsModalOpen] = useState(false);      // 모달 열림 여부
-  const [searchText, setSearchText] = useState('');           // 검색 입력 텍스트
-  const [isFocused, setIsFocused] = useState(false);          // 검색창 포커스 상태
-  const [days, setDays] = useState([]);                     // day 데이터 상태
-  const [activeDay, setActiveDay] = useState('ALL'); // 전체 or 인덱스
-
-
-
-  // 검색 결과와 선택된 장소 상태
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedPlace, setSelectedPlace] = useState(null);
+  // 1) 여정 선택 시 days 로드 
+  useEffect(() => {
+    if (!selectedTripId) return;
+    fetch(`http://localhost:8080/schedule/${selectedTripId}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setDays(data.trip.days);
+        setSelectedTripData(data.trip);
+      })
+      .catch(console.error);
+  }, [selectedTripId]);
 
 
   // 모달 외부 클릭 시 닫기
@@ -68,25 +96,6 @@ const Record = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isModalOpen]);
-
-  // 여행 리스트 불러오기
-  useEffect(() => {
-    fetchMyTrips();
-  }, []);
-
-  const fetchMyTrips = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/schedule/myTrips', { credentials: 'include' });
-      const data = await res.json();
-      // 최신 순 정렬
-      const sorted = [...data.trips].sort(
-        (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
-      );
-      setTrips(sorted);
-    } catch (err) {
-      console.error('여행 목록 불러오기 실패:', err);
-    }
-  };
 
   // 검색어가 바뀔 때마다 디바운스 후 장소 검색
   useEffect(() => {
@@ -116,14 +125,6 @@ const Record = () => {
     }
   };
 
-  // 1) 여정 선택 후 days 로드 (기존 fetch)
-  useEffect(() => {
-    if (!selectedTripId) return;
-    fetch(`http://localhost:8080/schedule/${selectedTripId}`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setDays(data.trip.days))
-      .catch(console.error);
-  }, [selectedTripId]);
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -160,12 +161,31 @@ const Record = () => {
     setIsTripModalOpen(false);
   };
 
-  // 이미지 업로드 핸들러
-  const handleRecordImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const imagePreviews = files.map(file => URL.createObjectURL(file));
-    setRecordImageList(prev => [...prev, ...imagePreviews]);
+  // Image upload preview
+  const handleRecordImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("image", file);
+
+    try {
+      // 2) 서버로 multipart/form-data POST
+      const res = await fetch("http://localhost:8080/posts/upload", {
+        method: "POST",
+        credentials: "include",
+        body: form,
+      });
+      const { url } = await res.json();
+
+      // 3) 받은 URL을 프리뷰 배열에 추가
+      setRecordImageList(prev => [...prev, url]);
+    } catch (err) {
+      console.error("이미지 업로드 실패:", err);
+    }
   };
+
+
 
   // 모달 토글
   const handleToggleModal = () => {
@@ -203,26 +223,23 @@ const Record = () => {
       return;
     }
 
-    // 백엔드가 받도록 하는 payload
-    const payload = {
+    // 백엔드가 받도록 하는 json 데이터
+    const body = {
       trip_id,
       title,
       content: subtitle
         ? `${subtitle}\n\n${content}`      // 부제목과 본문 합치기
         : content,
       visibility: "PUBLIC",                  // 필요에 따라 선택지도 추가
-      image_urls: recordImageList,           // 현재는 preview URL 배열
-      // rating:    0                         // 평점 UI가 있으면 추가
+      image_urls: recordImageList,           // 실제 서버 URL이 담긴 배열
     };
-
-    console.log("업로드할 데이터:", payload);
 
     try {
       const res = await fetch("http://localhost:8080/posts", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",              // JWT 쿠키 인증 필요 시
-        body: JSON.stringify(payload),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
 
@@ -264,7 +281,7 @@ const Record = () => {
 
       {/* 작성자 정보 및 버튼 영역 */}
       <div className="record-meta">
-        <img className="profile-circle" src={user?.image_url || photoIcon} alt='프로필' />
+        <img className="profile-circle" src={user?.image_url || photoIcon} alt='' />
         <div className="record-meta-text">
           <span className="record-nickname">{user?.nickname || '로드 중...'}</span>
           <div className="record-time">{formattedTime}</div>
@@ -286,6 +303,7 @@ const Record = () => {
             onChange={handleRecordImageUpload}
             style={{ display: "none" }}
           />
+
 
           {/* 장소 선택 핀 버튼 및 모달 */}
           <div className="pin-wrapper" ref={pinRef}>

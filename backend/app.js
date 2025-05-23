@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const passport = require("./src/config/passport");
@@ -36,8 +37,8 @@ app.use(passport.session());
 app.use(express.json());
 
 //소셜 로그인 & 로그아웃
-const authRoutes=require("./src/routes/authRoutes");
-app.use("/auth",authRoutes);
+const authRoutes = require("./src/routes/authRoutes");
+app.use("/auth", authRoutes);
 
 // 친구추가 & 일정 초대
 const friendshipRoutes = require("./src/routes/friendshipRoutes");
@@ -62,11 +63,14 @@ app.get("/profile", authenticateJWT, (req, res) => res.json(req.user));
 
 //여행&일정 추가
 const scheduleRoutes = require("./src/routes/scheduleRoutes");
-app.use("/schedule",scheduleRoutes);
+app.use("/schedule", scheduleRoutes);
 
 //피드백
 const feedbackRoutes = require("./src/routes/feedbackRoutes");
-app.use("/feedback",feedbackRoutes);
+app.use("/feedback", feedbackRoutes);
+
+// 파일 시스템의 uploads 폴더를 웹상의 /uploads 경로로 연결
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // 글로벌 에러 핸들러
 app.use((err, req, res, next) => {
@@ -75,7 +79,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`API Server running on port ${PORT}`)); 
+app.listen(PORT, () => console.log(`API Server running on port ${PORT}`));
 //개발환경에서는 server.js 대신 app.js에서 서버 구동 => server.js 임시 삭제
 
 

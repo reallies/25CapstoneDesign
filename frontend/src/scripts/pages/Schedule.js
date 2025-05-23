@@ -1,3 +1,4 @@
+//Schedule.js
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate  } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -212,7 +213,7 @@ const Schedule = () => {
             {!showFeedback && (
               <>
               <div className="kakao-map">
-                <KakaoMap days={days} />
+                <KakaoMap days={filteredDays} />
               </div>
               </>
             )}
