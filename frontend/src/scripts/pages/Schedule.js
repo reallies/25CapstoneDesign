@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useSchedule } from "../hooks/useSchedule";
 import deleteIcon from "../../assets/images/delete.svg";
+import deleteIcon2 from "../../assets/images/trash.svg";
 import KakaoMap from "../components/KakaoMap";
 import InviteModal from "../components/InviteModal";
 import AddFriendModal from "../components/AddFriendModal";
@@ -35,6 +36,25 @@ const Schedule = () => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState("");
+
+    const [imageStates, setImageStates] = useState({});
+    const [hoverStates, setHoverStates] = useState({});
+    
+    const handleMouseEnter = (itemId) => {
+        setHoverStates(prev => ({ ...prev, [itemId]: true }));
+    };
+
+    const handleMouseLeave = (itemId) => {
+        setHoverStates(prev => ({ ...prev, [itemId]: false }));
+        setImageStates(prev => ({ ...prev, [itemId]: false }));
+    };
+    const handleDeleteClick = (itemId, dayId, dayPlaceId) => {
+        if (!imageStates[itemId]) {
+            setImageStates(prev => ({ ...prev, [itemId]: true }));
+        } else {
+            handleDeletePlace(dayId, dayPlaceId); // 두 번째 클릭 시 삭제
+        }
+    };
 
     const { trip_id } = useParams();
     const navigate = useNavigate();
@@ -354,6 +374,8 @@ const Schedule = () => {
                                                                                         ref={provided.innerRef}
                                                                                         {...provided.draggableProps}
                                                                                         {...provided.dragHandleProps}
+                                                                                        onMouseEnter={() => handleMouseEnter(item.id)}
+                                                                                        onMouseLeave={() => handleMouseLeave(item.id)}
                                                                                     >
                                                                                         <div className="item-number">
                                                                                             {itemIndex + 1}
@@ -368,7 +390,9 @@ const Schedule = () => {
                                                                                             <div className="place-name">{item.name}</div>
                                                                                         </div>
                                                                                         <div className="item-actions">
-                                                                                            <img src={deleteIcon} alt="삭제" className="delete-icon" onClick={() => handleDeletePlace(day.id, item.dayPlaceId)} />
+                                                                                            {hoverStates[item.id] && (
+                                                                                                <img src={imageStates[item.id] ? deleteIcon : deleteIcon2} alt="삭제" className="delete-icon" onClick= {()=> handleDeleteClick(item.id, day.id, item.dayPlaceId)} />
+                                                                                            )}
                                                                                             <div className="item-drag">≡</div>
                                                                                         </div>
                                                                                     </div>
