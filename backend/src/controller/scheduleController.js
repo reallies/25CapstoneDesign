@@ -1,4 +1,5 @@
 const tripService = require("../services/scheduleService");
+const prisma = require("../../prisma/prismaClient");
 
 //1. 여행 생성 컨트롤러
 async function createTripController(req,res){
@@ -16,17 +17,37 @@ async function createTripController(req,res){
 }
 
 //2. 여행 정보 조회 컨트롤러
-async function getTripIdController(req,res){
+async function getTripIdController(req, res) {
     try {
-        const {trip_id} = req.params;
+        const { trip_id } = req.params;
+        const user_id = req.user.user_id;
 
         const trip = await tripService.getTripIdService(trip_id);
-        if(!trip){
-            return res.status(404).json({message: "여행을 찾을 수 없습니다."});
+        if (!trip) {
+            return res.status(404).json({ message: "Trip not found" });
         }
-        return res.status(200).json({trip});
+
+        const isCreator = trip.user_id === user_id;
+
+        let isEditor = false;
+        if (!isCreator) {
+            const invitation = await prisma.tripInvitation.findFirst({
+                where: {
+                    trip_id,
+                    invited_user_id: user_id,
+                    status: 'ACCEPTED',
+                    permission: 'editor',
+                },
+            });
+            isEditor = !!invitation;
+        }
+
+        const canEdit = isCreator || isEditor;
+
+        return res.status(200).json({ trip, canEdit });
     } catch (error) {
-        console.error("getTripIdController 중 에러", error);        
+        console.error("getTripIdController error:", error);
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
@@ -129,14 +150,16 @@ async function updateTripTitleController(req, res) {
 
         const updatedTrip = await tripService.updateTripTitleService(user_id, trip_id, title);
 
-        if (!updatedTrip) {
-            return res.status(404).json({ message: "Trip not found or you don't have permission to edit it." });
-        }
-
         return res.status(200).json({ success: true, trip: updatedTrip });
     } catch (error) {
         console.error("updateTripTitleController error:", error);
-        return res.status(500).json({ message: "Failed to update trip title", error });
+        if (error.message === 'Trip not found') {
+            return res.status(404).json({ message: "Trip not found" });
+        } else if (error.message === 'No permission to edit') {
+            return res.status(403).json({ message: "You don't have permission to edit this trip" });
+        } else {
+            return res.status(500).json({ message: "Failed to update trip title", error });
+        }
     }
 }
 

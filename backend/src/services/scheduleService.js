@@ -380,23 +380,39 @@ async function generateDaysService(trip_id) {
 }
 
 async function updateTripTitleService(user_id, trip_id, newTitle) {
-    try {
-        const updatedTrip = await prisma.trip.update({
+    const trip = await prisma.trip.findUnique({
+        where: { trip_id },
+    });
+
+    if (!trip) {
+        throw new Error('Trip not found');
+    }
+
+    const isCreator = trip.user_id === user_id;
+
+    let isEditor = false;
+    if (!isCreator) {
+        const invitation = await prisma.tripInvitation.findFirst({
             where: {
-                trip_id: trip_id,
-                user_id: user_id,
-            },
-            data: {
-                title: newTitle,
+                trip_id,
+                invited_user_id: user_id,
+                status: 'ACCEPTED',
+                permission: 'editor',
             },
         });
-        return updatedTrip;
-    } catch (error) {
-        if (error.code === 'P2025') { // Prisma error code for record not found
-            return null;
-        }
-        throw error;
+        isEditor = !!invitation;
     }
+
+    if (!isCreator && !isEditor) {
+        throw new Error('No permission to edit');
+    }
+
+    const updatedTrip = await prisma.trip.update({
+        where: { trip_id },
+        data: { title: newTitle },
+    });
+
+    return updatedTrip;
 }
 
 module.exports = { createTripService, getTripIdService, addPlaceToDayService, reorderPlaceService, reorderDayService, deletePlaceService, getMyTripsService, deleteTripService, generateDaysService, updateTripTitleService };

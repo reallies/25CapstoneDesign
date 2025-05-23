@@ -194,25 +194,25 @@ const Schedule = () => {
                 </div>
 
                 {isInviteOpen && (
-                    <InviteModal
-                        onClose={() => {
-                            setIsInviteOpen(false);
-                            setIsAddOpen(false);
-                        }}
-                        onAddFriendClick={() => setIsAddOpen(true)}
-                        modalRef={inviteModalRef}
-                        tripId={trip_id} // trip_id를 tripId로 전달
-                        className="schedule-modal"
-                    />
+                <InviteModal
+                    onClose={() => {
+                        setIsInviteOpen(false);
+                        setIsAddOpen(false);
+                    }}
+                    onAddFriendClick={() => setIsAddOpen(true)}
+                    modalRef={inviteModalRef}
+                    tripId={trip_id}
+                    className="expenses-modal"
+                />
                 )}
 
                 {isAddOpen && (
-                    <AddFriendModal
-                        onClose={() => setIsAddOpen(false)}
-                        anchorRef={inviteModalRef}
-                        modalRef={addModalRef}
-                        className="schedule-modal"
-                    />
+                <AddFriendModal
+                    onClose={() => setIsAddOpen(false)}
+                    anchorRef={inviteModalRef}
+                    modalRef={addModalRef}
+                    className="expenses-modal"
+                />
                 )}
 
                 {/* 날씨 */}
