@@ -65,53 +65,56 @@ export const Expenses = () => {
     OTHER: "etc",
   };
 
-useEffect(() => {
-  const fetchTrip = async () => {
-    try {
-      const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok && data.trip) {
-        setTrip(data.trip);
+  useEffect(() => {
+    const fetchTrip = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.ok && data.trip) {
+          setTrip(data.trip);
 
-        const tripDays = data.trip.days || [];
+          const tripDays = data.trip.days || [];
+          const preparationTab = { label: "여행 준비", day_id: null };
+          const dayTabsArray = tripDays.map((day, index) => ({
+            label: `DAY ${index + 1}`,
+            day_id: day.day_id,
+          }));
 
-        const preparationTab = { label: "여행 준비", day_id: null };
-        const dayTabsArray = tripDays.map((day, index) => ({
-          label: `DAY ${index + 1}`,
-          day_id: day.day_id,
-        }));
-
-        setDayTabs([preparationTab, ...dayTabsArray]);
-        setActiveDay(preparationTab.label);
+          setDayTabs([preparationTab, ...dayTabsArray]);
+          setActiveDay(preparationTab.label);
+        }
+      } catch (err) {
+        console.error("여행 정보를 불러오지 못함:", err);
       }
-    } catch (err) {
-      console.error("여행 정보를 불러오지 못함:", err);
+    };
+
+    if (trip_id) fetchTrip();
+  }, [trip_id]);
+
+  // Function to fetch settlement data
+  const fetchSettlementData = async () => {
+    try {
+      const response = await fetch(`/trip/${trip_id}/settle`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch settlement");
+      const data = await response.json();
+      setSettlementData(data);
+      console.log("Settlement Data:", data);
+    } catch (error) {
+      console.error("Error fetching settlement:", error);
+      setSettlementData(null);
     }
   };
 
-  if (trip_id) fetchTrip();
-}, [trip_id]);
-
-
+  // Fetch settlement data on mount or when trip_id/token changes
   useEffect(() => {
-    const fetchSettlement = async () => {
-      try {
-        const response = await fetch(`/trip/${trip_id}/settle`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch settlement");
-        const data = await response.json();
-        setSettlementData(data);
-        console.log("Settlement Data:", data);
-      } catch (error) {
-        console.error("Error fetching settlement:", error);
-        setSettlementData(null);
-      }
-    };
-    fetchSettlement();
-  }, [trip_id, token]);
+    if (trip_id && token) {
+      fetchSettlementData();
+    }
+  }, [trip_id, token, fetchSettlementData]);
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -170,6 +173,8 @@ useEffect(() => {
       setCost("");
       setDescription("");
       setCategory("");
+      // Fetch updated settlement data after adding expense
+      await fetchSettlementData();
     } catch (error) {
       console.error("Error adding expense:", error);
       alert("지출 추가에 실패했습니다.");
@@ -214,7 +219,7 @@ useEffect(() => {
             <div className="expense-title-sub">AI 일정과 함께하는</div>
             <div className="travel-title-wrap">
               <div className="travel-title">{trip?.title}</div>
-              <div className="travel-edit">편집</div>
+              {/*<div className="travel-edit">편집</div>*/}
             </div>
             <div className="expense-tags">
               {trip?.destinations?.map((d) => (
@@ -236,17 +241,16 @@ useEffect(() => {
               <h3>공동경비</h3>
               <div className="shared-amount-wrapper">
                 <div className="shared-amount">{settlementData ? settlementData.total_amount.toLocaleString() : 0}원</div>
-                <div className="shared-edit">수정</div>
               </div>
               <div className="shared-divider" />
               <div className="shared-summary">
                 <div className="summary-item">
-                  <span className="label">모인 돈</span>
+                  <span className="label">내 지출</span>
                   <span className="value">{settlementData ? settlementData.total_amount.toLocaleString() : 0}원</span>
                 </div>
                 <div className="vertical-divider" />
                 <div className="summary-item">
-                  <span className="label red">총 쓴 돈</span>
+                  <span className="label red">총 지출</span>
                   <span className="value">{settlementData ? settlementData.total_amount.toLocaleString() : 0}원</span>
                 </div>
               </div>
