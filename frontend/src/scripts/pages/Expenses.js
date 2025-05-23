@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Expenses.css";
