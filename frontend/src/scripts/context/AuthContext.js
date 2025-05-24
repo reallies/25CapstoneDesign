@@ -23,12 +23,10 @@ export const AuthProvider = ({ children }) => {
     setIsRefreshing(true);
 
     try {
-      console.log("refreshAccessToken 시작 - URL: http://localhost:8080/auth/refresh");
       const res = await fetch("http://localhost:8080/auth/refresh", {
         method: "POST",
         credentials: "include",
       });
-      console.log("refreshAccessToken 응답 상태:", res.status);
 
       if (res.status === 403) {
         console.log("RefreshToken 만료됨, 로그인 필요");
@@ -36,7 +34,6 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         return false;
       }
-      console.log("refreshAccessToken 성공");
       return true;
     } catch (error) {
       console.error("refreshAccessToken 중 오류:", error);
@@ -49,12 +46,10 @@ export const AuthProvider = ({ children }) => {
   // 로그인 상태 확인
   const checkLoginStatus = async () => {
     try {
-      console.log("checkLoginStatus 시작 - URL: http://localhost:8080/profile");
       const res = await fetch("http://localhost:8080/profile", {
         method: "GET",
         credentials: "include",
       });
-      console.log("checkLoginStatus 응답 상태:", res.status);
 
       if (res.status === 401) {
         const hasToken = hasAccessToken();
@@ -68,7 +63,6 @@ export const AuthProvider = ({ children }) => {
 
         // AccessToken 재발급 시도
         const refreshed = await refreshAccessToken();
-        console.log("AccessToken 재발급 결과:", refreshed);
         if (!refreshed) {
           console.log("자동 로그인 실패, 로그인 필요");
           setIsLoggedIn(false);
@@ -79,7 +73,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await res.json();
-      console.log("checkLoginStatus 성공 - 사용자 데이터:", data);
       setUser(data);
       setIsLoggedIn(true);
     } catch (error) {
@@ -91,7 +84,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (isLoggedIn === null) {
-      console.log("useEffect: 초기 로그인 상태 확인 시작");
       checkLoginStatus();
     }
   }, [isLoggedIn]);

@@ -36,10 +36,13 @@
   
 /* 챗봇 UI 박스 */
 .chatbot-ui {
+  width: 480px;
+  height: 600px;
   display: flex;
   flex-direction: column;
   padding: 24px;
   font-size: 16px;
+  overflow: hidden;
 }
   
 /* 상단 이름 & 시간 + 프로필 */
@@ -48,8 +51,8 @@
   align-items: center;
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 15px;
   gap: 10px;
+  height: 50px;
 }
   
 .chatbot-profile {
@@ -87,17 +90,37 @@
 .chatbot-message {
   background: #f1f1f1;
   border-radius: 12px;
-  padding: 10px 0px 10px 26px; 
+  padding: 10px 10px 10px 26px; 
   font-size: 16px;
   line-height: 1.6;
   color: #333333;
   margin-top: -20px;
-  margin-bottom: 100px;
+  margin-bottom: 15px;
   max-width: 70%;
   display: inline-block;
-  margin-left: 10%;
 }
   
+.skeleton-line {
+  background-color: #dcdcdc;
+  height: 16px;
+  border-radius: 8px;
+  margin: 6px 0;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* 깜빡임 애니메이션 */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .chatbot-message strong {
   font-weight: bold;
 }
@@ -108,7 +131,8 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  margin-top: 5px;
 }
   
 .chatbot-quick-btn {
@@ -186,24 +210,31 @@
   display: block;
 }
 
-/* 사용자 메시지와 챗봇 메시지 스타일 */
-.user-message {
-  background: #00adb5;
-  color: white;
-  border-radius: 12px;
-  padding: 10px 16px;
-  margin: 10px 0;
-  max-width: 70%;
-  align-self: flex-end;
-  margin-left: auto;
-  margin-right: 10%;
+/* 사용자 메시지 말풍선 */
+.chatbot-user-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
 }
 
-.assistant-message {
-  background: #f1f1f1;
+.chatbot-user-message {
+  background: #00ADB5;
+  color: white;
   border-radius: 12px;
-  padding: 10px 16px;
-  margin: 10px 0;
-  max-width: 70%;
-  margin-left: 10%;  
+  padding: 4px 16px;
+  width: calc(100% - 180px);
+  max-width: 100%;
+  font-size: 16px;
+  line-height: 0.1;
+  word-break: break-word;
+  margin-bottom: 20px;
+}
+
+.chatbot-message-area {
+  flex: 1; /* 남는 공간 모두 차지 */
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }

@@ -6,7 +6,6 @@ import deleteIcon from "../../assets/images/delete.svg";
 import deleteIcon2 from "../../assets/images/trash.svg";
 import KakaoMap from "../components/KakaoMap";
 import InviteModal from "../components/InviteModal";
-import AddFriendModal from "../components/AddFriendModal";
 import PlaceSearchModal from "../components/PlaceSearchModal";
 import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
@@ -18,12 +17,11 @@ const Schedule = () => {
     const [selectedDayIndex, setSelectedDayIndex] = useState(null);
     const [isWeatherDropdownOpen, setIsWeatherDropdownOpen] = useState(false);
     const [selectedCity, setSelectedCity] = useState("");
+    const weatherDropdownRef = useRef(null);
 
     // 초대, 친구 추가 기능
     const [isInviteOpen, setIsInviteOpen] = useState(false);
-    const [isAddOpen, setIsAddOpen] = useState(false);
     const inviteModalRef = useRef(null);
-    const addModalRef = useRef(null);
     const inviteButtonRef = useRef(null);
 
     // 피드백 기능
@@ -82,35 +80,30 @@ const Schedule = () => {
         }
     }, [trip]);
 
-    const toggleWeatherDropdown = () => {
-        setIsWeatherDropdownOpen((prev) => !prev);
+    useEffect(() => {
         const handleClickOutside = (e) => {
             const invite = inviteModalRef.current;
-            const add = addModalRef.current;
-
             const clickedOutsideInvite = invite && !invite.contains(e.target);
-            const clickedOutsideAdd = add && !add.contains(e.target);
 
-            // 친구 추가만 열려 있고 바깥 클릭일 때
-            if (isAddOpen && !isInviteOpen && clickedOutsideAdd) {
-                setIsAddOpen(false);
-                return;
+            const weatherDropdown = weatherDropdownRef.current;
+            const clickedOutsideWeather = weatherDropdown && !weatherDropdown.contains(e.target);
+
+            if (isInviteOpen && clickedOutsideInvite) {
+                setIsInviteOpen(false);
             }
 
-            // 친구 목록만 열려 있고 바깥 클릭일 때
-            if (isInviteOpen && !isAddOpen && clickedOutsideInvite) {
-                setIsInviteOpen(false);
-                return;
-            }
-
-            // 둘 다 열려 있고, 둘 다 바깥 클릭일 때만 닫기
-            if (isAddOpen && isInviteOpen && clickedOutsideAdd && clickedOutsideInvite) {
-                setIsAddOpen(false);
-                setIsInviteOpen(false);
+            if (isWeatherDropdownOpen && clickedOutsideWeather) {
+                setIsWeatherDropdownOpen(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isInviteOpen, isWeatherDropdownOpen]);
+
+    const toggleWeatherDropdown = () => {
+        setIsWeatherDropdownOpen((prev) => !prev);
     };
 
     // 피드백 기능
@@ -207,7 +200,7 @@ const Schedule = () => {
                         <div className="menu-item" onClick={() => setIsInviteOpen(true)} ref={inviteButtonRef}>
                             <div className="menu-text">초대</div>
                         </div>
-                        <div className="menu-item" onClick={() => setIsInviteOpen(true)}>
+                        <div className="menu-item">
                             <div className="menu-text">여행 일정</div>
                         </div>
                     </div>
@@ -215,22 +208,12 @@ const Schedule = () => {
 
                 {isInviteOpen && (
                     <InviteModal
+                        position={{top: "345px", left: "88px"}}
                         onClose={() => {
                             setIsInviteOpen(false);
-                            setIsAddOpen(false);
                         }}
-                        onAddFriendClick={() => setIsAddOpen(true)}
+                        tripId={trip_id}
                         modalRef={inviteModalRef}
-                        className="schedule-modal"
-                    />
-                )}
-
-                {isAddOpen && (
-                    <AddFriendModal
-                        onClose={() => setIsAddOpen(false)}
-                        anchorRef={inviteModalRef}
-                        modalRef={addModalRef}
-                        className="schedule-modal"
                     />
                 )}
 
@@ -248,7 +231,7 @@ const Schedule = () => {
 
                     {/* 드롭다운 메뉴 */}
                     {isWeatherDropdownOpen && (
-                        <div className="weather-dropdown">
+                        <div className="weather-dropdown" ref={weatherDropdownRef}>
                             {trip.destinations.map((d) => (
                                 <div
                                     className="dropdown-item"

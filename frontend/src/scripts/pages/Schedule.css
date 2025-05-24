@@ -79,7 +79,7 @@
 }
 
 .menu-item {
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
     border-radius: 50px;
     display: flex;
     align-items: center;
@@ -607,14 +607,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.schedule .invite-modal {
-    top: 210px !important;
-}
-
-.schedule .add-friend-modal {
-    top: 210px !important;
 }
 
 /* New styles for title editing */

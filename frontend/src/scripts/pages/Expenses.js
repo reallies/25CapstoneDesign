@@ -1,9 +1,8 @@
-import React, { useCallback, useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./Expenses.css";
 import InviteModal from "../components/InviteModal";
-import AddFriendModal from "../components/AddFriendModal";
 import SettleUpModal from "../components/SettleUpModal";
 import { ReactComponent as Eat } from "../../assets/images/eat.svg";
 import { ReactComponent as Traffic } from "../../assets/images/traffic.svg";
@@ -330,22 +329,13 @@ export const Expenses = () => {
 
         {isInviteOpen && (
           <InviteModal
+            position={{top: "207px", left: "100px"}}
             onClose={() => {
               setIsInviteOpen(false);
               setIsAddOpen(false);
             }}
-            onAddFriendClick={() => setIsAddOpen(true)}
+            tripId={trip_id}
             modalRef={inviteModalRef}
-            className="expenses-modal"
-          />
-        )}
-
-        {isAddOpen && (
-          <AddFriendModal
-            onClose={() => setIsAddOpen(false)}
-            anchorRef={inviteModalRef}
-            modalRef={addModalRef}
-            className="expenses-modal"
           />
         )}
 

@@ -17,7 +17,6 @@
     background-color: white;
     border-radius: 16px;
     box-shadow: 0 0 10px #00000040;
-    overflow: hidden;
 }
   
   /* 상단 유저 정보 */
@@ -50,13 +49,13 @@
   
 /* 로그아웃 버튼 */
 .logout-btn {
-    border: 1px solid lightgray;
+    border: 1px solid rgb(190, 190, 190);
     background-color: transparent;
     border-radius: 18px;
     padding: 6px 14px;
     font-size: 13px;
     cursor: pointer;
-    color: #aaa;
+    color: #949494;
     margin-top: -20px;
     margin-right: -8px;
 }

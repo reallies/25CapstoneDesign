@@ -10,7 +10,7 @@
     width: 460px;
     padding: 50px;
     border-radius: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0,0,0,0.17);
 }
   
 .profile-section {
@@ -69,8 +69,8 @@
     padding: 10px;
     border-radius: 15px;
     border: none;
-    background-color: #F8F8FA;
-    color: #B3B3B3;
+    background-color: #ededed;
+    color: #676767;
 }
   
 .change-button {
@@ -89,21 +89,10 @@
     margin-bottom: 30px;
     border-radius: 15px;
     border: none;
-    background-color: #F8F8FA;
-    color: #B3B3B3;
+    background-color: #ededed;
+    color: #676767;
 }
-  
-.logout-button {
-    width: 20%;
-    padding: 10px;
-    border: 1px solid #B3B3B3;
-    border-radius: 999px;
-    background-color: white;
-    color: #B3B3B3;
-    font-weight: 600;
-    cursor: pointer;
-}
-  
+
 .withdraw-text {
     margin-top: 30px;
     text-align: center;

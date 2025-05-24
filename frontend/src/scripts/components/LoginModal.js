@@ -1,13 +1,26 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginModal.css";
 import userIcon from "../../assets/images/user.svg";
 import InviteModal from "../components/InviteModal";
 
-const LoginModal = ({ isOpen, onClose,user, onFriendClick, isFriendModalOpen, onCloseFriendModal }) => {
+const LoginModal = ({ isOpen, onClose,user }) => {
   const navigate = useNavigate();
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const inviteModalRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsInviteOpen(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleMyPage = () =>{
+    navigate("/mypage");
+    onClose();
+  }
 
   // "나의 일정" 클릭 시 페이지 이동 함수
   const handleMyScheduleClick = () => {
@@ -44,29 +57,32 @@ const LoginModal = ({ isOpen, onClose,user, onFriendClick, isFriendModalOpen, on
                 <strong>아이디를 입력해주세요!</strong>  
             )}
           </div>
-          <button className="logout-btn" onClick={handleLogout}>로그아웃</button>
+          <button className="logout-btn" onClick={handleLogout} style={{ marginTop: 0}}>로그아웃</button>
         </div>
 
         <div className="login-menu-container">
           <div className="login-menu">
-            <span>마이페이지</span>
+            <span onClick={handleMyPage} style={{ cursor: "pointer" }}>마이페이지</span>
             <div className="menu-divider" />
             <span onClick={handleMyScheduleClick} style={{ cursor: "pointer" }}>
               나의 일정
             </span>
             <div className="menu-divider" />
-            <span onClick={onFriendClick} style={{ cursor: "pointer" }} >나의 친구</span>
+
+            <span onClick={()=> setIsInviteOpen(true)} style={{ cursor: "pointer" }}>나의 친구</span>
           </div>
         </div>
-        {isFriendModalOpen && (
-          <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 100 }}>
-            <InviteModal
-              onClose={onCloseFriendModal}
-              onAddFriendClick={() => {}}
-              modalRef={null}
-            />
-          </div>
+
+        {isInviteOpen && (
+          <InviteModal
+            position={{top: "143px", left: "-145px"}}
+            onClose={() => {
+              setIsInviteOpen(false);
+            }}
+            modalRef={inviteModalRef}
+          />
         )}
+
       </div>
     </div>
   );

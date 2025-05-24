@@ -43,13 +43,14 @@
 }
 
 .invite-search-bar {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.06);
     border-radius: 50px;
     display: flex;
     align-items: center;
     padding: 10px 20px;
     flex: 1;
     max-width: 380px;
+    margin-left: 10px;
 }
   
 .invite-search-bar input {
@@ -70,14 +71,13 @@
     font-family: "SUITE-Bold", Helvetica;
     font-size: 20px;
     font-weight: 700;
-    margin-bottom: 20px;
     margin-left: 5px;
 }
   
 .friend-item {
     display: flex;
     align-items: center;
-    margin-top: 30px;
+    margin-top: 10px;
     position: relative;
 }
   

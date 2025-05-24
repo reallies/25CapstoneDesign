@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import chatbotIcon from "../../assets/images/chatbot.svg";
 import icon from "../../assets/images/icon.svg";
@@ -13,22 +13,17 @@ const api = axios.create({
 
 const ChatBot = () => {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content:
-        "반갑습니다! 쉽고 빠른 여행 플랜, <strong>slay support</strong>와 함께해요.<br />어디로 떠날지 고민되시나요? AI 추천부터 일정 정리까지 도와드릴게요.<br />✈️ 당신의 여행, 어디부터 도와드릴까요?",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const messageEndRef = useRef(null);
 
   // 세션 초기화
   useEffect(() => {
     const resetSession = async () => {
       try {
         await api.post("/chatbot/reset-session");
-        console.log("세션 초기화 완료");
       } catch (error) {
         console.error("세션 초기화 실패:", error);
       }
@@ -36,19 +31,26 @@ const ChatBot = () => {
     resetSession();
   }, []);
 
-  // 메시지 전송
-  const handleSendMessage = async () => {
-    if (!input.trim()) return;
-    setIsLoading(true);
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading]);
 
-    const newMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, newMessage]);
+  // 메시지 전송
+  const handleSendMessage = async (overrideInput) => {
+    const messageToSend = overrideInput ?? input;
+    if (!messageToSend.trim()) return;
+
+    setIsLoading(true);
+    const newUserMessage = { role: "user", content: messageToSend };
+    setMessages((prev) => [...prev, newUserMessage]);
     setInput("");
 
     try {
-      const isPlaceSearch = input.includes("장소") || input.includes("검색");
+      const isPlaceSearch = messageToSend.includes("장소") || messageToSend.includes("검색");
       const endpoint = isPlaceSearch ? "/chatbot/search-places" : "/chatbot/travel-info";
-      const response = await api.post(endpoint, { input });
+      const response = await api.post(endpoint, { input: messageToSend });
 
       const assistantMessage = isPlaceSearch
         ? {
@@ -72,51 +74,20 @@ const ChatBot = () => {
   };
 
   // 빠른 질문 버튼
-  const handleQuickButton = (text) => {
-    setInput(text);
-    handleSendMessage();
+  const handleQuickButton = async (text) => {
+    await handleSendMessage(text);
   };
 
   // 장소 검색
   const handleSearchPlaces = async () => {
-    if (!input.trim()) return;
-    setIsLoading(true);
-
-    const newMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, newMessage]);
-    setInput("");
-
-    try {
-      const response = await api.post("/chatbot/search-places", { input });
-      const assistantMessage = {
-        role: "assistant",
-        content: `검색된 장소:<br />${response.data.places
-          .map((place) => `${place.place_name} (${place.address_name})`)
-          .join("<br />")}`,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("장소 검색 실패:", error);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "장소 검색에 실패했습니다. 다시 시도해주세요." },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+    await handleSendMessage(input);
   };
 
   // 세션 초기화
   const handleResetSession = async () => {
     try {
       await api.post("/chatbot/reset-session");
-      setMessages([
-        {
-          role: "assistant",
-          content:
-            "반갑습니다! 쉽고 빠른 여행 플랜, <strong>slay support</strong>와 함께해요.<br />어디로 떠날지 고민되시나요? AI 추천부터 일정 정리까지 도와드릴게요.<br />✈️ 당신의 여행, 어디부터 도와드릴까요?",
-        },
-      ]);
+      setMessages([]);
     } catch (error) {
       console.error("세션 초기화 실패:", error);
     }
@@ -140,18 +111,51 @@ const ChatBot = () => {
                 <img src={icon} alt="profile" />
               </div>
               <div className="chatbot-title">slay support</div>
-              <div className="chatbot-time">PM 01:08</div>
             </div>
-            <div className="chatbot-message">
-              {messages.map((msg, idx) => (
-                <p
-                  key={idx}
-                  className={msg.role === "user" ? "user-message" : "assistant-message"}
-                  dangerouslySetInnerHTML={{ __html: msg.content }}
-                />
-              ))}
-              {isLoading && <p>처리 중...</p>}
-            </div>
+
+
+            <div className="chatbot-message-area">
+              <div className="chatbot-message">
+                <p>반갑습니다! 쉽고 빠른 여행 플랜,<br /><strong>slay support</strong>와 함께해요.</p>
+                <p>어디로 떠날지 고민되시나요?<br />AI 추천부터 일정 정리까지 도와드릴게요.</p>
+                <p>✈️ 당신의 여행, 어디부터 도와드릴까요?</p>
+              </div>
+
+              {/* 유저-응답 메시지 출력 */}
+                {messages.map((msg, idx) => {
+                  if (msg.role === "user") {
+                    return (
+                      <React.Fragment key={idx}>
+                        <div className="chatbot-user-wrapper">
+                          <div className="chatbot-user-message">
+                            <p>{msg.content}</p>
+                          </div>
+                        </div>
+
+                        {/* 바로 뒤 assistant 메시지 출력 */}
+                        {messages[idx + 1]?.role === "assistant" && (
+                          <div className="chatbot-message">
+                            {messages[idx + 1].content.split("<br />").map((line, lineIdx) => (
+                              <p key={lineIdx} dangerouslySetInnerHTML={{ __html: line }} />
+                            ))}
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  }
+                  return null;
+                })}
+
+                {isLoading && (
+                    <div className="chatbot-message">
+                      <div className="skeleton-line" style={{ width: "70%" }} />
+                      <div className="skeleton-line" style={{ width: "50%" }} />
+                    </div>
+                )}
+
+                <div ref={messageEndRef} />
+              </div>
+                  
             <div className="chatbot-buttons">
               {[
                 "AI 일정 생성 어떻게 해?",
