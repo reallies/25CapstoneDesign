@@ -549,3 +549,13 @@
     margin-right: -35px;
     cursor: pointer;
 }
+
+/* 시간 */
+.time-label {
+  margin-left: 4px;
+  font-family: "SUITE-Medium";
+  font-size: 12px;
+  color: #7e7e7e !important;
+  font-weight: 400;
+  text-decoration: none !important;
+}

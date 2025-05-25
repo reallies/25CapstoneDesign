@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import InviteModal from "../components/InviteModal";
 import AddFriendModal from "../components/AddFriendModal";
 import FeedbackModal from "../components/FeedbackModal";
+import TimePickerModal from '../components/TimePickerModal';
 
 
 
@@ -21,6 +22,19 @@ export const Schedule = () => {
   const addModalRef = useRef(null);
   const inviteButtonRef = useRef(null);;
   const [showFeedback, setShowFeedback] = useState(false);  // 피드백 받기
+
+  // 방문 시간 선택 state
+  const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(null);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(null);
+
+  // 시간 선택 확인 시
+  const handleTimeConfirm = (selectedTime) => {
+    const newDays = [...days];
+    newDays[selectedDayIndex].items[selectedItemIndex].time = selectedTime;
+    setDays(newDays);
+    setIsTimeModalOpen(false);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -59,37 +73,37 @@ export const Schedule = () => {
   }, [isAddOpen, isInviteOpen]);
 
   const [days, setDays] = useState([
-    {
-      id: "day-1",
-      date: "| 25.03.12 수",
-      color: "red",
-      items: [
-        { id: "item-1", type: "place", placeType: "관광명소", name: "전주 중앙 공원" },
-        { id: "item-2", type: "place", placeType: "관광명소", name: "전주 수목원" },
-        { id: "item-3", type: "place", placeType: "모험·액티비티", name: "전주 한옥 레일바이크" },
-      ],
-    },
-    {
-      id: "day-2",
-      date: "| 25.03.13 목",
-      color: "orange",
-      items: [
-        { id: "item-4", type: "place", placeType: "숙소", name: "전주 한옥 호텔" },
-        { id: "item-5", type: "place", placeType: "관광명소", name: "전주 수목원" },
-        { id: "item-6", type: "place", placeType: "모험·액티비티", name: "전주 한옥 레일바이크" },
-      ],
-    },
-    {
-      id: "day-3",
-      date: "| 25.03.14 금",
-      color: "purple",
-      items: [
-        { id: "item-7", type: "place", placeType: "관광명소", name: "전주 중앙 공원" },
-        { id: "item-8", type: "place", placeType: "관광명소", name: "전주 수목원" },
-        { id: "item-9", type: "place", placeType: "모험·액티비티", name: "전주 한옥 레일바이크" },
-      ],
-    },
-  ]);
+  {
+    id: "day-1",
+    date: "| 25.03.12 수",
+    color: "red",
+    items: [
+      { id: "item-1", type: "place", placeType: "관광명소", name: "전주 중앙 공원" },
+      { id: "item-2", type: "place", placeType: "관광명소", name: "전주 수목원" },
+      { id: "item-3", type: "place", placeType: "모험·액티비티", name: "전주 한옥 레일바이크" },
+    ],
+  },
+  {
+    id: "day-2",
+    date: "| 25.03.13 목",
+    color: "orange",
+    items: [
+      { id: "item-4", type: "place", placeType: "숙소", name: "전주 한옥 호텔" },
+      { id: "item-5", type: "place", placeType: "관광명소", name: "전주 수목원" },
+      { id: "item-6", type: "place", placeType: "모험·액티비티", name: "전주 한옥 레일바이크" },
+    ],
+  },
+  {
+    id: "day-3",
+    date: "| 25.03.14 금",
+    color: "purple",
+    items: [
+      { id: "item-7", type: "place", placeType: "관광명소", name: "전주 중앙 공원",},
+      { id: "item-8", type: "place", placeType: "관광명소", name: "전주 수목원",},
+      { id: "item-9", type: "place", placeType: "모험·액티비티", name: "전주 한옥 레일바이크" },
+    ],
+  },
+]);
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
@@ -273,7 +287,21 @@ export const Schedule = () => {
                                             {day.items.filter(it => it.type === "place").indexOf(item) + 1}
                                           </div>
                                           <div className="item-content">
-                                            <div className="place-type">{item.placeType}</div>
+                                            {/* 방문 시간 선택 */}
+                                            <div className="place-type">
+                                              {item.placeType}
+                                              <span
+                                                className="time-label"
+                                                onClick={() => {
+                                                  setSelectedDayIndex(dayIndex);
+                                                  setSelectedItemIndex(itemIndex);
+                                                  setIsTimeModalOpen(true);
+                                                }}
+                                                style={{ marginLeft: "6px", cursor: "pointer", color: "#007bff", textDecoration: "underline" }}
+                                              >
+                                                {item.time || "시간"}
+                                              </span>
+                                            </div>
                                             <div className="place-name">{item.name}</div>
                                           </div>
                                           <div className="item-drag">≡</div>
@@ -388,6 +416,13 @@ export const Schedule = () => {
                     </div>
                 </div>
             </div>
+            )}
+            {/* 방문 시간 선택 모달 */}
+            {isTimeModalOpen && (
+              <TimePickerModal
+                onClose={() => setIsTimeModalOpen(false)}
+                onConfirm={handleTimeConfirm}
+              />
             )}
         </div>
       </div>
