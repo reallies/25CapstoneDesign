@@ -679,7 +679,7 @@ button {
 .gallery-records-container {
   width: 95%;
   display: flex;
-  justify-content: flex-start;
+  justify-content:space-between;
   align-items: flex-start;
   gap: 50px;
   margin: 80px auto 0;
@@ -694,7 +694,16 @@ button {
   width: 100%;
 }
 
-/* 여행 갤러리 */
+/* 여행 갤러리 틀 */
+.travel-gallery {
+   flex: 1;
+}
+
+.my-records {
+  flex: 0 0 250px;
+}
+
+/* 여행 갤러리 내용*/
 .gallery-container {
   margin-top: 20px;
   display: flex;
@@ -769,7 +778,7 @@ button {
 }
 
 .gallery-subtitle {
-  margin: 5px auto;
+  margin: 5px auto 0;
   font-size: 18px;
   font-weight: 600;
   color: black;

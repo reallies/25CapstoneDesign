@@ -1,3 +1,4 @@
+//Home.js
 import React, { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import ChatBot from "../components/ChatBot";
@@ -16,8 +17,8 @@ const Home = () => {
   const [selectedTheme, setSelectedTheme] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState([]);
   const [calendarDate, setCalendarDate] = useState(null);
-  const [galleryData, setGalleryData] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [myRecords, setMyRecords] = useState([]);
 
   const navigate = useNavigate();
   const searchFieldRefs = useRef({});
@@ -58,6 +59,7 @@ const Home = () => {
   const [themeModalPosition, setThemeModalPosition] = useState({ top: 350, left: 300 });
   const [peopleModalPosition, setPeopleModalPosition] = useState({ top: 400, left: 400 });
 
+  //갤러리 렌더링 요청
   useEffect(() => {
     fetch('http://localhost:8080/posts/gallery', {
       credentials: 'include'
@@ -69,9 +71,24 @@ const Home = () => {
       .catch(console.error);
   }, []);
 
-  // 앞 4개만, 나머지는 "더보기" 카드
+  // 내 기록 렌더링 요청
+  useEffect(() => {
+    fetch('http://localhost:8080/posts/me', { credentials: 'include' })
+      .then(res => res.json())
+      .then(({ posts }) => {
+
+        setMyRecords(posts || []);
+      })
+      .catch(console.error);
+  }, []);
+
+
+  // 앞 3개만 출력 제한, 나머지는 "더보기" 카드로
   const visiblePosts = posts.slice(0, 4);
-  const hasMore = posts.length > 4;
+  const hasMore = posts.length > 3;
+
+  const visibleRecords = myRecords.slice(0, 4);
+  const hasMoreRecords = myRecords.length > 4;
 
 
   // 여행지 선택 핸들러 - 최대 3개까지 선택
@@ -184,36 +201,6 @@ const Home = () => {
   const closeModal = () => {
     setActiveModal(null);
   };
-
-  // /* 여행 갤러리 데이터 */
-  // const galleryData = [
-  //   {
-  //     img: "https://placehold.co/215x160",
-  //     subtitle: "자연과 도시가 공존한 제주도",
-  //     description: "AI 일정 짜기로 예약해서 다녀봤는데 매일 가족끼리 동선짜고 돌아다니면서 온전히 가족에게만 집중할 수 있어서...",
-  //   },
-  //   {
-  //     img: "https://placehold.co/215x160",
-  //     subtitle: "감성 가득한 경주 여행",
-  //     description: "역사와 자연을 함께 즐길 수 있는 경주는 정말 멋진 여행지였습니다. 한옥에서 하룻밤 자며 전통을 느낄 수 있었어요!...",
-  //   },
-  //   {
-  //     img: "https://placehold.co/215x160",
-  //     subtitle: "여유로운 부산 바다 여행",
-  //     description: "광안리 해변에서 노을을 보며 힐링한 순간이 가장 기억에 남습니다. AI 추천 덕분에 맛집도 놓치지 않았어요....",
-  //   },
-  //   {
-  //     img: "https://placehold.co/215x160",
-  //     subtitle: "서울의 야경이 멋진 여행",
-  //     description: "남산 타워에서 내려다본 서울의 야경이 너무 예뻤어요! AI 일정 덕분에 혼잡한 시간대를 피할 수 있어서 좋았어요...",
-  //   },
-  //   {
-  //     img: moreIcon,
-  //     placeName: "",
-  //     description: "",
-  //     isLast: true,
-  //   }
-  // ];
 
   //여정 추가
   const createTrip = async () => {
@@ -364,10 +351,13 @@ const Home = () => {
               );
             })}
 
-            {hasMore && (
+            {hasMoreRecords && (
               <div
                 className="gallery-card last-card"
-                onClick={() => navigate('/gallery')}
+                onClick={() => {
+                  navigate('/gallery')
+                  window.scrollTo(0, 0);    // 이동하자마자 최상단으로 스크롤
+                }}
               >
                 <div className="gallery-card-inner">
                   <img
@@ -388,27 +378,34 @@ const Home = () => {
         <div className="my-records">
           <div className="records-title">내 기록</div>
           <div className="records-container">
-            {[
-              { img: "https://placehold.co/160x160", text: "2025년 2월 12일" },
-              { img: "https://placehold.co/160x160", text: "2025년 2월 14일" },
-              { img: "https://placehold.co/160x160", text: "2025년 2월 18일" },
-              { isLast: true },
-            ].map((record, index) => (
+            {visibleRecords.map((post) => {
+              const imgUrl = Array.isArray(post.image_urls) && post.image_urls[0];
+              const dateText = new Date(post.created_at)
+                .toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+              return (
+                <div
+                  key={post.post_id}
+                  className="record-card"
+                  style={imgUrl
+                    ? { backgroundImage: `url(${imgUrl})` }
+                    : { backgroundColor: '#e0e0e0' }
+                  }
+                  onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
+                >
+                  <div className="record-text">{dateText}</div>
+                </div>
+              );
+            })}
+
+            {/* 더보기 카드 */}
+            {hasMore && (
               <div
-                key={index}
-                className={`record-card ${record.isLast ? "last-rcard" : ""}`}
-                style={!record.isLast ? { backgroundImage: `url(${record.img})` } : {}}
-                onClick={() => {
-                  if (record.isLast) navigate("/record");
-                }}
+                className="record-card last-rcard"
+                onClick={() => navigate('/gallery')}
               >
-                {!record.isLast ? (
-                  <div className="record-text">{record.text}</div>
-                ) : (
-                  <img className="plus-icon" src={plusIcon} alt="추가" />
-                )}
+                <img className="plus-icon" src={plusIcon} alt="추가" />
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

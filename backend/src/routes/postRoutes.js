@@ -1,3 +1,4 @@
+//postRoutes.js
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
@@ -74,10 +75,10 @@ router.post("/", authenticateJWT, async (req, res) => {
   }
 });
 
-// (1) 갤러리용 모든 PUBLIC 리뷰 조회
+// 갤러리용 모든 PUBLIC 리뷰 조회
 router.get(
-  "/gallery", 
-  authenticateJWT, 
+  "/gallery",
+  authenticateJWT,
   async (req, res) => {
     try {
       // 공개(visibility: PUBLIC) 상태인 리뷰만
@@ -94,8 +95,30 @@ router.get(
     }
   }
 );
+// 내 리뷰 조회
+router.get(
+  "/me",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const userId = req.user.user_id;
+      const posts = await prisma.post.findMany({
+        where: { user_id: userId },
+        include: {
+          // 필요하다면 유저 정보도 포함
+          user: { select: { user_id: true, nickname: true, image_url: true } },
+        },
+      });
+      res.json({ message: "내 포스트 조회 성공", posts });
+    } catch (error) {
+      console.error("내 포스트 조회 오류:", error);
+      res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    }
+  }
+);
 
-// 리뷰 조회
+
+// 특정 리뷰 조회
 router.get("/:trip_id", authenticateJWT, async (req, res) => {
   try {
     const { trip_id } = req.params;

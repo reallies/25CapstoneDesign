@@ -31,41 +31,53 @@
   cursor: pointer;
 }
 
-/* 내 기록 썸네일 목록 */
+/* 전체 컨테이너: 카드들을 4열 그리드로, 공간이 부족하면 자동 줄바꿈 */
 .gallery-my-records {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 16px;
-  margin-top: 12px;
+  /* 카드 사이 여백 */
+  margin: 16px 0;
+  /* 위아래 섹션 간격 */
 }
 
-/* 개별 썸네일 카드 */
-.gallery-thumbnail {
-  width: 200px;
-  height: 160px;
-  border-radius: 12px;
+/* 개별 카드 */
+.gallery-item {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  background-color: #d9d9d9;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  
 }
 
-/* 썸네일 이미지 영역 */
-.gallery-thumb-img {
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* 내 기록 이미지 */
+.gallery-item img {
   flex: 3;
   background-color: #d9d9d9;
+
 }
 
-/* 썸네일 하단 제목 캡션 */
-.gallery-thumb-caption {
+/* 제목*/
+.gallery-item div {
   flex: 0.5;
-  background-color: #828282;
+  background-color: #b0b0b0;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 13px;
   padding: 6px;
   text-align: center;
   font-weight: 400;
 }
+
+
 
 /* 친구 여행기가 없을 때 안내 메시지 */
 .gallery-empty-msg {
@@ -142,9 +154,10 @@
 /* 여행기 본문 전체 영역 */
 .gallery-post-content {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   margin-top: 10px;
-  gap: 20px;
+  gap: 2rem;
   cursor: pointer;
 }
 
