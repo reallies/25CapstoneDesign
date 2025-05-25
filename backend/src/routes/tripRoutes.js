@@ -129,8 +129,7 @@ router.get("/invite/pending", authenticateJWT, async (req, res) => {
     const pendingInvitations = await prisma.tripInvitation.findMany({
       where: { invited_user_id: user.user_id, status: "PENDING" },
       include: {
-        Trip: { select: { trip_id: true, title: true, user_id: true } },
-        User: { select: { user_id: true, nickname: true, image_url: true } },
+        Trip: { include: { user: { select: { nickname: true, image_url: true } } } }
       },
     });
 
@@ -139,8 +138,8 @@ router.get("/invite/pending", authenticateJWT, async (req, res) => {
       trip_id: invitation.trip_id,
       trip_title: invitation.Trip.title,
       inviter_id: invitation.Trip.user_id,
-      inviter_nickname: invitation.User.nickname,
-      inviter_image_url: invitation.User.image_url,
+      inviter_nickname: invitation.Trip.user.nickname,
+      inviter_image_url: invitation.Trip.user.image_url,
       permission: invitation.permission,
       created_at: invitation.created_at,
     }));

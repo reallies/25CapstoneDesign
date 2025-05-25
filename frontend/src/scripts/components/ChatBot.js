@@ -16,6 +16,8 @@ const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [placeSearchMode, setPlaceSearchMode] = useState(false);
+  const [showQuickButtons, setShowQuickButtons] = useState(true);
 
   const messageEndRef = useRef(null);
 
@@ -48,11 +50,10 @@ const ChatBot = () => {
     setInput("");
 
     try {
-      const isPlaceSearch = messageToSend.includes("장소") || messageToSend.includes("검색");
-      const endpoint = isPlaceSearch ? "/chatbot/search-places" : "/chatbot/travel-info";
+      const endpoint = placeSearchMode ? "/chatbot/search-places" : "/chatbot/travel-info";
       const response = await api.post(endpoint, { input: messageToSend });
 
-      const assistantMessage = isPlaceSearch
+      const assistantMessage = placeSearchMode
         ? {
             role: "assistant",
             content: `검색된 장소:<br />${response.data.places
@@ -70,6 +71,7 @@ const ChatBot = () => {
       ]);
     } finally {
       setIsLoading(false);
+      setPlaceSearchMode(false);
     }
   };
 
@@ -98,12 +100,18 @@ const ChatBot = () => {
     setOpen((prev) => !prev);
   };
 
+  //빠른 질문 토글
+  const toggleQuickButtons = () => {
+    setShowQuickButtons((prev) => !prev);
+  };
+
   return (
     <div>
       <div className="floating-button" onClick={toggleChatBot}>
         <img src={chatbotIcon} alt="chatbot" />
       </div>
       {open && (
+        <div className="chatbot-overlay" onClick={toggleChatBot}>
         <div className="chatbot-modal" onClick={toggleChatBot}>
           <div className="chatbot-ui" onClick={(e) => e.stopPropagation()}>
             <div className="chatbot-header">
@@ -156,60 +164,69 @@ const ChatBot = () => {
                 <div ref={messageEndRef} />
               </div>
                   
-            <div className="chatbot-buttons">
-              {[
-                "AI 일정 생성 어떻게 해?",
-                "여행 꿀팁 알려줘",
-                "웹 사용법 알려줘",
-                "slay support가 뭐야?",
-                "인기 여행지 추천해줘",
-              ].map((text, idx) => (
+              <div className="chatbot-buttons-wrapper">
+                <button className="toggle-button" onClick={toggleQuickButtons} style={{color: "#d1d1d1" }}>
+                  {showQuickButtons ? "⬇" : "⬆"}
+                </button>
+                {showQuickButtons && (
+                  <div className="chatbot-buttons">
+                    {[
+                      "AI 일정 생성 어떻게 해?",
+                      "여행 꿀팁 알려줘",
+                      "웹 사용법 알려줘",
+                      "slay support가 뭐야?",
+                      "인기 여행지 추천해줘",
+                    ].map((text, idx) => (
+                      <button
+                        key={idx}
+                        className="chatbot-quick-btn"
+                        onClick={() => handleQuickButton(text)}
+                        disabled={isLoading}
+                      >
+                        {text}
+                      </button>
+                    ))}
+                    <button
+                      className="chatbot-quick-btn"
+                      onClick={handleResetSession}
+                      disabled={isLoading}
+                    >
+                      대화 초기화
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="chatbot-input-box">
                 <button
-                  key={idx}
-                  className="chatbot-quick-btn"
-                  onClick={() => handleQuickButton(text)}
+                  className={`chatbot-search-btn ${placeSearchMode ? "active" : ""}`}
+                  onClick={() => setPlaceSearchMode(!placeSearchMode)}
                   disabled={isLoading}
                 >
-                  {text}
+                  <img src={searchIcon} alt="search" />
+                  <span>장소검색</span>
                 </button>
-              ))}
-              <button
-                className="chatbot-quick-btn"
-                onClick={handleResetSession}
-                disabled={isLoading}
-              >
-                대화 초기화
-              </button>
-            </div>
-            <div className="chatbot-input-box">
-              <button
-                className="chatbot-search-btn"
-                onClick={handleSearchPlaces}
-                disabled={isLoading}
-              >
-                <img src={searchIcon} alt="search" />
-                <span>장소검색</span>
-              </button>
-              <input
-                type="text"
-                placeholder="support에게 물어보세요"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                disabled={isLoading}
-              />
-              <button
-                className="chatbot-send-btn"
-                onClick={handleSendMessage}
-                disabled={isLoading}
-              >
-                +
-              </button>
+                <input
+                  type="text"
+                  placeholder="support에게 물어보세요"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  disabled={isLoading}
+                />
+                <button
+                  className="chatbot-send-btn"
+                  onClick={handleSendMessage}
+                  disabled={isLoading}
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      )}
-    </div>
+        )}
+      </div>
   );
 };
 

@@ -20,6 +20,16 @@
   transform: scale(1.05);
 }
   
+.chatbot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000; /* modal보다 낮거나 같아야 클릭이 인식됨 */
+  background-color: rgba(0, 0, 0, 0); /* 투명 */
+}
+
 /* 챗봇 모달 전체 */
 .chatbot-modal {
   position: fixed;
@@ -237,4 +247,33 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+}
+
+.chatbot-search-btn {
+  background-color: #d1d1d1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chatbot-search-btn.active {
+  background-color: #00ADB5;
+  color: white;
+}
+
+.chatbot-buttons-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 }

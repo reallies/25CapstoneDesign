@@ -10,7 +10,7 @@ import PlaceSearchModal from "../components/PlaceSearchModal";
 import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
 import FeedbackModal from "../components/FeedbackModal";
-import TimePickerModal from "../components/TimePIckerModal";
+import TimePickerModal from "../components/TimePickerModal";
 
 const Schedule = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);

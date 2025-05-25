@@ -29,16 +29,17 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     zIndex: 1000,
   }
 
+  const fetchFriendList = async () => {
+    try {
+      const response = await api.get("/friendship/list");
+      setFriendListState(response.data.friends || []);
+    } catch (error) {
+      console.error("친구 목록 조회 실패:", error);
+    }
+  };
+
   // 데이터 가져오기
   useEffect(() => {
-    const fetchFriendList = async () => {
-      try {
-        const response = await api.get("/friendship/list");
-        setFriendListState(response.data.friends || []);
-      } catch (error) {
-        console.error("친구 목록 조회 실패:", error);
-      }
-    };
 
     const fetchPendingRequests = async () => {
       try {
@@ -158,6 +159,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     try {
       await api.put("/trip/invite/accept", { invitation_id: invitationId });
       setInviteListState(inviteListState.filter((inv) => inv.invitation_id !== invitationId));
+      fetchFriendList();
       alert("초대가 수락되었습니다!");
     } catch (error) {
       console.error("초대 수락 실패:", error);
@@ -186,11 +188,13 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
             <img src={friend.image_url} className="rectangle"/>
             <div className="user-name">{friend.nickname}</div>
             <div className="button-group">
-              {pendingInvites.includes(friend.user_id) ? (
-                <div className="frame pending">대기중</div>
-              ) : (
-                <div className="frame" onClick={() => handleInvite(friend)}>초대</div>
-              )}
+              {tripId ? (
+                pendingInvites.includes(friend.user_id) ? (
+                  <div className="frame pending">대기중</div>
+                ) : (
+                  <div className="frame" onClick={() => handleInvite(friend)}>초대</div>
+                )
+              ) : null}
               <div className="frame danger" onClick={() => alert("친구 삭제 기능은 준비 중입니다.")}>삭제</div>
             </div>
           </div>
@@ -201,7 +205,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
       return requestListState.map((req, index) => (
         <div key={index}>
           <div className="friend-item">
-            <img src={req.image_url} className="rectangle"/>
+            <img src={req.requester_image_url} className="rectangle"/>
             <div className="user-name">{req.requester_nickname}</div>
             <div className="button-group">
               <div className="frame" onClick={() => handleAccept(req.friendship_id)}>수락</div>
@@ -216,8 +220,10 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
         inviteListState.map((inv, index) => (
           <div key={index}>
             <div className="friend-item">
-              <div className="rectangle" />
-              <div className="user-name">{inv.trip_title}</div>
+              <img src={inv.inviter_image_url} className="rectangle"/>
+              <div className="user-name">{inv.inviter_nickname}</div>
+              <div className="slash"> - </div>
+              <div className="trip-name">{inv.trip_title}</div>
               <div className="button-group">
                 <div className="frame" onClick={() => handleAcceptInvite(inv.invitation_id)}>수락</div>
                 <div className="frame danger" onClick={() => handleRejectInvite(inv.invitation_id)}>거절</div>

@@ -142,12 +142,22 @@
     font-size: 16px;
     font-weight: 500;
 }
+
+.slash{
+    margin-left: 15px;
+}
+
+.trip-name{
+    margin-left: 15px;
+}
   
 .friend-item {
     display: flex;
     align-items: center;
     position: relative;
-    margin-top: 16px;
+    margin-top: 15px;
+    color: #464646;
+    margin-left: 13px;
 }
   
 .rectangle {

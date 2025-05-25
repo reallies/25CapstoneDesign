@@ -9,7 +9,7 @@ import { AuthContext } from "../context/AuthContext";
 
 const SetNickname = () => {
     const [nickname, setNickname] = useState("");
-    const [nicknameStatus, setNicknameStatus] = useState("available");
+    const [nicknameStatus, setNicknameStatus] = useState("");
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false); // 제출 중 상태 관리
     const navigate = useNavigate(); // 프로그래매틱 네비게이션
@@ -93,6 +93,11 @@ const SetNickname = () => {
               setNickname(e.target.value);
               setNicknameStatus(""); 
               setError("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCheckNickname();
+              }
             }}
             placeholder="닉네임 입력"
             disabled={isSubmitting}

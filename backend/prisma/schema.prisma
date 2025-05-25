@@ -45,6 +45,7 @@ model Trip {
   posts          Post[]
   user           User             @relation(fields: [user_id], references: [user_id])
   TripInvitation TripInvitation[]
+  TripPlace      TripPlace[]
 }
 
 model Day {
@@ -68,7 +69,7 @@ model DayPlace {
 }
 
 model Place {
-  place_id        Int        @id @default(autoincrement())
+  place_id        Int         @id @default(autoincrement())
   place_name      String
   place_address   String?
   place_latitude  Float
@@ -76,10 +77,12 @@ model Place {
   place_image_url String?
   place_star      Float?
   place_call_num  String?
-  review_count    Int?       @default(0)
-  kakao_place_id  String     @unique
+  review_count    Int?        @default(0)
+  kakao_place_id  String      @unique
+  type            PlaceType   @default(REGULAR)
   days            DayPlace[]
   Expense         Expense[]
+  TripPlace       TripPlace[]
 }
 
 model Expense {
@@ -124,11 +127,11 @@ model Post {
   user_id    Int
   title      String?
   content    String
-  rating     Float?
-  visibility TripVisibility @default(PRIVATE)
-  image_urls Json?
   created_at DateTime       @default(now())
   updated_at DateTime       @updatedAt
+  image_urls Json?
+  rating     Float?
+  visibility TripVisibility @default(PRIVATE)
   comments   Comment[]
   likes      Like[]
   trip       Trip           @relation(fields: [trip_id], references: [trip_id])
@@ -164,6 +167,15 @@ model TripInvitation {
   created_at      DateTime         @default(now())
   User            User             @relation(fields: [invited_user_id], references: [user_id])
   Trip            Trip             @relation(fields: [trip_id], references: [trip_id])
+}
+
+model TripPlace {
+  tripplace_id   Int     @id @default(autoincrement())
+  trip_id        String
+  place_id       Int
+  tripplace_time String?
+  Place          Place   @relation(fields: [place_id], references: [place_id])
+  Trip           Trip    @relation(fields: [trip_id], references: [trip_id])
 }
 
 enum ProviderType {
@@ -223,4 +235,9 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+enum PlaceType {
+  REGULAR
+  ACCOMMODATION
 }
