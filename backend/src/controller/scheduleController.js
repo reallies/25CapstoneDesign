@@ -163,4 +163,17 @@ async function updateTripTitleController(req, res) {
     }
 }
 
-module.exports = {createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController, generateDaysController, updateTripTitleController};
+async function reorderBasedOnFeedbackController(req, res) {
+  try {
+    const { trip_id } = req.params;
+    const { day, distanceFeedback } = req.body;
+
+    const result = await tripService.reorderBasedOnFeedbackService(trip_id, day, distanceFeedback);
+    return res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("reorderBasedOnFeedbackController 중 에러", error);
+    return res.status(500).json({ message: "재정렬 실패", error });
+  }
+}
+
+module.exports = {reorderBasedOnFeedbackController, createTripController, getTripIdController, addPlaceToDayController, reorderPlaceController, reorderDayController, deletePlaceController, getMytripsController, deleteTripController, generateDaysController, updateTripTitleController};

@@ -5,6 +5,27 @@ import regenerate from "../../assets/images/regenerate.svg"
 
 // 지도 대신 화면 오른쪽에 피드백 내용을 띄움
 const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoadingFeedbacks }) => {
+    // 재정렬 요청 함수
+  const handleReorder = async (day, distanceFeedback) => {
+    try {
+      const response = await fetch(`http://localhost:8080/schedule/${tripId}/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          day: day, // DAY 번호
+          distanceFeedback: distanceFeedback, // 동선 피드백 문자열
+        }),
+      });
+      if (!response.ok) throw new Error("재정렬 요청 실패");
+      alert("일정이 추천 순서로 재정렬되었습니다!");
+      window.location.reload(); // 화면 새로고침으로 업데이트 반영
+    } catch (error) {
+      console.error("재정렬 오류:", error);
+      alert("재정렬에 실패했습니다.");
+    }
+  };
+    
     const regeneratefeedback = async ()=>{
         setLoadingFeedbacks(true);
         try {
@@ -63,21 +84,25 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
                 </div>
             )}
     
-            {feedbacks.map((item)=>(
-                <div key={item.day} className="feedback-bubble">
-                    <p className="bubble-label">💬 DAY {item.day} 일정 피드백이에요!</p>
-
-                    {typeof item.feedback === "string" ? (
-                        <p>{item.feedback}</p>
-                    ) : (
-                    <>
-                        <div className="feedback-block">
-                            <p className="feedback-label">🗺️ 동선 피드백</p>
-                            <p className="feedback-content">{item.feedback?.distance_feedback}</p>
-                            <div className="feedback-btn-wrapper">
-                                <button className="feedback-btn black">추천 순서로 재정렬하기</button>
-                            </div>
-                        </div>
+            {feedbacks.map((item) => (
+          <div key={item.day} className="feedback-bubble">
+            <p className="bubble-label">💬 DAY {item.day+1} 일정 피드백이에요!</p>
+            {typeof item.feedback === "string" ? (
+              <p>{item.feedback}</p>
+            ) : (
+              <>
+                <div className="feedback-block">
+                  <p className="feedback-label">🗺️ 동선 피드백</p>
+                  <p className="feedback-content">{item.feedback?.distance_feedback}</p>
+                  <div className="feedback-btn-wrapper">
+                    <button
+                      className="feedback-btn black"
+                      onClick={() => handleReorder(item.day, item.feedback.distance_feedback)}
+                    >
+                      추천 순서로 재정렬
+                    </button>
+                  </div>
+                </div>
                         <hr />
                         <div className="feedback-block">
                             <p className="feedback-label">🔭 날씨 피드백</p>

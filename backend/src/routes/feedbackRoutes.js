@@ -36,10 +36,41 @@ async function gptRes(prompt){
 // ================== 거리 피드백 함수 ==================
 
 //거리피드백
+// feedbackRoutes.js
 async function getDistanceFeedback(day) {
     const placeNames = day.places.map(p => p.place.place_name);
+    const placeNameToDayPlaceId = {};
+    day.places.forEach(p => {
+        placeNameToDayPlaceId[p.place.place_name] = p.dayplace_id;
+    });
     const regions = day.places.map(p => extractRegion(p.place.place_address));
-    return await gptRes(`DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내.`);
+    
+    // 프롬프트에서 명확히 리스트 형식 요구
+    const prompt = `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내. 반드시 추천 순서를 [장소1, 장소2, ...] 형식으로 제공하세요.`;
+    const response = await gptRes(prompt);
+    
+    let recommendedNames = [];
+    const match = response.match(/\[(.+?)\]/);
+    if (match) {
+        // 리스트에서 장소 이름 추출
+        recommendedNames = match[1].split(',').map(name => name.trim());
+        // 입력된 placeNames와 매칭하여 유효한 장소만 필터링
+        recommendedNames = recommendedNames.filter(name => placeNames.includes(name));
+    } else {
+        // 대체 방법: 응답에 리스트 형식이 없으면 입력 장소 이름을 기본 순서로 사용
+        console.warn("응답 형식이 맞지 않습니다. 기본 순서를 사용합니다.");
+        recommendedNames = placeNames;
+    }
+
+    // 중복 제거
+    recommendedNames = [...new Set(recommendedNames)];
+
+    const recommendedOrder = recommendedNames
+        .map(name => placeNameToDayPlaceId[name])
+        .filter(id => id !== undefined); // 매핑되지 않은 ID 제외
+
+    console.log("추출된 장소 이름:", recommendedNames); // 디버깅용 출력
+    return { feedback: response, recommendedOrder };
 }
 
 // ================== 운영시간 피드백 함수 ==================
@@ -443,56 +474,48 @@ async function getWeatherFeedback(day, tripStartDate) {
 
 
 // ### 라우터 ###
-router.get("/:trip_id", async(req, res)=>{
+router.get("/:trip_id", async (req, res) => {
     const { trip_id } = req.params;
-
     try {
         const trip = await prisma.trip.findUnique({
             where: { trip_id },
             include: {
                 days: {
-                include: {
-                    places: {
                     include: {
-                        place: true
+                        places: {
+                            include: { place: true },
+                            orderBy: { dayplace_order: "asc" }
+                        }
                     },
-                    orderBy: { dayplace_order: "asc" }
-                    }
-                },
-                orderBy: { day_order: "asc" }
+                    orderBy: { day_order: "asc" }
                 }
             }
         });
 
-        //feedbacks: 전체 day별 피드백 결과
         const feedbacks = await Promise.all(
-            trip.days.map(async (day)=>{
-                //고정된 응답 - 일정이 0,1개일 경우
-                if (day.places.length === 0) {
+            trip.days.map(async (day) => {
+                if (day.places.length <= 1) {
                     return {
-                    day: day.day_order,
-                    feedback: "DAY " + day.day_order + "에는 아직 방문할 장소가 없습니다. 장소를 추가해보세요!",
+                        day: day.day_order,
+                        day_id: day.day_id,
+                        feedback: day.places.length === 0
+                            ? `DAY ${day.day_order}에는 아직 방문할 장소가 없습니다. 장소를 추가해보세요!`
+                            : `DAY ${day.day_order}에는 '${day.places[0].place.place_name}' 하나만 포함되어 있어 피드백은 어렵습니다. 주변 관광지를 함께 구성해보세요!`
                     };
                 }
-                
-                if (day.places.length === 1) {
-                    return {
-                    day: day.day_order,
-                    feedback: `DAY ${day.day_order}에는 '${day.places[0].place.place_name}' 하나만 포함되어 있어 피드백은 어렵습니다. 주변 관광지를 함께 구성해보세요!`,
-                    };
-                }
-                
+
                 const places = day.places.map((p) => p.place);
                 const plannedTimes = day.places.map((p) => p.dayplace_time || null);
-
-                const {weather_info, weather_feedback} = await getWeatherFeedback(day, trip.start_date);
+                const { weather_info, weather_feedback } = await getWeatherFeedback(day, trip.start_date);
                 const distance_feedback = await getDistanceFeedback(day);
                 const operating_hours_feedback = await getOperatingHoursFeedback(day, places, plannedTimes, trip.start_date);
 
                 return {
                     day: day.day_order,
+                    day_id: day.day_id,
                     feedback: {
-                        distance_feedback,
+                        distance_feedback: distance_feedback.feedback,
+                        recommended_order: distance_feedback.recommendedOrder,
                         weather_info,
                         weather_feedback,
                         operating_hours_feedback,
@@ -502,10 +525,10 @@ router.get("/:trip_id", async(req, res)=>{
         );
 
         res.json({ feedbacks });
-        } catch (error) {
-            console.log(error, "feedback routes 에러");
-            res.status(500).json({error: "feedback routes 중 오류"})
-        }
+    } catch (error) {
+        console.log(error, "feedback routes 에러");
+        res.status(500).json({ error: "feedback routes 중 오류" });
+    }
 });
 
 module.exports = router;

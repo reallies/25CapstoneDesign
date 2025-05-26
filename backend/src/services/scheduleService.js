@@ -415,4 +415,54 @@ async function updateTripTitleService(user_id, trip_id, newTitle) {
     return updatedTrip;
 }
 
-module.exports = { createTripService, getTripIdService, addPlaceToDayService, reorderPlaceService, reorderDayService, deletePlaceService, getMyTripsService, deleteTripService, generateDaysService, updateTripTitleService };
+async function reorderBasedOnFeedbackService(trip_id, dayOrder, distanceFeedback) {
+  return await prisma.$transaction(async (tx) => {
+    // 1. 해당 Day 정보 조회
+    const day = await tx.day.findFirst({
+      where: { trip_id, day_order: dayOrder },
+      include: { places: { include: { place: true } } },
+    });
+    if (!day) throw new Error("Day를 찾을 수 없습니다.");
+
+    // 2. 동선 피드백에서 장소 순서 추출
+    const placeNamesInFeedback = distanceFeedback
+      .match(/[^\s,]+(?:[^\s,]+)*(?=에서|해|으로|,|\.|$)/g) // 장소 이름 추출
+      .filter((name) => name !== "시작" && name !== "이동" && name !== "것이" && name !== "효율적입니다");
+    console.log("추출된 장소 이름:", placeNamesInFeedback);
+
+    // 3. 현재 Day의 장소와 매핑
+    const currentPlaces = day.places.map((p) => ({
+      dayplace_id: p.dayplace_id,
+      place_name: p.place.place_name,
+    }));
+
+    const reorderedPlaces = [];
+    placeNamesInFeedback.forEach((feedbackName, index) => {
+      const match = currentPlaces.find((p) => p.place_name.includes(feedbackName));
+      if (match) {
+        reorderedPlaces.push({ ...match, newOrder: index + 1 });
+      }
+    });
+
+    // 4. 매핑되지 않은 장소 처리 (피드백에 없는 장소는 순서 뒤로)
+    const unmatchedPlaces = currentPlaces.filter(
+      (p) => !reorderedPlaces.some((rp) => rp.dayplace_id === p.dayplace_id)
+    );
+    unmatchedPlaces.forEach((p, idx) => {
+      reorderedPlaces.push({ ...p, newOrder: reorderedPlaces.length + 1 });
+    });
+
+    // 5. DayPlace 업데이트
+    const updates = reorderedPlaces.map((place) =>
+      tx.dayPlace.update({
+        where: { dayplace_id: place.dayplace_id },
+        data: { dayplace_order: place.newOrder },
+      })
+    );
+    await Promise.all(updates);
+
+    return reorderedPlaces;
+  });
+}
+
+module.exports = { reorderBasedOnFeedbackService, createTripService, getTripIdService, addPlaceToDayService, reorderPlaceService, reorderDayService, deletePlaceService, getMyTripsService, deleteTripService, generateDaysService, updateTripTitleService };

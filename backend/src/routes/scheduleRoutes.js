@@ -63,4 +63,6 @@ router.patch("/day/:day_id/dayplace/:dayplace_id/time",async(req,res) => {
 
 router.patch("/:trip_id", authenticateJWT, tripController.updateTripTitleController);
 
+router.patch("/:trip_id/reorder", authenticateJWT, tripController.reorderBasedOnFeedbackController);
+
 module.exports = router;
