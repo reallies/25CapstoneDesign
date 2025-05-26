@@ -364,8 +364,8 @@ const Schedule = () => {
                                                                                         <div className="item-content">
                                                                                             <div className="item-content2">
                                                                                                 <div className="place-type">{item.placeType}</div>
-                                                                                                <div className="time" onClick={() => handleDayplaceTime(Number(day.id.replace("day-", "")), item.dayPlaceId)}>
-                                                                                                    {dayPlaceTimeMap[item.dayPlaceId] || "time"}
+                                                                                                <div className="time-label" onClick={() => handleDayplaceTime(Number(day.id.replace("day-", "")), item.dayPlaceId)}>
+                                                                                                    {dayPlaceTimeMap[item.dayPlaceId] || "시간"}
                                                                                                 </div>
                                                                                             </div>
                                                                                             <div className="place-name">{item.name}</div>
