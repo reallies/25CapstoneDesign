@@ -305,20 +305,18 @@ const Schedule = () => {
 
                         {/* 시간 추가 모달 */}
                         {isTimeModalOpen && (
-                            <div className="place-modal-overlay">
-                                <TimePickerModal
-                                    dayId={selectedDayId}
-                                    dayPlaceId={selectedDayPlaceId}
-                                    onClose={() => setIsTimeModalOpen(false)}
-                                    onTimeConfirm={(dayPlaceId, time) => {
-                                        setDayPlaceTimeMap((prev) => ({
-                                            ...prev,
-                                            [dayPlaceId]: time,
-                                        }));
-                                        setIsTimeModalOpen(false);
-                                    }}
-                                />
-                            </div>
+                            <TimePickerModal
+                                dayId={selectedDayId}
+                                dayPlaceId={selectedDayPlaceId}
+                                onClose={() => setIsTimeModalOpen(false)}
+                                onTimeConfirm={(dayPlaceId, time) => {
+                                    setDayPlaceTimeMap((prev) => ({
+                                        ...prev,
+                                        [dayPlaceId]: time,
+                                    }));
+                                    setIsTimeModalOpen(false);
+                                }}
+                            />
                         )}
                     </div>
 
