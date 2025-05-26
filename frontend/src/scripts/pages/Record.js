@@ -5,9 +5,6 @@ import { AuthContext } from "../context/AuthContext";
 import PlaceMap from '../components/PlaceMap'; // 지도 컴포넌트
 import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌트
 import photoIcon from '../../assets/images/camera.svg';
-import pinIcon from '../../assets/images/pin.svg';
-import back from '../../assets/images/back.svg';
-import search2 from '../../assets/images/search2.svg';
 import './Record.css';
 
 const Record = () => {
@@ -37,7 +34,7 @@ const Record = () => {
   const [isFocused, setIsFocused] = useState(false);          // 검색창 포커스 상태
   const [days, setDays] = useState([]);                       // day 데이터 상태
   const [activeDay, setActiveDay] = useState('ALL');          // 전체 or 인덱스
-  
+
 
   // 현재 시간 포맷팅 (예: "2025. 05. 19 PM 09:03")
   const now = new Date();
@@ -147,13 +144,7 @@ const Record = () => {
       ? days
       : [days[activeDay]];
 
-  // 장소 선택 핸들러
-  const handlePlaceSelect = (place) => {
-    setSelectedPlace(place);    // place 객체 전체 저장
-    setSearchText(place.place_name);
-    setIsModalOpen(false);
-  };
-
+  
   // 여정 선택 핸들러
   const handleTripSelect = (trip) => {
     setSelectedTripId(trip.trip_id);
@@ -184,23 +175,7 @@ const Record = () => {
       console.error("이미지 업로드 실패:", err);
     }
   };
-
-
-
-  // 모달 토글
-  const handleToggleModal = () => {
-    setIsModalOpen(prev => !prev);
-    setSearchText('');
-    setIsFocused(false);
-  };
-
-  // 모달 닫기
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSearchText('');
-    setIsFocused(false);
-  };
-
+  
   //여정 모달 토글
   const toggleTripModal = () => {
     setIsTripModalOpen(open => !open);
@@ -259,12 +234,19 @@ const Record = () => {
     <div className="record-container">
       {/* 제목 입력 */}
       <input
-        ref={titleRef}
+        ref={subtitleRef}
         type="text"
         className="record-title"
         defaultValue="제목"
         onFocus={(e) => {
-          if (e.target.value === "제목") e.target.value = "";
+          if (e.target.value === "제목") {
+            e.target.value = "";
+          }
+        }}
+        onBlur={(e) => {
+          if (e.target.value.trim() === "") {
+            e.target.value = "제목";
+          }
         }}
       />
 
@@ -275,7 +257,14 @@ const Record = () => {
         className="record-subtitle"
         defaultValue="부제목을 입력해주세요"
         onFocus={(e) => {
-          if (e.target.value === "부제목을 입력해주세요") e.target.value = "";
+          if (e.target.value === "부제목을 입력해주세요") {
+            e.target.value = "";
+          }
+        }}
+        onBlur={(e) => {
+          if (e.target.value.trim() === "") {
+            e.target.value = "부제목을 입력해주세요";
+          }
         }}
       />
 
@@ -303,74 +292,6 @@ const Record = () => {
             onChange={handleRecordImageUpload}
             style={{ display: "none" }}
           />
-
-
-          {/* 장소 선택 핀 버튼 및 모달 */}
-          <div className="pin-wrapper" ref={pinRef}>
-            <img
-              src={pinIcon}
-              alt=""
-              className="record-icon"
-              onClick={handleToggleModal}
-            />
-            {isModalOpen && (
-              <div className="record-modal-popup">
-                <div
-                  className="record-modal"
-                  ref={modalRef}
-                >
-                  {/* 모달 헤더 */}
-                  <div className="record-modal-header">
-                    <img
-                      src={back}
-                      alt="뒤로가기"
-                      className="record-back"
-                      onClick={handleCloseModal}
-                    />
-                    <div className="record-search-container">
-                      <input
-                        type="text"
-                        className="record-modal-search"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        placeholder={isFocused ? '' : '장소 검색'}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => {
-                          if (searchText === '') setIsFocused(false);
-                        }}
-                      />
-                      <img src={search2} alt="돋보기" className="record-search-icon" />
-                    </div>
-                  </div>
-
-                  {/* 장소 리스트 */}
-                  <div className="record-place-list">
-                    {searchResults.map((place) => (
-                      <div key={place.id} className="record-place-item">
-                        <div className="record-place-thumb">
-                          {/* 카카오 썸네일 */}
-                          <img src={place.place_url || photoIcon} alt="" />
-                        </div>
-                        <div className="record-place-info">
-                          <div className="record-place-name">{place.place_name}</div>
-                          <div className="record-place-location">{place.address_name}</div>
-                        </div>
-                        <button
-                          className="record-select-btn"
-                          onClick={() => handlePlaceSelect(place)}
-                        >
-                          선택
-                        </button>
-                      </div>
-                    ))}
-                    {searchResults.length === 0 && searchText.trim() && (
-                      <div className="no-results">검색 결과가 없습니다.</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* 올리기/취소 버튼 */}
           <button className="record-button" onClick={toggleTripModal}>

@@ -1,3 +1,4 @@
+//Gallery.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './Gallery.css';
@@ -27,6 +28,28 @@ const Gallery = () => {
     return friends.map(f => f.user_id);
   };
 
+  // created_at 을 받아 상대 시간을 문자열로 리턴
+  const formatTimeAgo = (isoDateString) => {
+    const then = new Date(isoDateString).getTime();
+    const now = Date.now();
+    const diff = now - then; // ms
+
+    const seconds = Math.floor(diff / 1000);
+    if (seconds < 60) return `${seconds}초 전`;
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}분 전`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}시간 전`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}일 전`;
+
+    // 일주일 이상이면 그냥 날짜 표시
+    return new Date(isoDateString).toLocaleDateString('ko-KR');
+  };
+
   // 3) 마운트 시 한 번에 모든 데이터 불러오기
   useEffect(() => {
     // 내 기록
@@ -54,7 +77,7 @@ const Gallery = () => {
       .catch(console.error);
   }, []);
 
-  // --- 4) 정렬 함수 ---
+  // 정렬 함수 
   const sortRecords = (records) => {
     if (sortBy === '최근순') {
       return [...records].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -64,21 +87,12 @@ const Gallery = () => {
     return records; // '전체'는 원본 순서 유지
   };
 
-  // 섹션별로 정렬 적용
-  const mySorted = sortRecords(myRecords);
-  const friendSorted = sortRecords(friendRecords);
-  const allSorted = sortRecords(allRecords);
-
-
-
-  // 정렬 탭의 현재 선택된 항목 상태
-  const [galleryActiveSort, setGalleryActiveSort] = useState("전체");
+  const allDisplay = sortRecords(allRecords);
+  const friendDisplay = friendRecords;   // 친구 기록은 정렬 미적용 예시
+  const myDisplay = myRecords;       // 내 기록은 원본 순서
 
   // 친구 추가 버튼 상태 (각 인덱스별로 '친구 추가' 또는 '대기중' 상태)
   const [galleryFriendRequest, setGalleryFriendRequest] = useState([false, false, false]);
-
-  // 정렬 옵션 목록
-  const gallerySortOptions = ["전체", "인기순", "최근순", "오래된 순"];
 
   // 친구 추가 버튼 클릭 시 상태 토글
   const toggleGalleryFriendRequest = (index) => {
@@ -101,7 +115,7 @@ const Gallery = () => {
       {/* 내 기록 */}
       <h2 className="gallery-section-title">내 기록</h2>
       <div className="gallery-my-records">
-        {myRecords.map(post => (
+        {myDisplay.map(post => (
           <div key={post.post_id} className="gallery-item">
             <img src={post.image_urls[0] || '/placeholder.png'} alt="" />
             <div>{post.title}</div>
@@ -112,28 +126,32 @@ const Gallery = () => {
       {/* 친구의 여행기 */}
       <h2>친구의 여행기</h2>
       <div className="gallery-friend-posts">
-        {friendRecords.map(post => (
-          <div key={post.post_id} className="gallery-item">
-            <img src={post.image_urls[0] || '/placeholder.png'} alt="" />
-            <h3>{post.title}</h3>
-            <p>{post.content.slice(0, 60)}...</p>
+        {friendDisplay.length === 0
+          ? <div className="gallery-empty-msg">
+            업데이트 된 친구의 새 글이 없습니다. <br />
+            다양한 여행기를 통해 친구를 추가해보세요.
           </div>
-        ))}
-      </div>
-
-      {/* 친구의 새 글이 없을 경우 안내 메시지 */}
-      <div className="gallery-empty-msg">
-        업데이트 된 친구의 새 글이 없습니다. <br />
-        다양한 여행기를 통해 친구를 추가해보세요.
+          : friendDisplay.map(post => (
+            <div key={post.post_id} className="gallery-item" onClick={() => navigate(`/gallery-detail/${post.post_id}`)}>
+              <div className="friend-meta">
+                <img className="profile-circle" src={post.user.image_url} alt={post.user.nickname} />
+                <span className="friend-nickname">{post.user.nickname}</span>
+              </div>
+              <img className="thumb" src={post.image_urls[0] || '/placeholder.png'} alt='img' />
+              <h3>{post.title}</h3>
+              <p>{post.content.split(/\r?\n\r?\n/)[1].slice(0, 60)}…</p>
+            </div>
+          ))
+        }
       </div>
 
       {/* 정렬 탭 */}
       <div className="gallery-tabs">
-        {gallerySortOptions.map((option) => (
+        {SORT_OPTIONS.map((option) => (
           <button
             key={option}
-            className={`gallery-sort-btn ${galleryActiveSort === option ? "active" : ""}`}
-            onClick={() => setGalleryActiveSort(option)}
+            className={`gallery-sort-btn ${sortBy === option ? "active" : ""}`}
+            onClick={() => setSortBy(option)}
           >
             {option}
           </button>
@@ -142,19 +160,62 @@ const Gallery = () => {
 
       {/* 전체 여행기 */}
       <h2>전체 여행기</h2>
-      <div className="gallery-post-content">
-        {allRecords.map(post => (
-          <div key={post.post_id} className="gallery-item">
-            <img src={post.image_urls[0] || '/placeholder.png'} alt="" />
-            <h3>{post.title}</h3>
-            <p>{post.content.slice(0, 60)}...</p>
-          </div>
-        ))}
+      <div className="gallery-posts">
+        {allDisplay.map(post => {
+          // 부제목/본문 분리
+          const [subtitle, ...rest] = post.content.split(/\r?\n\r?\n/);
+          const mainContent = rest.join("\n\n") || subtitle;
+
+          const imgUrl =
+            Array.isArray(post.image_urls) && post.image_urls[0]
+              ? post.image_urls[0]
+              : '/placeholder.png';
+
+          return (
+            <div
+              key={post.post_id}
+              className="gallery-post-content"
+              onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
+            >
+              {/* ① 프로필 + 닉네임 영역 */}
+              <div className='gallery-head'>
+                <div className="friend-meta">
+                  <img
+                    className="profile-circle"
+                    src={post.user.image_url}
+                    alt={post.user.nickname}
+                  />
+                  <div>
+                    <span className="friend-nickname">
+                      {post.user.nickname}
+                    </span>
+                    <span className="post-time">
+                      {formatTimeAgo(post.created_at)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="gallery-post-text">
+                  <div className="gallery-post-title">
+                    {post.title || "제목 없음"}
+                  </div>
+                  <div className="gallery-post-desc">
+                    {mainContent.length > 200
+                      ? mainContent.slice(0, 200) + "…"
+                      : mainContent}
+                  </div>
+                </div>
+              </div>
+              <div
+                className="gallery-thumb-box"
+                style={{ backgroundImage: `url(${imgUrl})` }}
+              />
+            </div>
+          );
+        })}
       </div>
-
-
-
     </div>
+
   );
 };
 
