@@ -205,7 +205,7 @@ const Record = () => {
     <div className="record-container">
       {/* 제목 입력 */}
       <input
-        ref={subtitleRef}
+        ref={titleRef}
         type="text"
         className="record-title"
         defaultValue="제목"

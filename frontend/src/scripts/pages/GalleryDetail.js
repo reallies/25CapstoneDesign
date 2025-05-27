@@ -1,192 +1,144 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// GalleryDetail.js
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import './GalleryDetail.css';
-import locateIcon from '../../assets/images/locate.svg';
-import mapImage from '../../assets/images/map.svg';
+import DetailKakaoMap from '../components/DetailKakaoMap.js';
 
-const GalleryDetail = () => {
-const navigate = useNavigate();
-// 친구 추가 상태
-const [isPending, setIsPending] = useState(false);
+export default function GalleryDetail() {
+    const { post_id } = useParams();
+    const navigate = useNavigate();
 
-// 일정 보기 / 게시글 보기 토글 상태
-const [showSchedule, setShowSchedule] = useState(false);
+    const [post, setPost] = useState(null);
+    const [showSchedule, setShowSchedule] = useState(false);
+    const [activeDay, setActiveDay] = useState('ALL');
 
-// 선택된 일정 탭 (전체 / DAY1 / DAY2 / DAY3)
-const [activeDay, setActiveDay] = useState('ALL');
+    useEffect(() => {
+        fetch(`http://localhost:8080/posts/${post_id}/detail`, {
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(data => setPost(data.post))
+            .catch(console.error);
+    }, [post_id]);
 
-// 친구 상태 토글 함수
-const toggleFriendStatus = () => {
-setIsPending(prev => !prev);
-};
-
-// 일정/게시글 뷰 토글 함수
-const toggleView = () => {
-setShowSchedule(prev => !prev);
-};
-
-// 일정 데이터
-const scheduleData = [
-{
-    date: '| 25.03.12 수',
-    color: 'red',
-    items: ['전주 중앙 공원', '전주 수목원', '전주 한옥 호텔']
-},
-{
-    date: '| 25.03.13 목',
-    color: 'green',
-    items: ['전주 한옥 호텔', '전주 수목원', '전주 한옥 호텔']
-},
-{
-    date: '| 25.03.14 금',
-    color: 'purple',
-    items: ['전주 한옥 호텔', '전주 수목원', '전주 한옥 레일바이크']
-}
-];
-
-// 탭 필터링된 일정 정보
-const filteredDays = activeDay === 'ALL'
-? scheduleData.map((d, i) => ({
-    ...d,
-    items: d.items.map(name => ({ name }))
-    }))
-: [scheduleData[parseInt(activeDay.replace('DAY', '')) - 1]].map(d => ({
-    ...d,
-    items: d.items.map(name => ({ name }))
-    }));
-
-return (
-<div className="detail-container">
-    {/* 제목 및 설명 */}
-    <h2 className="detail-title">전북의 전통과 함께</h2>
-    <p className="detail-desc">
-    오랜만에 다녀온 전북 여행! 전주의 익산, 군산까지 정말 알차게 다녀온 2박 3일이었어요.
-    감성 가득한 여행 사진과 함께 기록을 남깁니다.
-    </p>
-
-    {/* 작성자 정보 및 버튼 */}
-    <div className="detail-meta">
-    <div className="profile-circle" />
-    <div className="meta-text">
-        <span className="nickname">
-        상상부기
-        <span
-            className={`friend-link ${isPending ? 'pending' : ''}`}
-            onClick={toggleFriendStatus}
-        >
-            · {isPending ? '대기중' : '친구 추가'}
-        </span>
-        </span>
-        <br />
-        <span className="time">2025. 03. 17 PM 04:25</span>
-    </div>
-    <div className="meta-buttons">
-        <button className="meta-btn follow" onClick={toggleView}>
-        {showSchedule ? '게시글 보기' : '일정 보기'}
-        </button>
-        <button
-        className="meta-btn view-schedule"
-        onClick={() => navigate("/gallery")}
-        >
-        여행갤러리 홈
-        </button>
-    </div>
-    </div>
-
-    <hr className="divider" />
-
-    {/* 일정 보기 화면 */}
-    {showSchedule ? (
-    <>
-        {/* 일정 탭 */}
-        <div className="gallery-tabs">
-        <button
-            className={`gallery-tab ${activeDay === 'ALL' ? 'active' : ''}`}
-            onClick={() => setActiveDay('ALL')}
-        >
-            전체 보기
-        </button>
-        <button
-            className={`gallery-tab ${activeDay === 'DAY1' ? 'active' : ''}`}
-            onClick={() => setActiveDay('DAY1')}
-        >
-            DAY 1
-        </button>
-        <button
-            className={`gallery-tab ${activeDay === 'DAY2' ? 'active' : ''}`}
-            onClick={() => setActiveDay('DAY2')}
-        >
-            DAY 2
-        </button>
-        <button
-            className={`gallery-tab ${activeDay === 'DAY3' ? 'active' : ''}`}
-            onClick={() => setActiveDay('DAY3')}
-        >
-            DAY 3
-        </button>
-        </div>
-
-        {/* 일정 리스트 + 지도 */}
-        <div className="gallery-schedule">
-        <div className="gallery-schedule-list">
-            {filteredDays.map((day, dayIdx) => (
-            <div key={dayIdx} className="day-card">
-                <div className="day-header">
-                <div className="day-title">DAY {dayIdx + 1}</div>
-                <div className="day-date">{day.date}</div>
-                </div>
-                <ul className="schedule-ul">
-                {day.items.map((item, itemIdx) => (
-                    <li key={itemIdx} className="schedule-item">
-                    <span
-                        className="item-number"
-                        style={{
-                        backgroundColor:
-                            dayIdx === 0
-                            ? '#F39F9F'
-                            : dayIdx === 1
-                            ? '#A8E6CE'
-                            : '#C3B1E1'
-                        }}
-                    >
-                        {itemIdx + 1}
-                    </span>
-                    <span className="item-name">{item.name}</span>
-                    </li>
-                ))}
-                </ul>
+    if (!post) {
+        return (
+            <div className="loading-container">
+                <h3>로딩 중…</h3>
             </div>
-            ))}
-        </div>
-        <img src={mapImage} alt="map" className="schedule-map" />
-        </div>
-    </>
-    ) : (
-    <>
-        {/* 게시글 뷰 (사진 + 설명) */}
-        <div className="photo-section">
-        <img src="https://placehold.co/600x350" alt="1" className="photo-img" />
-        <div className="photo-location">
-            <img src={locateIcon} alt="locate" className="location-icon" /> 전주 한옥마을 역사관
-        </div>
-        <div className="gallery-detail-content">
-            <p>오랜만에 찾은 전북, 익숙하면서도 새로운 시간이었어요. 전주에서는 한옥마을의 고즈넉한 분위기와 함께 걷는 재미를 느꼈어요.</p>
-        </div>
-        </div>
+        );
+    }
+    const days = post.trip?.days || [];
 
-        <div className="photo-section">
-        <img src="https://placehold.co/600x350" alt="2" className="photo-img" />
-        <div className="photo-location">
-            <img src={locateIcon} alt="locate" className="location-icon" /> 전주 한옥마을
-        </div>
-        <div className="gallery-detail-content">
-            <p>전주의 따뜻한 햇살과 고소한 길거리 음식과 고요한 골목의 풍경. 짧은 시간이었지만 도시마다 다른 전통의 깊이 느껴졌던 여행이었습니다. 다시 한번 방문하고 싶은 전북, 그 감동을 사진에 담아봅니다.</p>
-        </div>
-        </div>
-    </>
-    )}
-</div>
-);
-};
+    const filteredDays =
+        activeDay === "ALL"
+            ? days
+            : days.filter(d => d.day_order === Number(activeDay.replace("DAY", "")));
 
-export default GalleryDetail;
+
+    // “몇 시간/일 전” 포맷팅
+    const formatTimeAgo = (iso) => {
+        const diff = (Date.now() - new Date(iso)) / 1000;
+        if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+        return `${Math.floor(diff / 86400)}일 전`;
+    };
+
+    return (
+        <div className="detail-container">
+            {/* ─── 메타 정보 ─── */}
+            <h2 className="detail-title">{post.title}</h2>
+            <p className="detail-desc">{post.content.split(/\r?\n\r?\n/)[0]}</p>
+
+            <div className="detail-meta">
+                <img
+                    className="profile-circle"
+                    src={post.user.image_url}
+                    alt={post.user.nickname}
+                />
+                <div className="meta-text">
+                    <span className="nickname">
+                        {post.user.nickname}
+
+                    </span>
+                    <br />
+                    <span className="post-time">
+                        {formatTimeAgo(post.created_at)}
+                    </span>
+                </div>
+                <div className="meta-buttons">
+                    <button className="meta-btn follow" onClick={() => setShowSchedule(s => !s)}>
+                        {showSchedule ? "게시글 보기" : "일정 보기"}
+                    </button>
+                    <button className="meta-btn home" onClick={() => navigate("/gallery")}>
+                        갤러리 홈
+                    </button>
+                </div>
+            </div>
+
+            <hr className="divider" />
+
+            {/* ─── 일정 보기 ─── */}
+            {showSchedule ? (
+                <>
+                    <div className="gallery-tabs">
+                        <button
+                            className={`gallery-tab ${activeDay === 'ALL' ? 'active' : ''}`}
+                            onClick={() => setActiveDay('ALL')}
+                        >전체 보기</button>
+                        {days.map(d => (
+                            <button
+                                key={d.day_id}
+                                className={`gallery-tab ${activeDay === `DAY${d.day_order}` ? 'active' : ''}`}
+                                onClick={() => setActiveDay(`DAY${d.day_order}`)}
+                            >DAY {d.day_order}</button>
+                        ))}
+                    </div>
+
+                    <div className="gallery-schedule">
+                        <div className="gallery-schedule-list">
+                            {filteredDays.map(day => (
+                                <div key={day.day_id} className="day-card">
+                                    <div className="day-header">
+                                        <div className="day-title">DAY {day.day_order}</div>
+                                        <div className="day-date">| {day.date /* 만약 date 속성이 있다면 */}</div>
+                                    </div>
+                                    <ul className="schedule-ul">
+                                        {day.places.map((p, i) => (
+                                            <li key={p.dayplace_id} className="schedule-item">
+                                                <span
+                                                    className="item-number"
+                                                    style={{
+                                                        backgroundColor:
+                                                            day.day_order === 1 ? "#F39F9F" :
+                                                                day.day_order === 2 ? "#A8E6CE" : "#C3B1E1"
+                                                    }}
+                                                >{i + 1}</span>
+                                                <span className="item-name">{p.place.place_name}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                        {/* 일정 리스트 + 실제 카카오맵 */}
+                        <div className="schedule-map">
+                            <DetailKakaoMap days={filteredDays} />
+                        </div>
+                    </div>
+                </>
+            ) : (
+                /* ─── 사진+본문 보기 ─── */
+                post.image_urls.map((url, idx) => (
+                    <div key={idx} className="photo-section">
+                        <img src={url} alt={`photo-${idx}`} className="photo-img" />
+                        <div className="gallery-detail-content">
+                            <p>{post.content.split(/\r?\n\r?\n/)[1]}</p>
+                        </div>
+                    </div>
+                ))
+            )}
+
+        </div>
+    );
+}

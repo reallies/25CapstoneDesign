@@ -147,6 +147,53 @@ router.get("/:trip_id", authenticateJWT, async (req, res) => {
   }
 });
 
+// --- 단일 포스트 + 작성자, 일정(Trip→Days→Places) 포함 조회 ---
+router.get("/:post_id/detail", authenticateJWT, async (req, res) => {
+  try {
+    const post_id = parseInt(req.params.post_id);
+    const post = await prisma.post.findUnique({
+      where: { post_id },
+      include: {
+        user: {
+          select: { user_id: true, nickname: true, image_url: true }
+        },
+        trip: {
+          select: {
+            trip_id: true,
+            days: {
+              select: {
+                day_id: true,
+                day_order: true,
+                places: {
+                  select: {
+                    dayplace_id: true,
+                    place: {
+                      select: {
+                        place_name: true,
+                        place_latitude: true,
+                        place_longitude: true
+                      }
+                    },
+                    dayplace_time: true
+                  }
+                }
+              },
+              orderBy: { day_order: "asc" }
+            }
+          }
+        }
+      }
+    });
+
+    if (!post) return res.status(404).json({ message: "포스트를 찾을 수 없습니다." });
+    res.json({ message: "단일 포스트 조회 성공", post });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+
 // 친구 관계 확인 함수
 async function checkFriendship(userId, postUserId) {
   const friendship = await prisma.friendship.findFirst({

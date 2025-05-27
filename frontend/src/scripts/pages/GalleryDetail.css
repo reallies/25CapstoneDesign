@@ -1,3 +1,10 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 /* ===== 전체 컨테이너 설정 ===== */
 .detail-container {
     max-width: 1280px;
@@ -98,8 +105,12 @@
 /* ===== 사진 + 장소 + 설명 영역 ===== */
 .photo-section {
     color: #333;
+    padding: 10px;
     margin-bottom: 30px;
     text-align: center;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    min-height: 600px;
+    border-radius: 20px;
 }
 
 .photo-img {
@@ -107,10 +118,8 @@
     max-width: 600px;
     height: auto;
     border-radius: 10px;
-    margin-bottom: 8px;
+    margin: 10px auto 8px;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .photo-location {
@@ -167,13 +176,16 @@
 .gallery-schedule {
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 20px;
+    padding: 20px;
     align-items: flex-start;
+    border-radius: 20px;
     margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
 .gallery-schedule-list {
-    width: 400px;
+    width: 450px;
     max-height: 600px;
     overflow-y: auto;
     overflow-x: visible;
@@ -248,8 +260,9 @@
 /* ===== 지도 이미지 ===== */
 .schedule-map {
     border-radius: 20px;
-    width: 600px;
-    height: auto;
+    width: 800px;
+    height: 600px;
+    margin-top: 8px;
 }
 
 .edit-delete-top-right {

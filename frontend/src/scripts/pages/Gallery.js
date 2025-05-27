@@ -91,18 +91,6 @@ const Gallery = () => {
   const friendDisplay = friendRecords;   // 친구 기록은 정렬 미적용 예시
   const myDisplay = myRecords;       // 내 기록은 원본 순서
 
-  // 친구 추가 버튼 상태 (각 인덱스별로 '친구 추가' 또는 '대기중' 상태)
-  const [galleryFriendRequest, setGalleryFriendRequest] = useState([false, false, false]);
-
-  // 친구 추가 버튼 클릭 시 상태 토글
-  const toggleGalleryFriendRequest = (index) => {
-    setGalleryFriendRequest(prevState => {
-      const updated = [...prevState];
-      updated[index] = !updated[index];
-      return updated;
-    });
-  };
-
   return (
     <div className="gallery-wrapper">
 
@@ -116,7 +104,7 @@ const Gallery = () => {
       <h2 className="gallery-section-title">내 기록</h2>
       <div className="gallery-my-records">
         {myDisplay.map(post => (
-          <div key={post.post_id} className="gallery-item">
+          <div key={post.post_id} className="gallery-item" onClick={() => navigate(`/gallery-detail/${post.post_id}`)}>
             <img src={post.image_urls[0] || '/placeholder.png'} alt="" />
             <div>{post.title}</div>
           </div>
@@ -162,7 +150,7 @@ const Gallery = () => {
       <h2>전체 여행기</h2>
       <div className="gallery-posts">
         {allDisplay.map(post => {
-          // 부제목/본문 분리
+
           const [subtitle, ...rest] = post.content.split(/\r?\n\r?\n/);
           const mainContent = rest.join("\n\n") || subtitle;
 
