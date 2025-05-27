@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import PlaceMap from '../components/PlaceMap'; // 지도 컴포넌트
 import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌트
 import photoIcon from '../../assets/images/camera.svg';
 import './Record.css';
@@ -19,9 +18,6 @@ const Record = () => {
   const subtitleRef = useRef(null);
   const contentRef = useRef(null);
 
-  // 검색 결과와 선택된 장소 상태
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedPlace, setSelectedPlace] = useState(null);
 
   // 상태 관리
   const [trips, setTrips] = useState(null); // 여행 데이터
@@ -30,7 +26,6 @@ const Record = () => {
   const [isTripModalOpen, setIsTripModalOpen] = useState(false); // 여행 선택 모달 열림 여부
   const [recordImageList, setRecordImageList] = useState([]); // 업로드된 이미지 목록
   const [isModalOpen, setIsModalOpen] = useState(false);      // 모달 열림 여부
-  const [searchText, setSearchText] = useState('');           // 검색 입력 텍스트
   const [isFocused, setIsFocused] = useState(false);          // 검색창 포커스 상태
   const [days, setDays] = useState([]);                       // day 데이터 상태
   const [activeDay, setActiveDay] = useState('ALL');          // 전체 or 인덱스
@@ -86,7 +81,6 @@ const Record = () => {
         !pinRef.current.contains(e.target)
       ) {
         setIsModalOpen(false);
-        setSearchText('');
         setIsFocused(false);
       }
     };
@@ -94,33 +88,6 @@ const Record = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isModalOpen]);
 
-  // 검색어가 바뀔 때마다 디바운스 후 장소 검색
-  useEffect(() => {
-    if (!searchText.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    const timer = setTimeout(searchPlaces, 200, searchText);
-    return () => clearTimeout(timer);
-  }, [searchText]);
-
-  // 카카오 로컬 API 호출 함수
-  const searchPlaces = async (keyword) => {
-    try {
-      const res = await fetch(
-        `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(keyword)}`,
-        {
-          headers: {
-            Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_REST_API_KEY}`,
-          },
-        }
-      );
-      const data = await res.json();
-      setSearchResults(data.documents || []);
-    } catch (err) {
-      console.error('장소 검색 오류:', err);
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -131,7 +98,6 @@ const Record = () => {
         !pinRef.current.contains(e.target)
       ) {
         setIsModalOpen(false);
-        setSearchText('');
         setIsFocused(false);
       }
     };
@@ -144,7 +110,7 @@ const Record = () => {
       ? days
       : [days[activeDay]];
 
-  
+
   // 여정 선택 핸들러
   const handleTripSelect = (trip) => {
     setSelectedTripId(trip.trip_id);
@@ -175,7 +141,7 @@ const Record = () => {
       console.error("이미지 업로드 실패:", err);
     }
   };
-  
+
   //여정 모달 토글
   const toggleTripModal = () => {
     setIsTripModalOpen(open => !open);
@@ -228,6 +194,11 @@ const Record = () => {
       console.error("업로드 오류:", err);
       alert("서버 요청 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleAutoResize = (e) => {
+    e.target.style.height = 'auto';               // 기존 높이 초기화
+    e.target.style.height = `${e.target.scrollHeight}px`;  // 스크롤 높이에 맞춰 늘리기
   };
 
   return (
@@ -362,22 +333,6 @@ const Record = () => {
           </div>
         </>
       )}
-      {/* 선택된 장소가 있으면 지도 렌더링 */}
-      {
-        selectedPlace && (
-          <PlaceMap selectedPlace={selectedPlace} />
-        )
-      }
-
-      {/* 메인 글쓰기 텍스트 영역 */}
-      <textarea
-        ref={contentRef}
-        className="record-placeholder"
-        defaultValue="나만의 여행을 기록해주세요!"
-        onFocus={(e) => {
-          if (e.target.value === "나만의 여행을 기록해주세요!") e.target.value = "";
-        }}
-      />
 
       {/* 이미지 추가 시 미리보기와 추가 입력창 표시 */}
       {
@@ -393,18 +348,28 @@ const Record = () => {
                 />
               ))}
             </div>
-
-            {/* 추가적인 글쓰기 영역 (사진 아래) */}
-            <textarea
-              className="record-placeholder"
-              defaultValue="기록을 이어가고 싶다면 작성해주세요!"
-              onFocus={(e) => {
-                if (e.target.value === "기록을 이어가고 싶다면 작성해주세요!") e.target.value = "";
-              }}
-            />
           </>
         )
       }
+
+      {/* 메인 글쓰기 텍스트 영역 */}
+      <textarea
+        ref={contentRef}
+        className="record-placeholder"
+        defaultValue="나만의 여행을 기록해주세요!"
+        onFocus={(e) => {
+          if (e.target.value === "나만의 여행을 기록해주세요!")
+            e.target.value = "";
+        }}
+        onInput={handleAutoResize}  // 키 입력마다 호출
+        onBlur={(e) => {
+          if (e.target.value.trim() === "") {
+            e.target.value = "나만의 여행을 기록해주세요!";
+          }
+        }}
+
+      />
+
     </div >
   );
 };
