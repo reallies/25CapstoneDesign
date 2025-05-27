@@ -57,6 +57,7 @@
 .gallery-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
 }
 
 /* 내 기록 이미지 */
@@ -78,7 +79,6 @@
   text-align: center;
   font-weight: 400;
 }
-
 
 
 /* 친구 여행기가 없을 때 안내 메시지 */
@@ -144,6 +144,11 @@
   gap: 1rem;
   border-bottom: 2px solid #eee;
   cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.gallery-post-content:hover {
+  transform: translateY(-4px);
 }
 
 .friend-meta {

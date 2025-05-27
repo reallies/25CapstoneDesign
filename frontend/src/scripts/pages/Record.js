@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌트
 import photoIcon from '../../assets/images/camera.svg';
+import AlertModal from "../components/AlertModal";
 import './Record.css';
+
 
 const Record = () => {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ const Record = () => {
   const subtitleRef = useRef(null);
   const contentRef = useRef(null);
 
+  const alertShownRef = useRef(false);
 
   // 상태 관리
   const [trips, setTrips] = useState(null); // 여행 데이터
@@ -29,6 +32,9 @@ const Record = () => {
   const [isFocused, setIsFocused] = useState(false);          // 검색창 포커스 상태
   const [days, setDays] = useState([]);                       // day 데이터 상태
   const [activeDay, setActiveDay] = useState('ALL');          // 전체 or 인덱스
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+
 
 
   // 현재 시간 포맷팅 (예: "2025. 05. 19 PM 09:03")
@@ -86,7 +92,7 @@ const Record = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isModalOpen]);
+  }, [isModalOpen, isFocused]);
 
 
   useEffect(() => {
@@ -103,7 +109,7 @@ const Record = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isModalOpen]);
+  }, [isModalOpen, isFocused]);
 
   const filteredDays =
     activeDay === 'ALL'
@@ -155,13 +161,27 @@ const Record = () => {
     const content = contentRef.current.value.trim();
 
     if (!selectedTripId) {
-      alert("여행을 선택해주세요.");
-      return;
+      if (!alertShownRef.current) {
+        alertShownRef.current = true;
+        setAlertText("여행을 선택해주세요.");
+        setAlertOpen(true);
+        setTimeout(() => {
+          alertShownRef.current = false;
+        }, 1000);
+        return
+      }
     }
 
-    if (!title || !content) {
-      alert("제목과 내용을 모두 입력해주세요.");
-      return;
+    if (title === '제목' || subtitle === '부제목' || !content) {
+      if (!alertShownRef.current) {
+        alertShownRef.current = true;
+        setAlertText("제목과 내용을 모두 입력해주세요.");
+        setAlertOpen(true);
+        setTimeout(() => {
+          alertShownRef.current = false;
+        }, 1000);
+        return
+      }
     }
 
     // 백엔드가 받도록 하는 json 데이터
@@ -369,7 +389,10 @@ const Record = () => {
         }}
 
       />
-
+      {/* 경고 모달 */}
+      {alertOpen && (
+        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+      )}
     </div >
   );
 };

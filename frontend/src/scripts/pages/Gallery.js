@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './Gallery.css';
+import Placeholder from '../../assets/images/placeholder.png'; // 임시 이미지 경로
 
 const Gallery = () => {
   const navigate = useNavigate();
@@ -105,7 +106,7 @@ const Gallery = () => {
       <div className="gallery-my-records">
         {myDisplay.map(post => (
           <div key={post.post_id} className="gallery-item" onClick={() => navigate(`/gallery-detail/${post.post_id}`)}>
-            <img src={post.image_urls[0] || '/placeholder.png'} alt="" />
+            <img src={post.image_urls[0] || Placeholder} alt="" />
             <div>{post.title}</div>
           </div>
         ))}
@@ -120,30 +121,34 @@ const Gallery = () => {
             다양한 여행기를 통해 친구를 추가해보세요.
           </div>
           : friendDisplay.map(post => (
-            <div key={post.post_id} className="gallery-item" onClick={() => navigate(`/gallery-detail/${post.post_id}`)}>
-              <div className="friend-meta">
-                <img className="profile-circle" src={post.user.image_url} alt={post.user.nickname} />
-                <span className="friend-nickname">{post.user.nickname}</span>
+            <div key={post.post_id} className="gallery-post-content" onClick={() => navigate(`/gallery-detail/${post.post_id}`)}>
+              <div className="gallery-head">
+                <div className="friend-meta">
+                  <img className="profile-circle" src={post.user.image_url} alt={post.user.nickname} />
+                  <span className="friend-nickname">{post.user.nickname}</span>
+                </div>
+                <div className='gallery-post-title'>{post.title}</div>
+                <p>{post.content.split(/\r?\n\r?\n/)[1].slice(0, 60)}</p>
               </div>
-              <img className="thumb" src={post.image_urls[0] || '/placeholder.png'} alt='img' />
-              <h3>{post.title}</h3>
-              <p>{post.content.split(/\r?\n\r?\n/)[1].slice(0, 60)}…</p>
+              <img className="gallery-thumb-box" src={post.image_urls[0] || Placeholder} alt='img' />
             </div>
           ))
         }
       </div>
 
       {/* 정렬 탭 */}
-      <div className="gallery-tabs">
-        {SORT_OPTIONS.map((option) => (
-          <button
-            key={option}
-            className={`gallery-sort-btn ${sortBy === option ? "active" : ""}`}
-            onClick={() => setSortBy(option)}
-          >
-            {option}
-          </button>
-        ))}
+      < div className="gallery-tabs" >
+        {
+          SORT_OPTIONS.map((option) => (
+            <button
+              key={option}
+              className={`gallery-sort-btn ${sortBy === option ? "active" : ""}`}
+              onClick={() => setSortBy(option)}
+            >
+              {option}
+            </button>
+          ))
+        }
       </div>
 
       {/* 전체 여행기 */}
@@ -157,7 +162,7 @@ const Gallery = () => {
           const imgUrl =
             Array.isArray(post.image_urls) && post.image_urls[0]
               ? post.image_urls[0]
-              : '/placeholder.png';
+              : Placeholder;
 
           return (
             <div

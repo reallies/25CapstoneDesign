@@ -8,6 +8,7 @@ import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../components/AlertModal";
+import PlaceHolder from "../../assets/images/placeholder.png"; // 임시 이미지 경로
 
 const Home = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -255,26 +256,13 @@ const Home = () => {
             <span className="field-label">여행지</span>
 
             <div className="input-wrapper">
-            {destinationInput === "" && (
-              <span className="custom-placeholder">여행지 검색</span>
-            )}
-            <input
-              type="text"
-              value={destinationInput}
-              onClick={(e) => {
-                e.stopPropagation();
-                openModal("destination", e);
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                setDestinationInput(value);
-                if (value.trim() !== "") {
-                  openModal("destinationSearch", e);
-                }
-              }}
-            />
+              {destinationInput === "" && (
+                <span className="custom-placeholder">여행지 검색</span>
+              )}
+              {selectedDestination && <span className="selected-text">{selectedDestination.join(" ")}</span>}
+
+            </div>
           </div>
-        </div>
           <div
             className="search-field"
             ref={(el) => (searchFieldRefs.current["date"] = el)}
@@ -344,7 +332,7 @@ const Home = () => {
               const imgUrl =
                 Array.isArray(post.image_urls) && post.image_urls[0]
                   ? post.image_urls[0]
-                  : '/images/placeholder.png';
+                  : PlaceHolder;
 
               return (
                 <div key={post.post_id} className="gallery-card">
@@ -398,24 +386,34 @@ const Home = () => {
         <div className="my-records">
           <div className="records-title">내 기록</div>
           <div className="records-container">
-            {visibleRecords.map((post) => {
-              const imgUrl = Array.isArray(post.image_urls) && post.image_urls[0];
-              const dateText = new Date(post.created_at)
-                .toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
-              return (
-                <div
-                  key={post.post_id}
-                  className="record-card"
-                  style={imgUrl
-                    ? { backgroundImage: `url(${imgUrl})` }
-                    : { backgroundColor: '#e0e0e0' }
-                  }
-                  onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
-                >
-                  <div className="record-text">{dateText}</div>
-                </div>
-              );
-            })}
+            {visibleRecords.length === 0 ? (
+              <div className="myrecord-empty-msg">
+                내가 쓴 리뷰가 없습니다. 
+              </div>
+            ) : (
+              visibleRecords.map((post) => {
+                const imgUrl =
+                  Array.isArray(post.image_urls) && post.image_urls[0];
+                const dateText = new Date(post.created_at).toLocaleDateString(
+                  'ko-KR',
+                  { year: 'numeric', month: '2-digit', day: '2-digit' }
+                );
+                return (
+                  <div
+                    key={post.post_id}
+                    className="record-card"
+                    style={
+                      imgUrl
+                        ? { backgroundImage: `url(${imgUrl})` }
+                        : { backgroundColor: '#e0e0e0' }
+                    }
+                    onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
+                  >
+                    <div className="record-text">{dateText}</div>
+                  </div>
+                );
+              })
+            )}
 
             {/* 더보기 카드 */}
             {hasMore && (
@@ -544,11 +542,27 @@ const Home = () => {
             <h2>여행 테마를 선택해 주세요</h2>
             <h5 className="theme-subtitle">다중 선택 가능</h5>
             <div className="theme-buttons">
-              {Object.keys(themeMap).map((theme) => (
-                <button key={theme} className={`theme-btn ${selectedTheme.includes(theme) ? "active" : ""}`} onClick={() => toggleTheme(theme)}>
-                  {theme}
-                </button>
-              ))}
+              {Object.keys(themeMap).map((theme) => {
+                // 이미 선택된 개수가 3개이고,
+                // 이 버튼의 테마가 아직 선택되지 않았다면 비활성화
+                const isDisabled =
+                  selectedTheme.length >= 3 && !selectedTheme.includes(theme);
+
+                return (
+                  <button
+                    key={theme}
+                    className={`theme-btn ${selectedTheme.includes(theme) ? "active" : ""}`}
+                    onClick={() => !isDisabled && toggleTheme(theme)}
+                    disabled={isDisabled}
+                    style={{
+                      opacity: isDisabled ? 0.4 : 1,
+                      cursor: isDisabled ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {theme}
+                  </button>
+                );
+              })}
             </div>
             <button className="close-btn" onClick={closeModal}>완료</button>
           </div>

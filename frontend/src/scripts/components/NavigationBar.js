@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./NavigationBar.css";
@@ -8,6 +8,7 @@ import defaultUser from "../../assets/images/user.svg";
 import global from "../../assets/images/global.svg";
 import search2 from "../../assets/images/search2.svg";
 import LoginModal from "../components/LoginModal";
+import AlertModal from "../components/AlertModal";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ const NavigationBar = () => {
   const [searchText, setSearchText] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const alertShownRef = useRef(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
 
   const handleProfileClick = () => {
     if (!isLoggedIn) {
@@ -34,12 +39,22 @@ const NavigationBar = () => {
       if (data.success && data.trip_id) {
         navigate(`/schedule/${data.trip_id}`);
       } else {
-        alert("생성된 여행이 없습니다.");
+
+        if (!alertShownRef.current) {
+          alertShownRef.current = true;
+          setAlertText("최근 생성된 여행 일정이 없습니다.");
+          setAlertOpen(true);
+          setTimeout(() => {
+            alertShownRef.current = false;
+          }, 1000);
+        }
+
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error("최근 여행 불러오기 실패", error);
     }
-  }
+  };
 
   return (
     <div className="navbar">
@@ -83,7 +98,11 @@ const NavigationBar = () => {
           user={user}
         />
       )}
+      {alertOpen && (
+        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+      )}
     </div>
+
   );
 };
 

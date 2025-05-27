@@ -881,3 +881,15 @@ button {
   width: 40px;
   height: 40px;
 }
+
+.myrecord-empty-msg {
+  position: relative;
+  top: 50px;
+  left: 120px;
+  font-size: 16px;
+  color: #000;
+  text-align: center;
+  margin-top: 20px;
+  word-break: keep-all;
+  width: 100%;
+}
