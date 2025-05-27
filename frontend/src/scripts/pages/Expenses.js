@@ -69,8 +69,8 @@ export const Expenses = () => {
   const fetchUserProfiles = async (nicknames) => {
     const uniqueNicknames = [...new Set(nicknames)];
     const profilePromises = uniqueNicknames.map(async (nickname) => {
-      const response = await fetch(`/users/${nickname}/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`http://localhost:8080/trip/users/${nickname}/profile`, {
+        credentials: "include",
       });
       if (response.ok) {
         const data = await response.json();
@@ -82,18 +82,21 @@ export const Expenses = () => {
     const profilesMap = Object.assign({}, ...profilesArray);
     setProfiles((prev) => ({ ...prev, ...profilesMap }));
   };
-  
+
+
   useEffect(() => {
     const loadData = async () => {
       if (!trip_id) return;
       setIsLoading(true);
       try {
-        const tripRes = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+        const tripRes = await fetch(`http://localhost:8080/trip/${trip_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         });
         const tripData = await tripRes.json();
         if (tripRes.ok && tripData.trip) {
           setTrip(tripData.trip);
+          setParticipants(tripData.participants);
           const tripDays = tripData.trip.days || [];
           const preparationTab = { label: "여행 준비", day_id: null };
           const dayTabsArray = tripDays.map((day, index) => ({
@@ -109,16 +112,15 @@ export const Expenses = () => {
         });
         if (!settlementRes.ok) throw new Error("Failed to fetch settlement");
         const settlementData = await settlementRes.json();
-        setSettlementData(settlementData);
         const myExpense = settlementData.userExpenses?.find(
           (expense) => expense.nickname === currentUserNickname
         );
         setMyTotalExpense(myExpense ? myExpense.total : 0);
-
+        
         // 프로필 정보 가져오기
         const nicknames = settlementData.settlements.flatMap((s) => [s.from, s.to]);
         await fetchUserProfiles(nicknames);
-
+        
         const selectedDay = dayTabs.find((tab) => tab.label === "여행 준비");
         const day_id = selectedDay ? selectedDay.day_id : null;
         const url = `/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
@@ -229,8 +231,6 @@ export const Expenses = () => {
   ) || [];
   const sendSettlements = userSettlements.filter((s) => s.from === currentUserNickname);
   const receiveSettlements = userSettlements.filter((s) => s.to === currentUserNickname);
-
-
   return (
     <div className="expenses">
       <div className="div">
@@ -252,9 +252,6 @@ export const Expenses = () => {
             </div>
           </div>
 
-          {isLoading ? (
-            <div>로딩 중...</div>
-          ) : (
             <>
               <div className="shared-expense-box expense-card">
                 <div className="shared-settle-wrapper">
@@ -296,12 +293,16 @@ export const Expenses = () => {
                   sendSettlements.map((settlement, index) => (
                     <div className="receipt-person" key={index}>
                       <div className="receipt-info">
-                        <img
+                        
+                        <div className="receipt-name">나 → 
+                          
+                          <img
                           className="receipt-avatar"
-                          src={profiles[settlement.to]?.image_url || "default-avatar.png"}
+                          src={profiles[settlement.to]?.image_url}
                           alt={settlement.to}
                         />
-                        <div className="receipt-name">나 → {settlement.to}</div>
+                          
+                          {settlement.to}</div>
                       </div>
                       <div className="receipt-amount">{settlement.amount.toLocaleString()}원</div>
                     </div>
@@ -309,7 +310,6 @@ export const Expenses = () => {
                 ) : (
                   <div className="receipt-person">
                     <div className="receipt-info">
-                      <div className="receipt-avatar" />
                       <div className="receipt-name">송금할 내역 없음</div>
                     </div>
                     <div className="receipt-amount">0원</div>
@@ -336,7 +336,6 @@ export const Expenses = () => {
                 ) : (
                   <div className="receipt-person">
                     <div className="receipt-info">
-                      <div className="receipt-avatar" />
                       <div className="receipt-name">받을 내역 없음</div>
                     </div>
                     <div className="receipt-amount">0원</div>
@@ -347,34 +346,32 @@ export const Expenses = () => {
                   <div className="receipt-detail">
                     <div className="receipt-detail-title">사용자별 지출</div>
                     <hr className="receipt-divider" />
-                    {settlementData?.userExpenses?.length > 0 ? (
-                      settlementData.userExpenses.map((expense, index) => (
+                    {participants.map((participant, index) => {
+                      const expense = settlementData?.userExpenses?.find(
+                        (e) => e.nickname === participant.nickname
+                      );
+                      return (
                         <div className="receipt-person" key={index}>
                           <div className="receipt-info">
                             <img
                               className="receipt-avatar"
-                              src={profiles[expense.nickname]?.image_url || "default-avatar.png"}
-                              alt={expense.nickname}
+                              src={profiles[participant.nickname]?.image_url}
+                              alt={participant.nickname}
                             />
-                            <div className="receipt-name">{expense.nickname}</div>
+                            <div className="receipt-name">
+                              {participant.nickname === currentUserNickname ? "나" : participant.nickname}
+                            </div>
                           </div>
-                          <div className="receipt-amount">{expense.total.toLocaleString()}원</div>
+                          <div className="receipt-amount">
+                            {expense ? expense.total.toLocaleString() : "0"}원
+                          </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="receipt-person">
-                        <div className="receipt-info">
-                          <div className="receipt-avatar" />
-                          <div className="receipt-name">지출 정보 없음</div>
-                        </div>
-                        <div className="receipt-amount">0원</div>
-                      </div>
-                    )}
+                      );
+                    })}
                   </div>
                 )}
               </div>
             </>
-          )}
         </div>
 
         {isSettlementOpen && (
@@ -414,7 +411,7 @@ export const Expenses = () => {
         <div className="expense-list">
           <div className="expense-category-list">
             {!isLoading && expenses.length === 0 ? (
-              <p>지출 내역이 없습니다.</p>
+              <p style={{color:"#717171", marginLeft:"10px"}}>지출 내역이 없습니다.</p>
             ) : (
               expenses.map((expense, index) => (
                 <div className="expense-item" key={index}>

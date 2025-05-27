@@ -232,10 +232,6 @@ router.get("/:trip_id", authenticateJWT, async (req, res) => {
       })),
     ];
 
-    // 디버깅 로그 추가
-    console.log("Trip Data:", trip);
-    console.log("Participants:", participants);
-
     res.json({ message: "일정 조회 성공", trip, participants });
   } catch (error) {
     console.error("일정 조회 중 오류:", error);
@@ -455,10 +451,6 @@ router.get("/:trip_id/expenses", authenticateJWT, async (req, res) => {
         };
       });
   
-      // 수정: 디버깅 로그 추가
-      console.log("Participants:", participants);
-      console.log("User Expenses:", userExpenses);
-  
       // 총 지출 및 평균 계산
       const totalAmount = userExpenses.reduce((acc, u) => acc + u.total, 0);
       const averageAmount = totalAmount / userExpenses.length;
@@ -504,5 +496,26 @@ router.get("/:trip_id/expenses", authenticateJWT, async (req, res) => {
       res.status(500).json({ message: "서버 오류가 발생했습니다." });
     }
   });
+
+// 사용자 프로필 조회
+router.get("/users/:nickname/profile", authenticateJWT, async (req, res) => {
+  const { nickname } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { nickname },
+      select: { nickname: true, image_url: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("프로필 조회 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
 
 module.exports = router;

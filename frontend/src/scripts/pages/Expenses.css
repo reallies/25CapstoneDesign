@@ -307,6 +307,9 @@
 .receipt-name {
   font-weight: bold;
   font-size: 16px;
+  display: flex;           /* 💡 추가 */
+  align-items: center; 
+  gap: 6px;  
 }
 
 /* 금액 표시 스타일 */

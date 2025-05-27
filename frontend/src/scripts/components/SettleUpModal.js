@@ -11,39 +11,37 @@ const SettleUpModal = ({ isOpen, onClose, settlementData, participants, currentU
     (s) => s.from === currentUserNickname || s.to === currentUserNickname
   );
 
-  // 디버깅 로그 추가
-  console.log("SettleUpModal - userExpenses:", userExpenses);
-  console.log("SettleUpModal - participants:", participants);
-
   return (
     <div className="settleup-modal-overlay">
       <div className="settleup-modal-box">
         <button className="settleup-close-btn" onClick={onClose}>✕</button>
         <h2 className="settleup-title">정산하기</h2>
         <p className="settleup-amount">{totalAmount.toLocaleString()}원</p>
-        <p className="settleup-sub">당신의 송금 내역</p>
         <div className="settleup-list">
-          {userSettlements.length > 0 ? (
-            userSettlements.map((settlement, index) => (
-              <div key={index} className="settleup-item">
-                <span className="settleup-friend">
-                  {settlement.from === currentUserNickname
-                    ? `당신 → ${settlement.to}`
-                    : `${settlement.from} → 당신`}
-                </span>
-                <span className="settleup-amount">{settlement.amount.toLocaleString()}원</span>
-              </div>
-            ))
+          <div className="settleup-participants">
+          <h3>나의 송금 내역</h3>
+          {userSettlements.filter(s => s.from === currentUserNickname).length > 0 ? (
+            userSettlements
+            .filter(s => s.from === currentUserNickname)
+              .map((settlement, index) => (
+                <div key={index} className="settleup-item">
+                  <span className="settleup-friend">나 → {settlement.to}</span>
+                  <span className="settleup-amount">{settlement.amount.toLocaleString()}원</span>
+                </div>
+              ))
           ) : (
             <p>송금할 내역이 없습니다.</p>
           )}
+          </div>
           <div className="settleup-participants">
             <h3>전체 송금 내역</h3>
             {settlements.length > 0 ? (
               settlements.map((settlement, index) => (
                 <div key={index} className="settleup-item">
                   <span className="settleup-friend">
-                    {settlement.from} → {settlement.to}
+                      {settlement.from === currentUserNickname ? "나" : settlement.from}
+                      {" → "}
+                      {settlement.to === currentUserNickname ? "나" : settlement.to}
                   </span>
                   <span className="settleup-amount">{settlement.amount.toLocaleString()}원</span>
                 </div>
@@ -53,11 +51,11 @@ const SettleUpModal = ({ isOpen, onClose, settlementData, participants, currentU
             )}
           </div>
           <div className="settleup-participants">
-            <h3>친구별 지출 상세</h3>
+            <h3>유저별 지출 상세</h3>
             {userExpenses.length > 0 ? (
               userExpenses.map((expense, index) => (
                 <div key={index} className="settleup-participant">
-                  {expense.nickname}: {expense.total.toLocaleString()}원
+                  {expense.nickname === currentUserNickname ? "나" : expense.nickname}: {expense.total.toLocaleString()}원
                 </div>
               ))
             ) : (
@@ -66,12 +64,14 @@ const SettleUpModal = ({ isOpen, onClose, settlementData, participants, currentU
           </div>
           <div className="settleup-participants">
             <h3>초대된 친구</h3>
-            {participants.length > 0 ? (
-              participants.map((participant, index) => (
-                <div key={index} className="settleup-participant">
-                  {participant.nickname}
-                </div>
-              ))
+            {participants.filter(p => p.nickname !== currentUserNickname).length > 0 ? (
+              participants
+                .filter(p => p.nickname !== currentUserNickname)
+                .map((participant, index) => (
+                  <div key={index} className="settleup-participant">
+                    {participant.nickname}
+                  </div>
+                ))
             ) : (
               <p>초대된 친구가 없습니다.</p>
             )}
