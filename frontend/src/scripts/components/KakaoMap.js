@@ -51,7 +51,6 @@ const KakaoMap = ({ days }) => {
       };
 
       kakaoMapRef.current = new kakaoMaps.Map(container, options);
-      console.log("🎬 Roadview 초기화 직전:", kakaoMaps.Roadview);
       roadviewRef.current = new kakaoMaps.Roadview(
         roadviewContainerRef.current,
         { visible: false }
