@@ -31,7 +31,7 @@ const App = () => {
           <Route path="/expenses/:trip_id" element={<Expenses />} />{/* 가계부 */}
           <Route path="/gallery" element={<Gallery />} /> {/* 여행갤러리 */}
           <Route path="/record" element={<Record />} /> {/* 기록 쓰기 */}
-          <Route path="/gallery-detail" element={<GalleryDetail />} />  {/* 여행갤러리 세부페이지 */}
+          <Route path="/gallery-detail/:post_id" element={<GalleryDetail />} />  {/* 여행갤러리 세부페이지 */}
         </Routes>
       </Router>
     </AuthProvider>

@@ -1,10 +1,10 @@
-import React, { useState,useContext  } from "react";
-import { useNavigate }from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "./NavigationBar.css";
 
 import logo from "../../assets/images/logo.svg";
-import defaultUser  from "../../assets/images/user.svg";
+import defaultUser from "../../assets/images/user.svg";
 import global from "../../assets/images/global.svg";
 import search2 from "../../assets/images/search2.svg";
 import LoginModal from "../components/LoginModal";
@@ -24,13 +24,13 @@ const NavigationBar = () => {
     }
   };
 
-  const handleLatestTrip = async() => {
+  const handleLatestTrip = async () => {
     try {
       const res = await fetch("http://localhost:8080/schedule/recent", {
         credentials: "include",
       });
       const data = await res.json();
-  
+
       if (data.success && data.trip_id) {
         navigate(`/schedule/${data.trip_id}`);
       } else {
@@ -40,12 +40,12 @@ const NavigationBar = () => {
       console.error("최근 여행 불러오기 실패", error);
     }
   }
- 
+
   return (
     <div className="navbar">
       {/* 로고 */}
       <div style={{ width: "200px", height: "auto" }}>
-      <img className="nav-logo" src={logo} alt="logo" style={{ width: "80%", height: "auto" }} />
+        <img className="nav-logo" src={logo} alt="logo" style={{ width: "80%", height: "auto" }} />
       </div>
 
       {/* 네비게이션 메뉴 */}
@@ -67,16 +67,16 @@ const NavigationBar = () => {
           onBlur={() => {
             if (searchText === "") setIsFocused(false);
           }}
-        />
+          disabled />
         <img src={search2} alt="search2" />
       </div>
 
       {/* 프로필 및 다국어 지원 */}
       <div className="nav-icons">
-        <img src={isLoggedIn && user?.image_url && !user?.nickname?.startsWith("temp_") ? user.image_url : defaultUser} alt="profile" onClick={handleProfileClick} style={{ width: "40px", height: "40px", borderRadius: "50%", cursor: "pointer" }}/>
+        <img src={isLoggedIn && user?.image_url && !user?.nickname?.startsWith("temp_") ? user.image_url : defaultUser} alt="profile" onClick={handleProfileClick} style={{ width: "40px", height: "40px", borderRadius: "50%", cursor: "pointer" }} />
         <img src={global} alt="global" />
       </div>
-        {isLoggedIn && (
+      {isLoggedIn && (
         <LoginModal
           isOpen={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}

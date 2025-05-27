@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+// src/components/DetailkakaoMap.js
+import React, { useEffect, useRef, useState } from "react";
 
-const KakaoMap = ({ days }) => {
+export default function DetailKakaoMap({ days = [] }) {
     const mapRef = useRef(null);
     const kakaoMapRef = useRef(null);
     const markersRef = useRef([]);
@@ -41,24 +42,25 @@ const KakaoMap = ({ days }) => {
         });
     }, []);
 
+    // 2) days나 mapLoaded가 바뀔 때마다 마커/경로 재렌더링
     useEffect(() => {
         if (!loaded || !days) return;
 
         const kakao = window.kakao.maps;
         const map = kakaoMapRef.current;
+
         if (!map) return;
 
-        // 기존 마커 제거
+
+        // 이전 마커/폴리라인 제거
         markersRef.current.forEach((m) => m.setMap(null));
         markersRef.current = [];
-        // 기존 폴리라인 제거
-        polylineRef.current.forEach((line) => line.setMap(null));
+        polylineRef.current.forEach((pl) => pl.setMap(null));
         polylineRef.current = [];
 
-        // 새로운 bounds
+        // 새로 그릴 경계 객체
         const bounds = new kakao.LatLngBounds();
 
-        console.log("days", days);
         const colorArr = ["#f39f9f", "#f7c59f", "#c3b1e1"];
 
         days.forEach((day) => {
@@ -66,18 +68,18 @@ const KakaoMap = ({ days }) => {
             const color = colorArr[idx]; let counter = 1;
             const path = [];
 
-            day.places.forEach(dayPlace => {
+            (day.places || []).forEach(dayPlace => {
                 const lat = dayPlace.place.place_latitude;
                 const lng = dayPlace.place.place_longitude;
-                if (lat == null || lng == null) return;
 
-                const pos = new kakao.LatLng(lat, lng);
-                bounds.extend(pos);
-                path.push(pos);
+                if (lat == null || lng == null) return;
+                const position = new kakao.LatLng(lat, lng);
+                bounds.extend(position);
+                path.push(position);
 
                 // 마커
                 const marker = new kakao.Marker({
-                    map, position: pos,
+                    map, position,
                     image: createNumberedMarkerImage(counter++, color, kakao)
                 });
                 markersRef.current.push(marker);
@@ -90,13 +92,17 @@ const KakaoMap = ({ days }) => {
                 kakao.event.addListener(marker, "mouseout", () => info.close());
             });
 
+            // 경로 그리기 (장소가 2개 이상일 때만)
             if (path.length >= 2) {
                 const line = new kakao.Polyline({ path, strokeWeight: 4, strokeColor: color, strokeOpacity: 0.7, map });
                 polylineRef.current.push(line);
             }
         });
 
-        if (!bounds.isEmpty()) map.setBounds(bounds);
+
+        if (!bounds.isEmpty()) {
+            map.setBounds(bounds);
+        }
     }, [days, loaded]);
 
     const createNumberedMarkerImage = (number, color, kakaoMaps) => {
@@ -112,9 +118,16 @@ const KakaoMap = ({ days }) => {
             { offset: new kakaoMaps.Point(18, 20) }
         );
     };
-    return (
-            <div ref={mapRef} className="map-view" />
-    );
-};
 
-export default KakaoMap;
+    return (
+        <div
+            ref={mapRef}
+            style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "10px",
+                overflow: "hidden",
+            }}
+        />
+    );
+}
