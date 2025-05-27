@@ -2,7 +2,7 @@
 
 ### ⚔️ Team SLAY
 
-> 맞춤형 여행 일정 추천 / 사용자 일정 관리 · 공유 플랫폼
+> AI 기반 맞춤형 여행 일정 추천 및 관리 · 공유 플랫폼
 
 ![Thumbnail](docs/Thumbnail.png)
 
@@ -15,7 +15,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 
 ---
 
-## 📋 주요 기능 한눈에 보기
+## 🪄 주요 기능 한눈에 보기
 
 > 복잡한 앱 전전은 그만,  
 > **더 간편하게, 더 똑똑하게, 더 즐겁게**  
@@ -36,19 +36,19 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 
 ## 🖼️ 주요 화면
 
-| 🏠 메인 홈 화면 | 💬 AI 챗봇 추천 |
+| 🏠 홈 화면 | 💬 AI 챗봇 |
 |------------------|------------------|
 | <img src="docs/Home.png" width="300"/> | <img src="docs/ChatBot.png" width="300"/> |
 
-| 📆 일정 생성 및 편집 | 👁️ 장소 미리보기 (Street View) |
+| 📆 일정 생성 및 편집 | 🔍 장소 미리보기 |
 |----------------------|-------------------------------|
 | <img src="docs/Schedule.png" width="300"/> | <img src="docs/streetview.png" width="300"/> |
 
-| 🤖 AI 피드백 기능 | 📋 나의 전체 일정 보기 |
+| 🤖 AI 피드백 | 📋 나의 전체 일정 보기 |
 |------------------|-------------------------|
 | <img src="docs/feedback.png" width="300"/> | <img src="docs/MySchedule.png" width="300"/> |
 
-| 💰 지출 입력 및 정산 | 🖼️ 여행 기록 모아보기 (갤러리) |
+| 💰 지출 입력 및 정산 | 🏛️ 여행 기록 모아보기 |
 |----------------------|-------------------------------|
 | <img src="docs/Expenses.png" width="300"/> | <img src="docs/Gallery.png" width="300"/> |
 
@@ -75,7 +75,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 | 🗄️ **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white) |
 | 🌐 **API & 연동** | ![KakaoMap](https://img.shields.io/badge/Kakao_Map-FFCD00?style=for-the-badge&logo=kakao&logoColor=black) ![OpenWeather](https://img.shields.io/badge/OpenWeather-007396?style=for-the-badge&logo=openweather&logoColor=white) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white) ![Google Maps](https://img.shields.io/badge/Google_Maps-FF6F00?style=for-the-badge&logo=googlemaps&logoColor=white) ![기상청 API](https://img.shields.io/badge/%EA%B8%B0%EC%83%81%EC%B2%AD_API-007ACC?style=for-the-badge&logoColor=white) |
 | 🔐 **Authentication** | ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white) ![OAuth 2.0](https://img.shields.io/badge/OAuth_2.0-26A69A?style=for-the-badge&logo=oauth&logoColor=white) |
-| 🚀 **Deployment** | ![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white) ![Nginx](https://img.shields.io/badge/Nginx-269539?style=for-the-badge&logo=nginx&logoColor=white) |
+| ⚡ **Deployment** | ![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white) ![Nginx](https://img.shields.io/badge/Nginx-269539?style=for-the-badge&logo=nginx&logoColor=white) |
 | 🤝 **Collaboration** | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white) ![Notion](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white) ![KakaoTalk](https://img.shields.io/badge/KakaoTalk-FFCD00?style=for-the-badge&logo=kakaotalk&logoColor=black) ![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white) |
 
 ---
@@ -105,7 +105,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 
 ### 🗂️ 디렉토리 구조
 
-```
+```bash
 /SLAY
 ├── backend
 │ ├── .env
