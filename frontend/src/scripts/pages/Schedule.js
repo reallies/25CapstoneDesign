@@ -63,6 +63,7 @@ const Schedule = () => {
         setActiveDay,
         handlePlaceSelect,
         onDragEnd,
+        fetchTrip,
         handleDeletePlace,
         handleUpdateTitle
     } = useSchedule(trip_id);
@@ -289,6 +290,7 @@ const Schedule = () => {
                                 onClose={() => setShowFeedback(false)}
                                 setFeedbacks={setFeedbacks}
                                 setLoadingFeedbacks={setLoadingFeedbacks}
+                                fetchTrip={fetchTrip}
                             />
                         )}
 
