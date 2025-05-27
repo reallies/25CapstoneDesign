@@ -38,23 +38,23 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 
 | 🏠 메인 홈 화면 | 💬 AI 챗봇 추천 |
 |------------------|------------------|
-| <img src="docs/home.png" width="300"/> | <img src="docs/chatbot.png" width="200"/> |
+| <img src="docs/Home.png" width="300"/> | <img src="docs/ChatBot.png" width="200"/> |
 
 | 📆 일정 생성 및 편집 | 👁️ 장소 미리보기 (Street View) |
 |----------------------|-------------------------------|
-| <img src="docs/schedule.png" width="300"/> | <img src="docs/streetview.png" width="300"/> |
+| <img src="docs/Schedule.png" width="300"/> | <img src="docs/streetview.png" width="300"/> |
 
 | 🤖 AI 피드백 기능 | 📋 나의 전체 일정 보기 |
 |------------------|-------------------------|
-| <img src="docs/feedback.png" width="300"/> | <img src="docs/myschedule.png" width="300"/> |
+| <img src="docs/feedback.png" width="300"/> | <img src="docs/MySchedule.png" width="300"/> |
 
 | 💰 지출 입력 및 정산 | 🖼️ 여행 기록 모아보기 (갤러리) |
 |----------------------|-------------------------------|
-| <img src="docs/expenses.png" width="300"/> | <img src="docs/Gallery.png" width="300"/> |
+| <img src="docs/Expenses.png" width="300"/> | <img src="docs/Gallery.png" width="300"/> |
 
 | 📖 여행 기록 - 게시글 | ✏️ 여행 기록 - 일정 보기 |
 |--------------------|---------------------------|
-| <img src="docs/Gallerydetail1.png" width="300"/> | <img src="docs/gallerydetail2.png" width="300"/> |
+| <img src="docs/GalleryDetail1.png" width="300"/> | <img src="docs/GalleryDetail2.png" width="300"/> |
 
 ---
 
