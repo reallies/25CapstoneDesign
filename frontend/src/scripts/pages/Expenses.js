@@ -83,7 +83,6 @@ export const Expenses = () => {
     setProfiles((prev) => ({ ...prev, ...profilesMap }));
   };
 
-
   useEffect(() => {
     const loadData = async () => {
       if (!trip_id) return;
@@ -112,6 +111,7 @@ export const Expenses = () => {
         });
         if (!settlementRes.ok) throw new Error("Failed to fetch settlement");
         const settlementData = await settlementRes.json();
+        setSettlementData(settlementData);
         const myExpense = settlementData.userExpenses?.find(
           (expense) => expense.nickname === currentUserNickname
         );
@@ -138,6 +138,13 @@ export const Expenses = () => {
     };
     loadData();
   }, [trip_id, token, currentUserNickname]);
+
+  useEffect(() => {
+  if (participants.length > 0) {
+    const nicknames = participants.map(p => p.nickname);
+    fetchUserProfiles(nicknames);
+  }
+}, [participants]);
 
   useEffect(() => {
     const fetchExpensesForDay = async () => {
@@ -231,6 +238,7 @@ export const Expenses = () => {
   ) || [];
   const sendSettlements = userSettlements.filter((s) => s.from === currentUserNickname);
   const receiveSettlements = userSettlements.filter((s) => s.to === currentUserNickname);
+
   return (
     <div className="expenses">
       <div className="div">
@@ -350,6 +358,7 @@ export const Expenses = () => {
                       const expense = settlementData?.userExpenses?.find(
                         (e) => e.nickname === participant.nickname
                       );
+
                       return (
                         <div className="receipt-person" key={index}>
                           <div className="receipt-info">
