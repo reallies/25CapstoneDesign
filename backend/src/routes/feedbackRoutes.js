@@ -44,9 +44,15 @@ async function getDistanceFeedback(day) {
         placeNameToDayPlaceId[p.place.place_name] = p.dayplace_id;
     });
     const regions = day.places.map(p => extractRegion(p.place.place_address));
+    const coordinates = day.places.map(p => `(${p.place.place_latitude}, ${p.place.place_longitude})`);
 
-    const prompt = `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내. 반드시 추천 순서를 [장소1, 장소2, ...] 형식으로 제공하세요.`;
+    console.log(`DAY ${day.day_order} 입력 장소: ${placeNames.join(", ")}`);
+    console.log(`DAY ${day.day_order} 좌표: ${coordinates.join(", ")}`);
+
+    const prompt = `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 좌표: ${coordinates.join(", ")}. 제공된 장소만 사용해 동선 비효율 시 순서를 제안하세요. 다른 장소를 추가하지 마세요. 100자 이내. 추천 순서를 [${placeNames.join(", ")}] 형식으로 제공하세요.`;
+
     const response = await gptRes(prompt);
+    console.log(`DAY ${day.day_order} GPT 응답: ${response}`);
 
     let recommendedNames = [];
     const match = response.match(/\[(.+?)\]/);
@@ -54,20 +60,30 @@ async function getDistanceFeedback(day) {
         const placeString = match[1];
         recommendedNames = placeString
             .split(',')
-            .map(name => name.trim().replace(/['"]/g, '')) // 따옴표 제거
-            .filter(name => placeNames.includes(name)); // 유효한 장소만 필터링
+            .map(name => name.trim().replace(/['"]/g, ''));
+        // 필터 완화: 입력 장소와 완전히 일치하지 않아도 포함
+        recommendedNames = recommendedNames.filter(name => {
+            const isValid = placeNames.some(p => p.includes(name) || name.includes(p));
+            if (!isValid) {
+                console.warn(`유효하지 않은 장소 이름: ${name}`);
+            }
+            return isValid;
+        });
     } else {
-        console.warn("응답 형식이 맞지 않습니다. 기본 순서를 사용합니다.");
+        console.warn(`DAY ${day.day_order} 응답 형식이 맞지 않습니다. 기본 순서를 사용합니다.`);
         recommendedNames = placeNames;
     }
 
     recommendedNames = [...new Set(recommendedNames)]; // 중복 제거
 
     const recommendedOrder = recommendedNames
-        .map(name => placeNameToDayPlaceId[name])
+        .map(name => {
+            const matchedPlace = placeNames.find(p => p.includes(name) || name.includes(p));
+            return matchedPlace ? placeNameToDayPlaceId[matchedPlace] : null;
+        })
         .filter(id => id !== undefined);
 
-    console.log("추출된 장소 이름:", recommendedNames);
+    console.log(`DAY ${day.day_order} 추출된 장소 이름: ${recommendedNames}`);
     return { feedback: response, recommendedOrder };
 }
 
