@@ -88,7 +88,7 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
     
             {feedbacks.map((item) => (
           <div key={item.day} className="feedback-bubble">
-            <p className="bubble-label">💬 DAY {item.day+1} 일정 피드백이에요!</p>
+            <p className="bubble-label">💬 DAY {item.day} 일정 피드백이에요!</p>
             {typeof item.feedback === "string" ? (
               <p>{item.feedback}</p>
             ) : (

@@ -44,32 +44,30 @@ async function getDistanceFeedback(day) {
         placeNameToDayPlaceId[p.place.place_name] = p.dayplace_id;
     });
     const regions = day.places.map(p => extractRegion(p.place.place_address));
-    
-    // 프롬프트에서 명확히 리스트 형식 요구
+
     const prompt = `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내. 반드시 추천 순서를 [장소1, 장소2, ...] 형식으로 제공하세요.`;
     const response = await gptRes(prompt);
-    
+
     let recommendedNames = [];
     const match = response.match(/\[(.+?)\]/);
     if (match) {
-        // 리스트에서 장소 이름 추출
-        recommendedNames = match[1].split(',').map(name => name.trim());
-        // 입력된 placeNames와 매칭하여 유효한 장소만 필터링
-        recommendedNames = recommendedNames.filter(name => placeNames.includes(name));
+        const placeString = match[1];
+        recommendedNames = placeString
+            .split(',')
+            .map(name => name.trim().replace(/['"]/g, '')) // 따옴표 제거
+            .filter(name => placeNames.includes(name)); // 유효한 장소만 필터링
     } else {
-        // 대체 방법: 응답에 리스트 형식이 없으면 입력 장소 이름을 기본 순서로 사용
         console.warn("응답 형식이 맞지 않습니다. 기본 순서를 사용합니다.");
         recommendedNames = placeNames;
     }
 
-    // 중복 제거
-    recommendedNames = [...new Set(recommendedNames)];
+    recommendedNames = [...new Set(recommendedNames)]; // 중복 제거
 
     const recommendedOrder = recommendedNames
         .map(name => placeNameToDayPlaceId[name])
-        .filter(id => id !== undefined); // 매핑되지 않은 ID 제외
+        .filter(id => id !== undefined);
 
-    console.log("추출된 장소 이름:", recommendedNames); // 디버깅용 출력
+    console.log("추출된 장소 이름:", recommendedNames);
     return { feedback: response, recommendedOrder };
 }
 
