@@ -149,7 +149,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
       showAlert("초대가 성공적으로 전송되었습니다!", "success");
     } catch (error) {
       console.error("초대 전송 실패:", error.response ? error.response.data : error.message);
-      alert(error.response?.data?.message || "초대 전송에 실패했습니다.");
+      showAlert("이미 초대가 되어있는 사용자입니다.", "warn");
     }
   };
 
