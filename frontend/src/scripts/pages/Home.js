@@ -7,7 +7,7 @@ import 'react-calendar/dist/Calendar.css';
 import moreIcon from "../../assets/images/more.svg";
 import plusIcon from "../../assets/images/plus.svg";
 import { useNavigate } from "react-router-dom";
-import AlertModal from "../components/AlertModal";
+import {AlertModal} from "../components/AlertModal";
 import PlaceHolder from "../../assets/images/placeholder.png"; // 임시 이미지 경로
 
 const Home = () => {

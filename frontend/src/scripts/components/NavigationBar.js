@@ -8,7 +8,7 @@ import defaultUser from "../../assets/images/user.svg";
 import global from "../../assets/images/global.svg";
 import search2 from "../../assets/images/search2.svg";
 import LoginModal from "../components/LoginModal";
-import AlertModal from "../components/AlertModal";
+import {AlertModal} from "../components/AlertModal";
 
 const NavigationBar = () => {
   const navigate = useNavigate();

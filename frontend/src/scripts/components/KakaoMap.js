@@ -2,7 +2,7 @@
 
 import  { useEffect, useRef, useState } from "react";
 import "./KakaoMap.css";
-import AlertModal from "../components/AlertModal";
+import {AlertModal} from "../components/AlertModal";
 
 
 const KakaoMap = ({ days }) => {

@@ -2,7 +2,7 @@ import React, {useRef, useState} from "react";
 import "./FeedbackModal.css";
 import icon from "../../assets/images/icon.svg";
 import regenerate from "../../assets/images/regenerate.svg"
-import AlertModal from "./AlertModal";
+import {AlertModal} from "./AlertModal";
 
 // 지도 대신 화면 오른쪽에 피드백 내용을 띄움
 const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoadingFeedbacks, fetchTrip }) => {

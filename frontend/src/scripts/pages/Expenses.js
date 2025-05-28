@@ -11,7 +11,7 @@ import { ReactComponent as Sightseeing } from "../../assets/images/sightseeing.s
 import { ReactComponent as Activity } from "../../assets/images/activity.svg";
 import { ReactComponent as Shopping } from "../../assets/images/shopping.svg";
 import { ReactComponent as Etc } from "../../assets/images/etc.svg";
-import AlertModal from "../components/AlertModal";
+import {AlertModal} from "../components/AlertModal";
 import ChatBot from "../components/ChatBot";
 
 export const Expenses = () => {

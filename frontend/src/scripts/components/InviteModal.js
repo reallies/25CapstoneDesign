@@ -2,7 +2,7 @@ import React, { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import "./InviteModal.css";
 import search2 from "../../assets/images/search2.svg";
-import AlertModal from "./AlertModal";
+import {AlertModal} from "./AlertModal";
 
 // Axios 기본 설정
 const api = axios.create({
