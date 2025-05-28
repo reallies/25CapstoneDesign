@@ -518,4 +518,37 @@ router.get("/users/:nickname/profile", authenticateJWT, async (req, res) => {
   }
 });
 
+
+// 일정에 초대된 사용자들의 상태 조회회
+router.get("/:trip_id/invited", authenticateJWT, async (req, res) => {
+  try {
+    const { trip_id } = req.params;
+
+    const invitations = await prisma.tripInvitation.findMany({
+      where: { trip_id },
+      select: {
+        invited_user_id: true,
+        status: true,
+      },
+    });
+
+    const pending = invitations
+      .filter((inv) => inv.status === "PENDING")
+      .map((inv) => inv.invited_user_id);
+
+    const accepted = invitations
+      .filter((inv) => inv.status === "ACCEPTED")
+      .map((inv) => inv.invited_user_id);
+
+    res.json({
+      message: "초대 상태 조회 성공",
+      pending,
+      accepted,
+    });
+  } catch (error) {
+    console.error("초대 상태 조회 중 오류:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
