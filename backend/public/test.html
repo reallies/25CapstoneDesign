@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>소셜 로그인 테스트</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+    .social-btn { display: inline-block; margin: 10px; }
+    .social-btn img { width: 200px; height: 60px; object-fit: contain; }
+    .action-btn { padding: 10px 20px; font-size: 16px; margin: 5px; }
+    #profile-info { margin-top: 20px; border: 1px solid #ccc; padding: 10px; display: none; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; }
+    #login-status { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>소셜 로그인 & 로그아웃 테스트</h1>
+  <p>아래 버튼을 클릭하면 소셜 로그인 페이지로 이동합니다.</p>
+  <div id="login-buttons">
+    <a href="/auth/naver" class="social-btn"><img src="/images/btnG_완성형.png" alt="네이버 로그인"></a>
+    <a href="/auth/kakao" class="social-btn"><img src="/images/kakao_login_large_wide.png" alt="카카오 로그인"></a>
+    <a href="/auth/google" class="social-btn"><img src="/images/login_google.png" alt="구글 로그인"></a>
+  </div>
+  <div id="action-buttons" style="display: none;">
+    <button class="action-btn" onclick="logout()">로그아웃</button>
+    <button class="action-btn" onclick="fetchProfile()">프로필 확인</button>
+  </div>
+  <div id="login-status"></div>
+  <div id="profile-info"></div>
+
+  <script src="/scripts/login_token.js"></script>
+  <script>
+    window.onload = () => {
+      checkLoginStatus();
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("accessToken");
+      if (token) {
+        saveToken(token);
+        window.history.replaceState({}, document.title, "/test");
+      }
+    };
+  </script>
+</body>
+</html>

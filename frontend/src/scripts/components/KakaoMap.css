@@ -1,0 +1,52 @@
+.map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+  }
+
+  .map-view {
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* 버튼을 지도 우측 상단에 띄우기 */
+  .roadview-toggle-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    padding: 10px 30px;
+    background: #00ADB5cc;
+    cursor: pointer;
+    background-color: #00ADB5;
+    color: #fff;
+    font-family: "SUITE-ExtraBold";
+    font-size: 15px;
+    border-radius: 30px;
+    text-align: center;
+    cursor: pointer;
+    width: fit-content;
+    margin-top: 10px;
+  }
+  
+  /* 활성화됐을 때 스타일 */
+  .roadview-toggle-btn.active {
+    background: #ff6666cc;
+    color: #fff;
+  }
+  
+  /* 로드뷰 컨테이너 */
+  .roadview-container {
+    position: absolute !important;
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+  }
+
+  .roadview-container.visible {
+    display: flex;
+  }

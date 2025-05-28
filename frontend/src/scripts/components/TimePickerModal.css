@@ -1,0 +1,137 @@
+:root {
+  --primary-color: #00ADB5;
+}
+
+.time-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.time-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 360px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.time-title {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* 스크롤 영역 전체 */
+.scroll-picker-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  height: 120px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+/* 각 선택 리스트 스타일 */
+.scroll-picker {
+  width: 60px;
+  height: 120px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* 스크롤바 숨김 */
+.scroll-picker::-webkit-scrollbar {
+  display: none;
+}
+
+/* 항목 기본 스타일 */
+.picker-item {
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  scroll-snap-align: center;
+  font-size: 24px;
+  color: black;
+  user-select: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.picker-item:focus,
+.picker-item:active {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* 위아래 빈 항목 (시각적 정렬용) */
+.picker-item.empty {
+  color: transparent;
+  pointer-events: none;
+}
+
+/* 시간 사이 콜론 기호 스타일 */
+.colon {
+  font-size: 24px;
+  color: var(--primary-color);
+  line-height: 120px;
+}
+
+/* 가운데 강조 바 */
+.highlight-bar {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: rgba(0, 173, 181, 0.1);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* 확인 버튼 */
+.confirm-button {
+    font-size: 16px;
+    padding: 8px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.confirm-button:hover {
+  background-color: #01959b;
+}
+
+.confirm-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.confirm-button:active {
+  outline: none;
+  box-shadow: none;
+}

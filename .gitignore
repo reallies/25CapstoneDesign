@@ -13,3 +13,5 @@ node_modules/
 # OS 관련 파일
 .DS_Store
 Thumbs.db
+
+/frontend/build/

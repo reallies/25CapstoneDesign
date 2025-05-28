@@ -1,0 +1,654 @@
+/* 전체 스타일 */
+.schedule {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+/* 메인 컨테이너 스타일 */
+.schedule .div {
+    top: -75px;
+    background-color: #ffffff;
+    height: 1417px;
+    position: relative;
+    width: 1440px;
+}
+
+/* 타이틀 */
+.schedule .title-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    position: absolute;
+    top: 142px;
+}
+
+.schedule .title-subname {
+    color: #bfbfbf;
+    font-family: "SUITE-SemiBold", Helvetica;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: -10px;
+}
+
+.schedule .title-name {
+    color: #000000;
+    font-family: "SUITE-SemiBold", Helvetica;
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.schedule .title-edit {
+    color: #cecccc;
+    font-family: "SUITE-SemiBold", Helvetica;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.schedule .content {
+    position: absolute;
+    top: 230px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tag-container {
+    display: flex;
+    gap: 3px;
+}
+
+.tag {
+    background-color: #717171;
+    color: #ffffff;
+    border-radius: 30px;
+    padding: 5px 15px;
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.menu {
+    display: flex;
+    gap: 10px;
+    margin-top: -10px;
+}
+
+.menu-item {
+    background-color: #f0f0f0;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 12px 25px;
+    cursor: pointer;
+}
+
+.menu-text {
+    color: #717171;
+    font-family: "SUITE-Bold", Helvetica;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* 날씨 */
+.schedule .weather {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px #00000040;
+    height: 221px;
+    right: 0;
+    position: absolute;
+    top: 142px;
+    width: 830px;
+}
+
+.schedule .weather-background {
+    background-color: #75a6c4;
+    border-radius: 20px;
+    height: 138px;
+    position: absolute;
+    top: 55px;
+    width: 764px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.schedule .weather-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #8e8e8e;
+    left: 32px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    width: 300px;
+}
+
+.weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+/* 장소별 날씨 보기 토글 */
+.weather-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    color: #8e8e8e;
+    margin-left: auto;
+}
+
+.dropdown-arrow {
+    display: inline-block;
+    margin-left: 5px;
+    transition: transform 0.3s ease;
+    font-size: 12px;
+}
+
+.dropdown-arrow.rotate {
+    transform: rotate(180deg);
+}
+
+.weather-dropdown {
+    position: absolute;
+    right: 0;
+    margin-top: -15px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #00000040;
+    width: 170px;
+    z-index: 9999;
+    padding: 10px 0;
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: #333333;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* 일정별 보기(탭) 버튼 영역 */
+.schedule .schedule-tab {
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 30px;
+    display: flex;
+    position: absolute;
+    top: 405px;
+    justify-content: space-between;
+    left: 0;
+    right: 0;
+    padding: 0 40px;
+    margin-left: -35px;
+}
+
+/* DAY별 탭 */
+.schedule .day-tab {
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #cfcfcf;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    height: 30px;
+    padding: 10px 12px;
+    width: 80px;
+    font-family: "SUITE-ExtraBold", Helvetica;
+    font-size: 18px;
+    font-weight: 600;
+    color: #cfcfcf;
+    cursor: pointer;
+}
+
+/* 활성화된 탭 */
+.schedule .day-tab.active {
+    background-color: #00ADB5;
+    color: #ffffff;
+    border: none;
+}
+
+/* 일정 전체 영역 */
+.schedule .schedule-box {
+    display: flex;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 924px;
+    top: 475px;
+    left: 0;
+    right: 0;
+    width: 1440px;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #fff;
+    margin: 0 auto;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px #00000040;
+    position: absolute;
+}
+
+.schedule .view {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px #00000040;
+    height: 924px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1440px;
+}
+
+.schedule .kakao-map {
+    left: 475px;
+    position: absolute;
+    top: 27px;
+    width: 940px;
+    height: 870px;
+}
+
+/* 일정 리스트 영역 */
+.schedule .schedule-list {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 873px;
+    left: 10px;
+    overflow: hidden;
+    overflow-y: scroll;
+    padding: 10px 16px;
+    position: absolute;
+    top: 19px;
+    width: 430px;
+    max-width: 430px;
+    flex-shrink: 0;
+}
+
+/* 일정 목록 스크롤바 숨기기 */
+.schedule .schedule-list::-webkit-scrollbar {
+    display: none;
+    width: 0;
+}
+
+.schedule .day-card {
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px #00000040;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 430px;
+    max-width: 430px;
+    box-sizing: border-box;
+}
+
+/* DAY 헤더 */
+.schedule .day-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.schedule .day-title {
+    font-family: "SUITE-ExtraBold";
+    font-size: 20px;
+    color: #000;
+}
+
+.schedule .day-date {
+    font-family: "SUITE-Bold";
+    font-size: 15px;
+    font-weight: 500;
+    color: #7e7e7e;
+}
+
+.schedule .day-drag {
+    margin-left: auto;
+    font-size: 20px;
+    cursor: grab;
+    color: #999999;
+}
+
+/* 일정 목록 */
+.schedule .schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    justify-content: space-between;
+}
+
+.schedule .item-number {
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 40px;
+}
+
+.schedule .item-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.schedule .item-content2 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.schedule .item-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.schedule .place-name {
+    font-family: "SUITE-Medium";
+    font-size: 18px;
+    color: #000;
+    font-weight: 500;
+}
+
+.schedule .place-type {
+    font-family: "SUITE-Medium";
+    font-size: 12px;
+    color: #7e7e7e;
+    font-weight: 400;
+}
+
+.schedule .empty-placeholder {
+    min-height: 10px;
+    visibility: hidden;
+}
+
+/* 드래그 바 */
+.schedule .item-drag {
+    font-size: 20px;
+    cursor: grab;
+    color: #999999;
+}
+
+/* 장소·메모 추가 버튼 */
+.schedule .add-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.schedule .action-btn {
+    background-color: #00ADB5;
+    color: #fff;
+    font-family: "SUITE-ExtraBold";
+    font-size: 15px;
+    padding: 15px 0;
+    border-radius: 30px;
+    text-align: center;
+    cursor: pointer;
+    width: 60%;
+    min-width: 400px;
+}
+
+/* DAY 1 빨간 계열 */
+.schedule .day-card.red .item-number {
+    background-color: #f39f9f;
+}
+
+/* DAY 2 주황 계열 */
+.schedule .day-card.orange .item-number {
+    background-color: #f7c59f;
+}
+
+/* DAY 3 보라 계열 */
+.schedule .day-card.purple .item-number {
+    background-color: #c3b1e1;
+}
+
+/* 위성 보기 버튼 */
+.schedule .satellite {
+    align-items: center;
+    background-color: #00ADB5;
+    border-radius: 30px;
+    display: flex;
+    gap: 10px;
+    height: 32px;
+    justify-content: center;
+    right: 20px;
+    padding: 10px 13px;
+    position: absolute;
+    top: 20px;
+    width: 93px;
+    z-index: 100;
+    cursor: pointer;
+}
+
+.schedule .satellite-text {
+    color: #ffffff;
+    font-family: "SUITE-ExtraBold", Helvetica;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: normal;
+    margin-left: -10.50px;
+    margin-right: -10.50px;
+    position: relative;
+    text-align: center;
+    width: fit-content;
+}
+
+.schedule .item-drag {
+    font-size: 20px;
+    cursor: grab;
+    color: #999999;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 80%;
+    padding: 10 15px;
+    border-radius: 30px;
+    background: rgba(0, 0, 0, 0.05);
+    outline: none;
+    border: none;
+}
+
+.modal-search {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.search-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.place-list {
+    max-height: calc(100% - 90px);
+    overflow-y: auto;
+}
+
+.place-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.place-thumb {
+    width: 50px;
+    height: 50px;
+    background: #ccc;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+
+.place-info {
+    flex-grow: 1;
+}
+
+.select-btn {
+    background-color: #eee;
+    border-radius: 15px;
+    padding: 5px 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.schedule .place-list::-webkit-scrollbar {
+    display: none;
+    width: 0;
+}
+
+.schedule-left {
+    padding-right: 10px;
+    overflow-y: auto;
+}
+
+.schedule-right {
+    flex: 7;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 모달이 오른쪽 위에 뜨도록 */
+.place-modal-overlay {
+    position: absolute;
+    width: 420px;
+    height: 500px;
+    z-index: 10;
+    box-shadow: 0px 0px 10px #00000040;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 20px;
+    top: 25px;
+    left: 470px;
+}
+
+/* 피드백 받기 */
+.day-tabs-left {
+    display: flex;
+    gap: 10px;
+}
+
+/* 새로 추가 */
+.feedback-btn-wrap {
+    margin-left: auto;
+}
+
+/* 피드백 받기 버튼 */
+.feedback-btn-alone {
+    background-color: #000000;
+    color: white;
+    height: 50px;
+    width: 140px;
+    border: none;
+    border-radius: 10px;
+    font-family: "SUITE-ExtraBold", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    margin-right: -35px;
+    cursor: pointer;
+}
+
+/* 초대 버튼 */
+.schedule-icon,
+.category-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* New styles for title editing */
+.title-edit-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    margin-left: -10px;
+}
+
+.title-input {
+    font-family: "SUITE-SemiBold", Helvetica;
+    font-size: 50px;
+    font-weight: 600;
+    color: #000000;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    width: 330px;
+}
+
+.title-edit-container button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.title-edit-container button:first-of-type {
+    background-color: #00ADB5;
+    color: white;
+}
+
+.title-edit-container button:last-of-type {
+    background-color: #ccc;
+    color: white;
+}
+
+/* 시간 */
+.time-label {
+  margin-left: 2px;
+  font-family: "SUITE-Medium";
+  font-size: 12px;
+  text-decoration: none !important;
+}

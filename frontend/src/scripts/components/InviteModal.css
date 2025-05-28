@@ -1,0 +1,189 @@
+.invite-modal {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 30px 20px;
+    width: 480px;
+    height: 450px;
+    z-index: 1000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+  
+.invite-modal::-webkit-scrollbar {
+    display: none;
+}
+  
+/* 상단 고정 영역 */
+.invite-modal-header {
+    position: sticky;
+    background-color: white;
+    z-index: 10;
+    margin-bottom: 10px;
+}
+  
+.modal-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 27px;
+    margin-top: -10px;
+}
+  
+.modal-close {
+    font-size: 40px;
+    font-weight: 300;
+    color: #c2c2c2;
+    cursor: pointer;
+    position: relative;
+    top: -7px;
+}
+  
+.invite-search-bar {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    flex: 1;
+    max-width: 400px;
+    margin-left: 5px;
+}
+  
+.invite-search-bar input {
+    border: none;
+    outline: none;
+    background: none;
+    flex: 1;
+    font-size: 16px;
+    font-family: "SUITE-Medium";
+}
+  
+.invite-search-bar img {
+    width: 20px;
+    height: 20px;
+}
+  
+.invite-add-btn {
+    background-color: #00adb5;
+    border: none;
+    color: white;
+    font-family: "SUITE-Bold";
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+  
+.invite-tab-buttons {
+    display: flex;
+    gap: 20px;
+}
+  
+.tab-button {
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 20px;
+    outline: none;
+    border: none;
+}
+  
+.tab-button.active {
+    background-color: #cfcfcf;
+    color: white;
+    font-weight: 600;
+}
+  
+/* 리스트 스크롤 */
+.invite-modal-scroll {
+    max-height: calc(520px - 75px);
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+  
+.invite-modal-scroll::-webkit-scrollbar {
+    display: none;
+}
+  
+.invite-modal .frame {
+    background-color: #E4F8F1;
+    color: #4ACD9F;
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 14px;
+    font-family: "SUITE-Medium", Helvetica;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+.invite-modal .frame.danger {
+    background-color: #FFE5E5;
+    color: #FF5353;
+}
+
+.frame.pending {
+    background-color: #FFF3E0;
+    color: #FFA500;
+    cursor: default;
+}
+  
+  
+.user-name {
+    color: #000000;
+    font-family: "SUITE-Medium", Helvetica;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.slash{
+    margin-left: 15px;
+}
+
+.trip-name{
+    margin-left: 15px;
+}
+  
+.friend-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-top: 15px;
+    color: #464646;
+    margin-left: 13px;
+}
+  
+.rectangle {
+    background-color: #d9d9d9;
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
+    margin-right: 15px;
+}
+  
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+  
+.gray-line {
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    margin-top: 10px;
+}
+
+.text-wrapper-2 {
+    font-size: 17px;
+    margin-left: 13px;
+    margin-top: 20px;
+    color: #464646;
+}

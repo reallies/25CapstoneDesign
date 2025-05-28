@@ -1,0 +1,895 @@
+/* 전역 폰트 설정 */
+body {
+  font-family: "SUITE";
+  font-size: 16px;
+  color: black;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+/* 기본 텍스트 스타일 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: bold;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+.main-container {
+  /* width: 95%; */
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* === 검색 바 === */
+.search-box {
+  width: 90%;
+  min-height: 190px;
+  margin: 50px auto;
+  background: rgba(255, 255, 255, 0.40);
+  box-shadow: 4px 4px 10px 3px rgba(0, 0, 0, 0.25);
+  border-radius: 20px;
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 검색 필드 */
+.search-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 60px;
+  flex-wrap: nowrap;
+  cursor: pointer;
+}
+
+/* 개별 검색 필드 스타일 */
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 290px;
+  min-height: 50px !important;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  padding: 10px;
+  font-family: "SUITE";
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.55);
+  flex-direction: column;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.search-field input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: "SUITE";
+  font-size: 18px;
+  font-weight: 500;
+  color: black;
+  outline: none;
+  cursor: text;
+}
+
+/* 일정 만들기 버튼 */
+.schedule-button {
+  margin-top: 5px;
+  margin-left: 10px;
+  width: 215px;
+  height: 70px;
+  background: #00ADB5;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: "SUITE";
+  font-size: 21px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* === 공통 모달 스타일 === */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 310px;
+  height: 450px;
+  text-align: center;
+  box-shadow: 4px 4px 10px 3px rgba(0, 0, 0, 0.25);
+  position: absolute;
+}
+
+.selected-text {
+  font-family: "SUITE";
+  font-size: 18px;
+  font-weight: 500;
+  color: black;
+  margin-top: 5px;
+}
+
+
+/* === 여행지 선택 모달 === */
+.region-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px !important;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.region-btn {
+  background: #f9f9f9;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  color: black;
+  font-size: 17px !important;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.region-btn.active {
+  background: #00adb5;
+  color: #ffffff;
+}
+
+.destination-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #000;
+  outline: none;
+}
+
+.field-label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 4px 0;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  z-index: 2;
+  position: relative;
+  color: #222;
+  margin: 0;
+}
+
+.custom-placeholder {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  color: #bbb;
+  font-size: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* === 여행 날짜 선택 모달 === */
+.react-calendar {
+  font-family: "SUITE", sans-serif !important;
+  font-weight: 600;
+  border: none !important;
+}
+
+.custom-calendar {
+  width: 300px !important;
+  height: auto;
+}
+
+.react-calendar__tile--now {
+  background: none !important;
+  color: black !important;
+  font-weight: bold !important;
+  position: relative;
+}
+
+.react-calendar__tile--now {
+  position: relative;
+}
+
+.react-calendar__tile--now abbr::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  width: 40%;
+  height: 1px;
+  background-color: #000000;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.react-calendar__tile--now.react-calendar__tile--active abbr::after {
+  display: none !important;
+}
+
+.react-calendar__tile--active {
+  background-color: #00ADB5 !important;
+  color: white !important;
+  border-radius: 0px !important;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile--active {
+  background: #00ADB5;
+  color: white;
+}
+
+.react-calendar__tile--range {
+  background: rgba(8, 167, 175, 0.3) !important;
+  color: white !important;
+  border-radius: 0 !important;
+  position: relative;
+  height: 32px !important;
+  margin: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+.react-calendar__tile--range::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 80%;
+  background: rgba(8, 167, 175, 0.3);
+  transform: translateY(-50%);
+  z-index: -1;
+}
+
+.react-calendar__tile--rangeStart {
+  position: relative;
+  background: linear-gradient(to right, white 50%, rgba(8, 167, 175, 0.3) 50%) !important;
+  color: white !important;
+  border-radius: 10px 0 0 10px !important;
+  height: 32px !important;
+}
+
+.react-calendar__tile--rangeEnd {
+  position: relative;
+  background: linear-gradient(to right, rgba(8, 167, 175, 0.3) 50%, white 50%) !important;
+  color: white !important;
+  border-radius: 0 10px 10px 0 !important;
+  height: 32px !important;
+}
+
+.react-calendar__tile--rangeStart abbr,
+.react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd abbr {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px !important;
+  height: 32px !important;
+  background: #00ADB5;
+  color: white !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-calendar__tile--rangeEnd abbr {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px !important;
+  height: 32px !important;
+  background: #00ADB5;
+  color: white !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd {
+  background: none !important;
+  color: black !important;
+}
+
+.react-calendar__navigation__label {
+  color: black !important;
+  font-weight: bold;
+  text-decoration: none !important;
+  cursor: pointer;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+.react-calendar__navigation__prev2-button {
+  display: none;
+}
+
+.react-calendar__navigation__next2-button {
+  display: none;
+}
+
+.react-calendar__navigation button {
+  border: none;
+  background: none;
+  font-family: "SUITE";
+  font-weight: 700;
+  font-size: 16px;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.react-calendar__navigation button:disabled {
+  color: rgba(0, 0, 0, 0.3) !important;
+  background: none !important;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.react-calendar__navigation button:hover {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.react-calendar__year-view__months {
+  display: flex;
+}
+
+.react-calendar__year-view__months__month {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 30px !important;
+  border: none;
+  background: none;
+
+}
+
+.react-calendar__year-view__months__month:hover {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.react-calendar__tile:disabled {
+  color: rgba(0, 0, 0, 0.3) !important;
+  background: none !important;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* === 여행 테마 선택 모달 === */
+/* 서브 타이틀 */
+.theme-subtitle {
+  font-size: 14px;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: -20px;
+  margin-bottom: 30px;
+  text-align: left !important;
+}
+
+.theme-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px !important;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.theme-btn {
+  background: #f9f9f9;
+  border: none;
+  padding: 10px 15px !important;
+  border-radius: 30px;
+  cursor: pointer;
+  color: black;
+  font-size: 17px !important;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.theme-btn.active {
+  background: #00adb5;
+  color: white;
+}
+
+/* === 동행 인원 선택 모달 === */
+.people-counter {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+  width: 90%;
+  padding: 10px;
+}
+
+.people-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.people-type {
+  flex: 1;
+  text-align: left;
+}
+
+.people-count {
+  width: 40px;
+  text-align: center;
+}
+
+.counter-btn {
+  width: 40px;
+  height: 40px;
+}
+
+/* === 동행 유형 선택 모달 === */
+.people-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px !important;
+  justify-content: center;
+}
+
+.companion-btn {
+  background: #f9f9f9;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  color: black;
+  font-size: 17px !important;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.companion-btn.active {
+  background: #00adb5;
+  color: white;
+}
+
+/* 여행 지역, 여행 테마, 동행 유형 버튼 공통 스타일 */
+.region-buttons,
+.theme-buttons,
+.people-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.region-btn,
+.theme-btn,
+.companion-btn {
+  background: #f9f9f9;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  color: black;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  min-width: 10px;
+  text-align: center;
+}
+
+.region-btn.active,
+.theme-btn.active,
+.companion-btn.active {
+  background: #00ADB5;
+  color: #FFFFFF;
+}
+
+/* 완료 버튼 */
+button {
+  background: #f9f9f9;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+/* 완료 버튼 & 다음 버튼 */
+.close-btn,
+.next-btn {
+  margin-top: 50px;
+  background-color: #00adb5;
+  color: white;
+  padding: 10px 20px;
+}
+
+.modal .close-btn,
+.modal .next-btn {
+  width: 100%;
+  max-width: 250px;
+  height: 45px;
+  margin-top: auto;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal:hover .close-btn:hover,
+.next-btn:hover {
+  background-color: #04a4af;
+}
+
+/* === 인기 여행지 === */
+.popular-destinations {
+  margin: 80px auto;
+  width: 95%;
+}
+
+.popular-title {
+  font-family: "SUITE";
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 여행지 카드 배열 */
+.destination-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 25px;
+  margin: 20px auto 0;
+}
+
+/* 여행지 카드 스타일 */
+.destination-card {
+  width: 360px;
+  height: 180px;
+  background: #E0F5F6;
+  border-radius: 20px;
+  padding: 10px;
+  position: relative;
+}
+
+.destination-image {
+  width: 160px;
+  height: 160px;
+  border-radius: 20px;
+  position: absolute;
+  top: 18px;
+  left: 20px;
+}
+
+/* 도시 이름 스타일 */
+.destination-info {
+  position: absolute;
+  top: 20px;
+  left: 190px;
+  font-family: "SUITE";
+  font-size: 24px;
+  font-weight: 800;
+  color: rgb(51, 51, 51);
+}
+
+/* 도시 설명 스타일 */
+.destination-subtext {
+  position: absolute;
+  top: 57px;
+  left: 190px;
+  font-family: "SUITE";
+  font-size: 18px;
+  color: #707A7B;
+  font-weight: 600;
+}
+
+/* 대표 관광지 */
+.places-title {
+  margin: 10px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #5f6668;
+  display: block;
+}
+
+/* 대표 관광지 내부 텍스트 */
+.destination-places {
+  position: absolute;
+  top: 80px;
+  left: 190px;
+  font-family: "SUITE";
+  font-size: 14px;
+  color: #707A7B;
+  font-weight: 500;
+  line-height: 1.4;
+  width: 180px;
+  word-break: keep-all;
+}
+
+/* === 여행 갤러리 & 내 기록 === */
+.gallery-records-container {
+  width: 95%;
+  display: flex;
+  justify-content:space-between;
+  align-items: flex-start;
+  gap: 50px;
+  margin: 80px auto 0;
+  flex-wrap: nowrap;
+}
+
+.gallery-card-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  width: 100%;
+}
+
+/* 여행 갤러리 틀 */
+.travel-gallery {
+   flex: 1;
+}
+
+.my-records {
+  flex: 0 0 250px;
+}
+
+/* 여행 갤러리 내용*/
+.gallery-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1500px;
+}
+
+/* 갤러리 카드 */
+.gallery-card {
+  width: 216px;
+  height: 338px;
+  background: white;
+  box-shadow: 4px 4px 10px 3px rgba(0, 0, 0, 0.25);
+  border-radius: 20px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* 갤러리 버튼 간격 */
+.gallery-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto;
+}
+
+/* 더보기 카드 스타일 */
+.last-card {
+  width: 216px;
+  height: 338px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 더보기 카드*/
+.last-card .gallery-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.last-card .gallery-place-name,
+.last-card .gallery-description,
+.last-card .gallery-buttons {
+  display: none !important;
+}
+
+.last-card .gallery-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-title {
+  font-family: "SUITE";
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.gallery-subtitle {
+  margin: 5px auto 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: black;
+  text-align: center;
+}
+
+.gallery-image {
+  width: 215px;
+  height: 160px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.gallery-card .gallery-button {
+  width: 100%;
+  margin-top: -3px;
+}
+
+.gallery-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.8);
+  text-align: center;
+  margin-bottom: 20px;
+  word-break: break-word;
+  line-height: 1.4;
+} 
+
+.gallery-button {
+  width: 163px;
+  height: 33px;
+  background: #00ADB5;
+  border-radius: 5px;
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 내 기록 */
+.my-records {
+  width: 350px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 30px;
+}
+
+
+.records-title {
+  text-align: left;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  white-space: nowrap;
+}
+
+.records-container {
+  display: grid;
+  grid-template-columns: repeat(2, 160px);
+  gap: 16px;
+  justify-content: start;
+}
+
+.record-card {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.record-text {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 14px;
+  padding: 6px;
+  text-align: center;
+  border-radius: 0 0 12px 12px;
+}
+
+.last-rcard {
+  background-color: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plus-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.myrecord-empty-msg {
+  position: relative;
+  top: 50px;
+  left: 120px;
+  font-size: 16px;
+  color: #000;
+  text-align: center;
+  margin-top: 20px;
+  word-break: keep-all;
+  width: 100%;
+}

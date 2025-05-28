@@ -1,0 +1,578 @@
+/* 전체 스타일 */
+.expenses {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 메인 컨테이너 스타일 */
+.expenses .div {
+  top: 67px;
+  background-color: #ffffff;
+  height: 1024px;
+  position: relative;
+  width: 1440px;
+}
+
+/* 가로 정렬 3열 구조: 타이틀, 공동경비, 정산영수증 */
+.expense-header-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 타이틀 */
+.expense-header {
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+}
+
+.expense-title-sub {
+  color: #bfbfbf;
+  font-family: "SUITE-SemiBold", Helvetica;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: -10px;
+}
+
+.travel-title-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.travel-title {
+  color: #000000;
+  font-family: "SUITE-SemiBold", Helvetica;
+  font-size: 50px;
+  font-weight: 600;
+}
+
+.travel-edit {
+  color: #cecccc;
+  font-family: "SUITE-SemiBold", Helvetica;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.expense-tags {
+  display: flex;
+  gap: 3px;
+}
+
+.expense-tag {
+  background-color: #717171;
+  color: #ffffff;
+  border-radius: 30px;
+  padding: 5px 15px;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-top: -14px;
+}
+
+.expense-menu {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 32px;
+}
+
+.expense-menu-item {
+  text-decoration: none;
+  background-color: #f0f0f0;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 12px 25px;
+  font-family: "SUITE-Bold", Helvetica;
+  font-size: 18px;
+  font-weight: 700;
+  color: #717171;
+  cursor: pointer;
+}
+
+/* 공동경비와 정산영수증 */
+.shared-expense-box,
+.receipt-box {
+  flex: 1;
+  max-width: 460px;
+  min-height: 160px;
+  height: auto;
+}
+
+/* DAY 탭 및 리스트 */
+.expense-days,
+.expense-list {
+  margin-top: 40px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* 카드 공통 */
+.expense-card {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 0 10px #00000040;
+  flex: 1;
+  min-width: 300px;
+}
+
+/* 공동경비 */
+.shared-expense-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  box-shadow: 0 0 10px #00000040;
+  border-radius: 18px;
+  background-color: white;
+}
+
+.shared-settle-wrapper {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* 공동경비 정보 컨테이너 */
+.shared-info {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+}
+
+/* 공동경비 상단 제목 및 버튼 가로 배치용 */
+.shared-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+/* 공동경비 제목 텍스트 */
+.shared-title {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.shared-info h3 {
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.shared-settle-btn {
+  background-color: #00ADB5;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.shared-amount-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px 0 4px;
+}
+
+.shared-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+}
+
+.shared-edit {
+  font-size: 14px;
+  color: #999;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.shared-subinfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-top: 14px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.shared-subinfo .label {
+  color: #888;
+}
+
+.shared-subinfo .total {
+  color: red;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.shared-subinfo .amount {
+  font-weight: 600;
+}
+
+.shared-summary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-top: 12px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 6px;
+  font-size: 18px;
+  align-items: center;
+}
+
+.label {
+  font-size: 20px;
+  font-weight: 600;
+  color: #777;
+}
+
+.label.red {
+  color: #D10000;
+}
+
+.value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #111;
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 14px;
+  background-color: #ccc;
+}
+
+.shared-divider {
+  height: 1px;
+  background-color: #ddd;
+  margin: 8px 0 12px;
+  width: 100%;
+}
+
+/* 정산 영수증 */
+.receipt-box {
+  padding: 20px;
+  box-shadow: 0 0 10px #00000040;
+  border-radius: 18px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* 정산 영수증 카드 내 상단 제목 */
+.receipt-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+/* 개인별 지출 정보를 담는 라인 */
+.receipt-person {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+/* 개인 이름 스타일 */
+.receipt-name {
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;           /* 💡 추가 */
+  align-items: center; 
+  gap: 6px;  
+}
+
+/* 금액 표시 스타일 */
+.receipt-amount {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* 카드 상단 라인(토글) */
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* 토글 텍스트 스타일 */
+.receipt-toggle {
+  font-size: 13px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+/* 보낼 돈 텍스트 스타일 */
+.receipt-label {
+  font-size: 14px;
+  margin: 8px 0 4px;
+  color: #444;
+}
+
+/* 카드 내 구분선 스타일 */
+.receipt-divider {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 6px 0 12px;
+}
+
+/* 정산영수증 친구 리스트 컨테이너 */
+.receipt-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 친구 프로필 */
+.receipt-avatar {
+  width: 40px;
+  height: 40px;
+  background: #ddd;
+  border-radius: 50%;
+}
+
+/* '친구별 지출 상세' 전체 영역 컨테이너 */
+.receipt-detail {
+  margin-top: 16px;
+}
+
+/* '친구별 지출 상세' 제목 텍스트 스타일 */
+.receipt-detail-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* ===== DAY 탭 영역 ===== */
+.expense-days {
+  display: flex;
+  gap: 10px;
+  margin: 25px 0;
+}
+
+.day-tab {
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #cfcfcf;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  height: 30px;
+  padding: 10px 12px;
+  width: 80px;
+  font-family: "SUITE-ExtraBold", Helvetica;
+  font-size: 18px;
+  font-weight: 600;
+  color: #cfcfcf;
+  cursor: pointer;
+}
+
+.day-tab.active {
+  background: #00ADB5;
+  color: white;
+}
+
+/* ===== 지출 리스트 영역 ===== */
+.expense-list {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 0 10px #00000040;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+/* 지출 항목 나열 */
+.expense-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+.expense-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.expense-icon {
+  width: 50px;
+  height: 50px;
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.expense-cost {
+  margin-left: auto;
+  font-weight: 700;
+}
+
+/* 지출 입력 영역 */
+.expense-input-form {
+  flex: 1;
+  margin-left: 40px;
+}
+
+.expense-input-form label {
+  font-weight: bold;
+  margin: 10px 0 5px;
+  display: block;
+}
+
+.expense-input {
+  width: 95%;
+  padding: 10px;
+  border: none;
+  background-color: #F8F8FA;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  outline: none;
+  border: none;
+}
+
+/* 카테고리 선택 버튼 */
+.expense-category-select {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.expense-category-select {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.category-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70px;
+  cursor: pointer;
+}
+
+.category-option {
+  width: 50px;
+  height: 50px;
+  background: #ccc;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-option svg {
+  width: 24px;
+  height: 24px;
+  pointer-events: none; /* SVG 클릭 방지 */
+}
+
+/* 수정: 선택된 카테고리 강조 스타일 추가 */
+.expense-category-select .category-wrapper.selected {
+  background-color: #e0e0e0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.category-label {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+}
+
+/* 추가하기 버튼 */
+.add-expense-btn {
+  background: #00ADB5;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+/* 아이콘 배경 색상별 */
+.expense-icon.eat,
+.category-option.eat {
+  background-color: #FFB26B;
+}
+
+.expense-icon.traffic,
+.category-option.traffic {
+  background-color: #FF6B6B;
+}
+
+.expense-icon.lodging,
+.category-option.lodging {
+  background-color: #1282A2;
+}
+
+.expense-icon.sightseeing,
+.category-option.sightseeing {
+  background-color: #6B4226;
+}
+
+.expense-icon.shopping,
+.category-option.shopping {
+  background-color: #FF5DA2;
+}
+
+.expense-icon.activity,
+.category-option.activity {
+  background-color: #64C9A8;
+}
+
+.expense-icon.etc,
+.category-option.etc {
+  background-color: #3C4A57;
+}
+
+/* 친구 초대&추가 모달 */
+.expense-icon,
+.category-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
