@@ -13,7 +13,7 @@ export default function GalleryDetail() {
     const [activeDay, setActiveDay] = useState('ALL');
 
     useEffect(() => {
-        fetch(`http://localhost:8080/posts/${post_id}/detail`, {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/posts/${post_id}/detail`, {
             credentials: 'include'
         })
             .then(res => res.json())

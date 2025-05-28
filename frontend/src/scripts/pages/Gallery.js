@@ -19,7 +19,7 @@ const Gallery = () => {
 
   // 친구 ID 목록을 가져오는 헬퍼 함수 
   const getMyFriendIds = async () => {
-    const res = await fetch("http://localhost:8080/friendship/list", {
+    const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/friendship/list`, {
       credentials: "include",
     });
     if (!res.ok) {
@@ -55,13 +55,13 @@ const Gallery = () => {
   // 3) 마운트 시 한 번에 모든 데이터 불러오기
   useEffect(() => {
     // 내 기록
-    fetch("http://localhost:8080/posts/me", { credentials: "include" })
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/posts/me`, { credentials: "include" })
       .then(r => r.json())
       .then(({ posts }) => setMyRecords(posts))
       .catch(console.error);
 
     // 전체 공개 기록 (갤러리)
-    fetch("http://localhost:8080/posts/gallery", { credentials: "include" })
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/posts/gallery`, { credentials: "include" })
       .then(r => r.json())
       .then(({ posts }) => setAllRecords(posts))
       .catch(console.error);
@@ -69,7 +69,7 @@ const Gallery = () => {
     // 친구 기록: 친구 리스트 부르고, 그 ID만 필터
     getMyFriendIds()
       .then(friendIds =>
-        fetch("http://localhost:8080/posts/gallery", { credentials: "include" })
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/posts/gallery`, { credentials: "include" })
           .then(r => r.json())
           .then(({ posts }) => {
             const filtered = posts.filter(p => friendIds.includes(p.user_id));

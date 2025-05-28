@@ -107,7 +107,7 @@ export const Expenses = () => {
   const fetchUserProfiles = async (nicknames) => {
     const uniqueNicknames = [...new Set(nicknames)];
     const profilePromises = uniqueNicknames.map(async (nickname) => {
-      const response = await fetch(`http://localhost:8080/trip/users/${nickname}/profile`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/trip/users/${nickname}/profile`, {
         credentials: "include",
       });
       if (response.ok) {
@@ -126,7 +126,7 @@ export const Expenses = () => {
       if (!trip_id) return;
       setIsLoading(true);
       try {
-        const tripRes = await fetch(`http://localhost:8080/trip/${trip_id}`, {
+        const tripRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/trip/${trip_id}`, {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         });
