@@ -200,14 +200,40 @@ function getVisitDay(startDate, dayOrder) {
   return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
 }
 
+function parsePlannedTime(plannedTime) {
+    if (!plannedTime) return null;
+    const match = plannedTime.match(/(오전|오후)\s(\d{1,2}):(\d{2})/);
+    if (!match) {
+        console.warn(`Invalid plannedTime format: ${plannedTime}`);
+        return null;
+    }
+    const [, period, hourStr, minStr] = match;
+    let hour = parseInt(hourStr);
+    const min = parseInt(minStr);
+    if (period === "오전") {
+        if (hour === 12) {
+            hour = 0; // 오전 12시는 00시
+        }
+    } else if (period === "오후") {
+        if (hour !== 12) {
+            hour += 12; // 오후 1시~11시는 +12, 오후 12시는 12시 유지
+        }
+    }
+    return { hour, min };
+}
+
 // 운영시간과 방문 예정 시간 비교 함수
 function isWithinOperatingHours(operatingHours, plannedTime, visitDay) {
     if (!operatingHours || !operatingHours[visitDay] || !plannedTime) {
         return { within: false, message: "운영시간 정보가 없거나 방문 예정 시간이 없습니다." };
     }
 
-    const plannedHour = parseInt(plannedTime.split(":")[0]);
-    const plannedMin = parseInt(plannedTime.split(":")[1]);
+    const parsedTime = parsePlannedTime(plannedTime);
+    if (!parsedTime) {
+        return { within: false, message: "방문 예정 시간 형식이 올바르지 않습니다." };
+    }
+    const { hour: plannedHour, min: plannedMin } = parsedTime;
+    const plannedTimeMin = plannedHour * 60 + plannedMin;
 
     for (const period of operatingHours[visitDay]) {
         const [open, close] = period.split("-");
@@ -216,7 +242,6 @@ function isWithinOperatingHours(operatingHours, plannedTime, visitDay) {
 
         const openTime = openHour * 60 + openMin;
         const closeTime = closeHour * 60 + closeMin;
-        const plannedTimeMin = plannedHour * 60 + plannedMin;
 
         if (plannedTimeMin >= openTime && plannedTimeMin <= closeTime) {
             return { within: true };
