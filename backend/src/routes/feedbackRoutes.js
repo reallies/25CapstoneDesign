@@ -44,9 +44,15 @@ async function getDistanceFeedback(day) {
         placeNameToDayPlaceId[p.place.place_name] = p.dayplace_id;
     });
     const regions = day.places.map(p => extractRegion(p.place.place_address));
+    const coordinates = day.places.map(p => `(${p.place.place_latitude}, ${p.place.place_longitude})`);
 
-    const prompt = `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 동선 비효율 시 순서 제안. 100자 이내. 반드시 추천 순서를 [장소1, 장소2, ...] 형식으로 제공하세요.`;
+    console.log(`DAY ${day.day_order} 입력 장소: ${placeNames.join(", ")}`);
+    console.log(`DAY ${day.day_order} 좌표: ${coordinates.join(", ")}`);
+
+    const prompt = `DAY ${day.day_order} 장소: ${placeNames.join(", ")}. 지역: ${regions.join(", ")}. 좌표: ${coordinates.join(", ")}. 제공된 장소만 사용해 동선 비효율 시 순서를 제안하세요. 다른 장소를 추가하지 마세요. 100자 이내. 다음 형식으로 출력:\n📍 추천 순서: [${placeNames.join(", ")}]\n\n👉 간단한 요약 (예: 이 순서로 이동하면 효율적입니다).`;
+
     const response = await gptRes(prompt);
+    console.log(`DAY ${day.day_order} GPT 응답: ${response}`);
 
     let recommendedNames = [];
     const match = response.match(/\[(.+?)\]/);
@@ -54,20 +60,29 @@ async function getDistanceFeedback(day) {
         const placeString = match[1];
         recommendedNames = placeString
             .split(',')
-            .map(name => name.trim().replace(/['"]/g, '')) // 따옴표 제거
-            .filter(name => placeNames.includes(name)); // 유효한 장소만 필터링
+            .map(name => name.trim().replace(/['"]/g, ''));
+        recommendedNames = recommendedNames.filter(name => {
+            const isValid = placeNames.some(p => p.includes(name) || name.includes(p));
+            if (!isValid) {
+                console.warn(`유효하지 않은 장소 이름: ${name}`);
+            }
+            return isValid;
+        });
     } else {
-        console.warn("응답 형식이 맞지 않습니다. 기본 순서를 사용합니다.");
+        console.warn(`DAY ${day.day_order} 응답 형식이 맞지 않습니다. 기본 순서를 사용합니다.`);
         recommendedNames = placeNames;
     }
 
-    recommendedNames = [...new Set(recommendedNames)]; // 중복 제거
+    recommendedNames = [...new Set(recommendedNames)];
 
     const recommendedOrder = recommendedNames
-        .map(name => placeNameToDayPlaceId[name])
+        .map(name => {
+            const matchedPlace = placeNames.find(p => p.includes(name) || name.includes(p));
+            return matchedPlace ? placeNameToDayPlaceId[matchedPlace] : null;
+        })
         .filter(id => id !== undefined);
 
-    console.log("추출된 장소 이름:", recommendedNames);
+    console.log(`DAY ${day.day_order} 추출된 장소 이름: ${recommendedNames}`);
     return { feedback: response, recommendedOrder };
 }
 
@@ -185,34 +200,62 @@ function getVisitDay(startDate, dayOrder) {
   return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
 }
 
-// 운영시간 프롬프트 생성
-function createOperatingHoursPrompt(day, places, operatingHours, plannedTimes) {
-    let prompt = `DAY ${day} (요일)의 장소:\n`;
-    places.forEach((place, index) => {
-        const hours = operatingHours[index] ? JSON.stringify(operatingHours[index]) : "운영시간 정보 없음";
-        const plannedTime = plannedTimes[index] || "방문 예정 시간 없음";
-        prompt += `- ${place}: 운영시간 ${hours}, 방문 예정 시간 ${plannedTime}\n`;
-    });
-    prompt += "친근하고 간결한 대화체로 피드백을 제공해 주세요. 항상 존대말(예: '가세요', '확인해 주세요')을 사용하고, 반말(예: '가', '체크해')은 절대 사용하지 마세요. 예를 들어, '통인시장은 오후 6시에 닫으니 5시 전에 방문해 주세요'처럼 간단하고 정중하게 말해 주세요. 특수문자(예: *, -)나 번호 매기기는 피하고, 늦게 열거나 일찍 닫는 곳에 대한 경고를 포함하세요.";
-    return prompt;
+// 운영시간과 방문 예정 시간 비교 함수
+function isWithinOperatingHours(operatingHours, plannedTime, visitDay) {
+    if (!operatingHours || !operatingHours[visitDay] || !plannedTime) {
+        return { within: false, message: "운영시간 정보가 없거나 방문 예정 시간이 없습니다." };
+    }
+
+    const plannedHour = parseInt(plannedTime.split(":")[0]);
+    const plannedMin = parseInt(plannedTime.split(":")[1]);
+
+    for (const period of operatingHours[visitDay]) {
+        const [open, close] = period.split("-");
+        const [openHour, openMin] = open.split(":").map(Number);
+        const [closeHour, closeMin] = close.split(":").map(Number);
+
+        const openTime = openHour * 60 + openMin;
+        const closeTime = closeHour * 60 + closeMin;
+        const plannedTimeMin = plannedHour * 60 + plannedMin;
+
+        if (plannedTimeMin >= openTime && plannedTimeMin <= closeTime) {
+            return { within: true };
+        }
+    }
+
+    return { within: false, message: `방문 예정 시간이 운영시간을 벗어납니다. 운영시간은 ${operatingHours[visitDay].join(", ")}입니다!` };
 }
 
-// 운영시간 피드백 생성
+// 수정된 운영시간 피드백 함수
 async function getOperatingHoursFeedback(day, places, plannedTimes, tripStartDate) {
-  const operatingHours = await getAllOperatingHours(places);
-  if (!operatingHours || operatingHours.every((h) => !h)) {
-    return "운영시간 정보를 확인할 수 없습니다.";
-  }
+    const operatingHours = await getAllOperatingHours(places);
+    if (!operatingHours || operatingHours.every(h => !h)) {
+        return "운영시간 정보를 확인할 수 없습니다.";
+    }
 
-  const visitDay = getVisitDay(tripStartDate, day.day_order);
-  const prompt = createOperatingHoursPrompt(
-    day.day_order,
-    places.map((p) => p.place_name),
-    operatingHours,
-    plannedTimes
-  );
-  const feedback = await gptRes(prompt);
-  return feedback || "운영시간 피드백 생성에 실패했습니다.";
+    const visitDay = getVisitDay(tripStartDate, day.day_order);
+    const placeDetails = places.map((place, index) => {
+        const hours = operatingHours[index] && operatingHours[index][visitDay]
+            ? operatingHours[index][visitDay].join(", ")
+            : "정보 없음";
+        const plannedTime = plannedTimes[index] || "미정";
+        let warning = "";
+
+        if (plannedTimes[index] && operatingHours[index]) {
+            const check = isWithinOperatingHours(operatingHours[index], plannedTimes[index], visitDay);
+            if (!check.within) {
+                warning = `\n⚠️ ${check.message}`;
+            }
+        }
+
+        return `- 📍 ${place.place_name}: 🕙 ${hours}, 방문 예정: ${plannedTime}${warning}`;
+    }).join("\n");
+
+    const prompt = `DAY ${day.day_order} (${visitDay})의 장소 운영시간 및 방문 예정 시간:\n${placeDetails}\n\n친근하고 간결한 대화체로 피드백을 제공하세요. 항상 존대말을 사용하세요. 다음 형식으로 출력:\n${places.map(p => `📍 ${p.place_name}: 🕙 운영시간\n`).join("")}\n👉 방문 시간을 미리 확인해 원활한 일정을 준비하세요!\n\n각 장소의 운영시간을 '🕙 HH:MM-HH:MM' 형식으로 나열하고, 늦게 열거나 일찍 닫는 곳을 강조하세요. 방문 예정 시간이 운영시간을 벗어나는 경우 경고 메시지를 포함하세요. 150자 이내.`;
+
+    const feedback = await gptRes(prompt);
+    console.log(`DAY ${day.day_order} 운영시간 GPT 응답: ${feedback}`);
+    return feedback || "운영시간 피드백 생성에 실패했습니다.";
 }
 
 

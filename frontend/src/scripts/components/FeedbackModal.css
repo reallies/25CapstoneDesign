@@ -182,6 +182,7 @@
 .feedback-content {
   margin-top: 0;
   margin-bottom: 26px;
+  white-space: pre-line;
 }
 
 .feedback-content p {
