@@ -3,7 +3,7 @@
 import searchIcon from "../../assets/images/search2.svg";
 import backIcon from "../../assets/images/back.svg";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
@@ -12,10 +12,22 @@ const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
+    useEffect(() => {
+        if (!searchText || !searchText.trim()) {
+            setResults([]);
+            setHasSearched(false);
+            return;
+        }
 
+        const debounceTimer = setTimeout(() => {
+            handleSearch(searchText); 
+        }, 100); 
 
-    const handleSearch = async () => {
-        if (!searchText.trim()) return;
+        return () => clearTimeout(debounceTimer); 
+    }, [searchText]);
+
+    const handleSearch = async (text) => {
+        if (!text || !text.trim()) return;
 
         const kakao_restapi_key = process.env.REACT_APP_KAKAO_REST_API_KEY; 
 
@@ -24,7 +36,7 @@ const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
             setLoading(true);
             const res = await axios.get("https://dapi.kakao.com/v2/local/search/keyword.json", {
                 params: {
-                    query: searchText,
+                    query: text,
                     size: 10,
                 },
                 headers: {
@@ -62,7 +74,7 @@ const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
 
     return (
         <div>
-            <div className="place-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="place-modal-overlay" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <img src={backIcon} alt="뒤로가기" className="back" onClick={onClose} />
                     <div className="search-container">
@@ -79,9 +91,7 @@ const PlaceSearchModal = ({ isOpen, onClose, onSelect }) => {
                 </div>
 
                 <div className="place-list">
-                    {loading ? (
-                        <div className="loading">검색 중...</div>
-                    ) : results.length > 0 ? (
+                    {results.length > 0 ? (
                         results.map((place) => (
                             <div className="place-item" key={place.id}>
                                 <div className="place-info">

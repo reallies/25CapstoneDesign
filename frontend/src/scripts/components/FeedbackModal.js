@@ -170,9 +170,9 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
             </div>
 
             {/* 경고 모달 */}
-      {alertOpen && (
-        <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
-      )}
+            {alertOpen && (
+              <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
+            )}
         </div>
     );
 };

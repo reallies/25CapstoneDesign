@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './Gallery.css';
 import Placeholder from '../../assets/images/placeholder.png'; // 임시 이미지 경로
+import ChatBot from "../components/ChatBot";
 
 const Gallery = () => {
   const navigate = useNavigate();
@@ -207,6 +208,10 @@ const Gallery = () => {
           );
         })}
       </div>
+
+      {/* 하단 챗봇 컴포넌트 */}
+      <ChatBot />
+
     </div>
 
   );

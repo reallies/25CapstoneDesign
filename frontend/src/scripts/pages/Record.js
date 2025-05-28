@@ -6,7 +6,7 @@ import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌�
 import photoIcon from '../../assets/images/camera.svg';
 import AlertModal from "../components/AlertModal";
 import './Record.css';
-
+import ChatBot from "../components/ChatBot";
 
 const Record = () => {
   const navigate = useNavigate();
@@ -367,6 +367,7 @@ const Record = () => {
                   className="record-preview-img"
                 />
               ))}
+
             </div>
           </>
         )
@@ -393,6 +394,10 @@ const Record = () => {
       {alertOpen && (
         <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
       )}
+
+      {/* 하단 챗봇 컴포넌트 */}
+      <ChatBot />
+
     </div >
   );
 };

@@ -12,6 +12,7 @@ import { ReactComponent as Activity } from "../../assets/images/activity.svg";
 import { ReactComponent as Shopping } from "../../assets/images/shopping.svg";
 import { ReactComponent as Etc } from "../../assets/images/etc.svg";
 import AlertModal from "../components/AlertModal";
+import ChatBot from "../components/ChatBot";
 
 export const Expenses = () => {
   const { trip_id } = useParams();
@@ -492,6 +493,9 @@ export const Expenses = () => {
           {alertOpen && (
             <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
           )}
+
+          {/* 하단 챗봇 컴포넌트 */}
+          <ChatBot />
 
         </div>
       </div>
