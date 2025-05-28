@@ -417,34 +417,42 @@ async function updateTripTitleService(user_id, trip_id, newTitle) {
 
 async function reorderBasedOnFeedbackService(trip_id, dayOrder, distanceFeedback) {
   return await prisma.$transaction(async (tx) => {
-    // 1. 해당 Day 정보 조회
+    // 1. Day 데이터 조회
     const day = await tx.day.findFirst({
       where: { trip_id, day_order: dayOrder },
       include: { places: { include: { place: true } } },
     });
     if (!day) throw new Error("Day를 찾을 수 없습니다.");
 
-    // 2. 동선 피드백에서 장소 순서 추출
-    const placeNamesInFeedback = distanceFeedback
-      .match(/[^\s,]+(?:[^\s,]+)*(?=에서|해|으로|,|\.|$)/g) // 장소 이름 추출
-      .filter((name) => name !== "시작" && name !== "이동" && name !== "것이" && name !== "효율적입니다");
-    console.log("추출된 장소 이름:", placeNamesInFeedback);
+    // 2. [장소1, 장소2, ...] 형식에서 장소 이름 추출
+    const match = distanceFeedback.match(/\[(.+?)\]/); // 대괄호 안의 내용 추출
+    let placeNamesInFeedback = [];
+    if (match) {
+      const placeString = match[1];
+      placeNamesInFeedback = placeString
+        .split(',') // 쉼표로 분리
+        .map(name => name.trim().replace(/['"]/g, '')) // 공백 제거 및 따옴표 제거
+        .filter(name => name); // 빈 문자열 제거
+    } else {
+      console.warn("distanceFeedback 형식이 올바르지 않습니다.");
+      placeNamesInFeedback = [];
+    }
 
-    // 3. 현재 Day의 장소와 매핑
+    // 3. 현재 Day의 장소 목록
     const currentPlaces = day.places.map((p) => ({
       dayplace_id: p.dayplace_id,
       place_name: p.place.place_name,
     }));
 
-    const reorderedPlaces = [];
-    placeNamesInFeedback.forEach((feedbackName, index) => {
-      const match = currentPlaces.find((p) => p.place_name.includes(feedbackName));
-      if (match) {
-        reorderedPlaces.push({ ...match, newOrder: index + 1 });
-      }
-    });
+    // 4. 추출된 장소 이름과 현재 장소 매핑
+    const reorderedPlaces = placeNamesInFeedback
+      .map((feedbackName, index) => {
+        const match = currentPlaces.find((p) => p.place_name.includes(feedbackName));
+        return match ? { ...match, newOrder: index + 1 } : null;
+      })
+      .filter(Boolean);
 
-    // 4. 매핑되지 않은 장소 처리 (피드백에 없는 장소는 순서 뒤로)
+    // 5. 매핑되지 않은 장소 처리
     const unmatchedPlaces = currentPlaces.filter(
       (p) => !reorderedPlaces.some((rp) => rp.dayplace_id === p.dayplace_id)
     );
@@ -452,10 +460,10 @@ async function reorderBasedOnFeedbackService(trip_id, dayOrder, distanceFeedback
       reorderedPlaces.push({ ...p, newOrder: reorderedPlaces.length + 1 });
     });
 
-    // 5. DayPlace 업데이트
+    // 6. DayPlace 순서 업데이트
     const updates = reorderedPlaces.map((place) =>
       tx.dayPlace.update({
-        where: { dayplace_id: place.dayplace_id },
+        where: { dayplace_id: place.dayplace_id }, // placeFilter 제거, place.dayplace_id 직접 사용
         data: { dayplace_order: place.newOrder },
       })
     );
