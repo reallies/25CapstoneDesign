@@ -161,6 +161,8 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
         trip_id: tripId,
         invited_nickname: friend.nickname,
       });
+      await fetchInvitedUsers();
+
       setPendingInvites([...pendingInvites, friend.user_id]);
       showAlert("초대가 성공적으로 전송되었습니다!", "success");
     } catch (error) {

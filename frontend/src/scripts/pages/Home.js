@@ -62,7 +62,7 @@ const Home = () => {
 
   //갤러리 렌더링 요청
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/posts/gallery`, {
+    fetch('http://localhost:8080/posts/gallery', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -74,7 +74,7 @@ const Home = () => {
 
   // 내 기록 렌더링 요청
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/posts/me`, { credentials: 'include' })
+    fetch('http://localhost:8080/posts/me', { credentials: 'include' })
       .then(res => res.json())
       .then(({ posts }) => {
 
