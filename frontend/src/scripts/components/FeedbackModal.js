@@ -1,10 +1,16 @@
-import React from "react";
+import React, {useRef, useState} from "react";
 import "./FeedbackModal.css";
 import icon from "../../assets/images/icon.svg";
 import regenerate from "../../assets/images/regenerate.svg"
+import AlertModal from "./AlertModal";
 
 // 지도 대신 화면 오른쪽에 피드백 내용을 띄움
 const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoadingFeedbacks, fetchTrip }) => {
+  const alertShownRef = useRef(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+  const [alertType, setAlertType] = useState("warn");
+
     // 재정렬 요청 함수
   const handleReorder = async (day, distanceFeedback) => {
     try {
@@ -19,8 +25,17 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
       });
       if (!response.ok) throw new Error("재정렬 요청 실패");
       fetchTrip(); // 최신 일정 데이터 가져오기
-      onClose(); // 모달 닫기
-      alert("일정이 추천 순서로 재정렬되었습니다!");
+
+      if (!alertShownRef.current) {
+        alertShownRef.current = true;
+        setAlertText("일정이 추천 순서로 재정렬되었습니다!");
+        setAlertOpen(true);
+        setAlertType("success"); 
+        setTimeout(() => {
+          alertShownRef.current = false;
+        }, 1000);
+      }
+
       //window.location.reload(); // 화면 새로고침으로 업데이트 반영
     } catch (error) {
       console.error("재정렬 오류:", error);
@@ -153,6 +168,11 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
                 </div>
             ))}
             </div>
+
+            {/* 경고 모달 */}
+            {alertOpen && (
+              <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
+            )}
         </div>
     );
 };

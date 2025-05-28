@@ -12,6 +12,7 @@ import "./Schedule.css";
 import WeatherBox from "../components/WeatherBox";
 import FeedbackModal from "../components/FeedbackModal";
 import TimePickerModal from "../components/TimePickerModal";
+import ChatBot from "../components/ChatBot";
 
 const Schedule = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -202,9 +203,6 @@ const Schedule = () => {
                         <div className="menu-item" onClick={() => setIsInviteOpen(true)} ref={inviteButtonRef}>
                             <div className="menu-text">초대</div>
                         </div>
-                        <div className="menu-item">
-                            <div className="menu-text">여행 일정</div>
-                        </div>
                     </div>
                 </div>
 
@@ -297,13 +295,11 @@ const Schedule = () => {
 
                         {/* 장소 추가 모달 */}
                         {isModalOpen && (
-                            <div className="place-modal-overlay">
-                                <PlaceSearchModal
-                                    isOpen={isModalOpen}
-                                    onClose={handleCloseModal}
-                                    onSelect={(place) => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}
-                                />
-                            </div>
+                            <PlaceSearchModal
+                                isOpen={isModalOpen}
+                                onClose={handleCloseModal}
+                                onSelect={(place) => handlePlaceSelect(selectedDayIndex, place, setIsModalOpen)}
+                            />
                         )}
 
                         {/* 시간 추가 모달 */}
@@ -365,13 +361,17 @@ const Schedule = () => {
                                                                                             {itemIndex + 1}
                                                                                         </div>
                                                                                         <div className="item-content">
+                                                                                            <div className="place-name">{item.name}</div>
                                                                                             <div className="item-content2">
-                                                                                                <div className="place-type">{item.placeType}</div>
-                                                                                                <div className="time-label" onClick={() => handleDayplaceTime(Number(day.id.replace("day-", "")), item.dayPlaceId)}>
-                                                                                                    {dayPlaceTimeMap[item.dayPlaceId] || "시간"}
+                                                                                                <div className="time-label" onClick={() => handleDayplaceTime(Number(day.id.replace("day-", "")), item.dayPlaceId)}
+                                                                                                     style={{
+                                                                                                        color: dayPlaceTimeMap[item.dayPlaceId] ? "#919191" : "#00ADB5",
+                                                                                                        fontWeight: dayPlaceTimeMap[item.dayPlaceId] ? "bold" : "normal",
+                                                                                                        }}
+                                                                                                    >
+                                                                                                    {dayPlaceTimeMap[item.dayPlaceId] || "시간 선택"}
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div className="place-name">{item.name}</div>
                                                                                         </div>
                                                                                         <div className="item-actions">
                                                                                             {hoverStates[item.id] && (
@@ -403,6 +403,8 @@ const Schedule = () => {
                         </DragDropContext>
                     </div>
                 </div>
+                {/* 하단 챗봇 컴포넌트 */}
+                <ChatBot />
             </div>
         </div>
     );
