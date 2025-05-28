@@ -49,7 +49,6 @@ export const useSchedule = (trip_id) => {
 
     //장소 추가
     const handlePlaceSelect = async (dayIndex, place, setIsModalOpen) => {
-
         const day = days[dayIndex];
         const dayId = Number(day.id.replace("day-", ""));
 
@@ -59,32 +58,40 @@ export const useSchedule = (trip_id) => {
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
-                kakao_place_id: place.kakao_place_id,
-                place_name: place.place_name,
-                place_address: place.place_address,
-                place_latitude: place.latitude,
-                place_longitude: place.longitude,
-                place_image_url: place.image_url || "",
-                place_star: place.place_star,
-                place_call_num: place.call,
+                    kakao_place_id: place.id || place.kakao_place_id,
+                    place_name: place.place_name,
+                    place_address: place.address_name,
+                    place_latitude: Number(place.y),
+                    place_longitude: Number(place.x),
+                    place_image_url: place.image_url || "",
+                    place_star: place.place_star || 0,
+                    place_call_num: place.phone || "",
                 }),
             });
 
             const data = await res.json();
 
-            if (res.ok && data.data) {
-                const newDays = [...days];
-                newDays[dayIndex].items.push({
+        if (res.ok && data.data) {
+            const newItem = {
                 id: `item-${data.data.dayPlace.dayplace_id}`,
                 dayPlaceId: data.data.dayPlace.dayplace_id,
                 type: "place",
                 name: data.data.place.place_name,
                 placeType: "관광명소",
-                ...data.data.place,
-                });
-                setDays(newDays);
-                setIsModalOpen(false);
-            }
+                latitude: Number(data.data.place.place_latitude),
+                longitude: Number(data.data.place.place_longitude),
+            };
+
+            // 불변 업데이트
+            const newDays = days.map((d, idx) =>
+                idx === dayIndex
+                  ? { ...d, items: [...d.items, newItem] } // 새 items 배열 생성
+                  : d
+            );
+
+        setDays(newDays);
+        setIsModalOpen(false);
+        }
         } catch (err) {
             console.error("장소 추가 실패:", err);
         }
