@@ -122,6 +122,7 @@ const Gallery = () => {
             다양한 여행기를 통해 친구를 추가해보세요.
           </div>
           : friendDisplay.map(post => (
+
             <div key={post.post_id} className="gallery-post-content" onClick={() => navigate(`/gallery-detail/${post.post_id}`)}>
               <div className="gallery-head">
                 <div className="friend-meta">
@@ -131,7 +132,13 @@ const Gallery = () => {
                 <div className='gallery-post-title'>{post.title}</div>
                 <p>{post.content.split(/\r?\n\r?\n/)[1].slice(0, 60)}</p>
               </div>
-              <img className="gallery-thumb-box" src={post.image_urls[0] || Placeholder} alt='img' />
+              <img className="gallery-thumb-box" src={post.image_urls?.[0] || Placeholder}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = Placeholder;
+                }}
+                alt="img"
+              />
             </div>
           ))
         }
@@ -200,10 +207,14 @@ const Gallery = () => {
                   </div>
                 </div>
               </div>
-              <div
-                className="gallery-thumb-box"
-                style={{ backgroundImage: `url(${imgUrl})` }}
+              <img className="gallery-thumb-box" src={imgUrl}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = Placeholder;
+                }}
+                alt="img"
               />
+
             </div>
           );
         })}
