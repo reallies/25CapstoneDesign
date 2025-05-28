@@ -11,7 +11,7 @@ import { ReactComponent as Sightseeing } from "../../assets/images/sightseeing.s
 import { ReactComponent as Activity } from "../../assets/images/activity.svg";
 import { ReactComponent as Shopping } from "../../assets/images/shopping.svg";
 import { ReactComponent as Etc } from "../../assets/images/etc.svg";
-import AlertModal from "../components/AlertModal";
+import {AlertModal} from "../components/AlertModal";
 import ChatBot from "../components/ChatBot";
 
 export const Expenses = () => {
@@ -86,7 +86,23 @@ export const Expenses = () => {
     }, duration);
   };
 
+  useEffect(() => {
+          const handleClickOutside = (e) => {
+              const invite = inviteModalRef.current;
+              const clickedOutsideInvite = invite && !invite.contains(e.target);
 
+
+              if (isInviteOpen && clickedOutsideInvite) {
+                  setIsInviteOpen(false);
+              }
+
+          };
+          document.addEventListener("mousedown", handleClickOutside);
+          return () => {
+              document.removeEventListener("mousedown", handleClickOutside);
+          };
+      }, [isInviteOpen]);
+  
   // 사용자 프로필 정보 가져오기
   const fetchUserProfiles = async (nicknames) => {
     const uniqueNicknames = [...new Set(nicknames)];

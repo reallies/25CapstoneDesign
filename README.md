@@ -6,6 +6,33 @@
 
 ![Thumbnail](docs/Thumbnail.png)
 
+---
+
+<<<<<<< HEAD
+## Design
+- **UI/UX 디자인:**  
+  - Figma 디자인 참고: [Figma Design](https://www.figma.com/design/43bODe77hYu02GHCPcvaD1/2025-1-%EC%BA%A1%EC%8A%A4%ED%86%A4-%EB%94%94%EC%9E%90%EC%9D%B8?node-id=0-1&t=JjS8VRgIPhXlqtoS-1)
+
+## Npm(Node Package Module) Command
+- **/backend : node server.js**  
+  - express(node) 서버 가동
+- **/root : npm start(nodemon)**  
+  - React Webpack 서버(localhost:3000)와 express 서버(localhost:8080) 동시 가동, proxy를 통해 백엔드 api 연동 설정 완료
+- **/root : npm run dev**  
+  - React에서 정적 파일 서빙 후, express 서버에 연동, 배포 시 사용 커맨드
+
+## Npm(Node Package Module) Command
+- **개발환경**  
+  - React => npm start를 통해 프론트엔드 환경에서 개발, proxy를 통해 백엔드 api 연동
+- **배포환경**  
+  - root => npm run dev를 통해 React 정적파일 serving 후 배포
+
+
+**자세한 사항은 루트 디렉터리 아래에 package.json을 참고**  
+
+  
+
+=======
 ## 📌 프로젝트 개요
 
 > **여행 준비, SLAY와 함께면 충분해요.** 
@@ -243,3 +270,4 @@ npm run dev  # 또는 npm start
 ---
 
 > 👏 **"여행을 준비하는 모든 순간, SLAY가 함께합니다."**
+>>>>>>> origin/develop/frontend

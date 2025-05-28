@@ -2,7 +2,7 @@ import React, { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import "./InviteModal.css";
 import search2 from "../../assets/images/search2.svg";
-import AlertModal from "./AlertModal";
+import {AlertModal} from "./AlertModal";
 
 // Axios 기본 설정
 const api = axios.create({
@@ -78,15 +78,31 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     }
   };
  
+  //초대된 사용자 찾기
+  const [invitedUserIds, setInvitedUserIds] = useState([]);
+  const [acceptedUserIds, setAcceptedUserIds] = useState([]);
+  const fetchInvitedUsers = async () => {
+    try {
+      const res = await api.get(`/trip/${tripId}/invited`);
+      setInvitedUserIds(res.data.pending || []);
+      setAcceptedUserIds(res.data.accepted || []);
+    } catch (err) {
+      console.error("초대 상태 조회 실패:", err);
+    }
+  };
+
   useEffect(() => {
-  if (activeTab === "friend") {
-    fetchFriendList();
+    if (activeTab === "friend") {
+      fetchFriendList();
+      if (tripId) {
+        fetchInvitedUsers();
+      }
     } else if (activeTab === "request") {
       fetchPendingRequests();
     } else if (activeTab === "invite") {
       fetchPendingInvites();
     }
-  }, [activeTab]);
+  }, [activeTab, tripId]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -149,7 +165,6 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
       showAlert("초대가 성공적으로 전송되었습니다!", "success");
     } catch (error) {
       console.error("초대 전송 실패:", error.response ? error.response.data : error.message);
-      alert(error.response?.data?.message || "초대 전송에 실패했습니다.");
     }
   };
 
@@ -211,13 +226,15 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
             <img src={friend.image_url} className="rectangle"/>
             <div className="user-name">{friend.nickname}</div>
             <div className="button-group">
-              {tripId ? (
-                pendingInvites.includes(friend.user_id) ? (
+              {tripId && (
+                acceptedUserIds.includes(friend.user_id) ? (
+                  <div className="frame already">초대됨</div>
+                ) : invitedUserIds.includes(friend.user_id) ? (
                   <div className="frame pending">대기중</div>
                 ) : (
                   <div className="frame" onClick={() => handleInvite(friend)}>초대</div>
                 )
-              ) : null}
+              )}
 
               <div className="frame danger" onClick={() => showAlert("친구 삭제 기능은 준비 중입니다.", "warn")}>삭제</div>
             </div>
