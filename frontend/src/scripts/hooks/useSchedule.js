@@ -58,42 +58,43 @@ export const useSchedule = (trip_id) => {
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
-                    kakao_place_id: place.id || place.kakao_place_id,
+                    kakao_place_id: place.kakao_place_id,
                     place_name: place.place_name,
-                    place_address: place.address_name,
-                    place_latitude: Number(place.y),
-                    place_longitude: Number(place.x),
+                    place_address: place.place_address,
+                    place_latitude: place.latitude,  // 서버가 기대하는 필드 이름
+                    place_longitude: place.longitude,  // 서버가 기대하는 필드 이름
                     place_image_url: place.image_url || "",
                     place_star: place.place_star || 0,
-                    place_call_num: place.phone || "",
+                    place_call_num: place.place_call_num || "",
                 }),
             });
 
             const data = await res.json();
 
-        if (res.ok && data.data) {
-            const newItem = {
-                id: `item-${data.data.dayPlace.dayplace_id}`,
-                dayPlaceId: data.data.dayPlace.dayplace_id,
-                type: "place",
-                name: data.data.place.place_name,
-                placeType: "관광명소",
-                latitude: Number(data.data.place.place_latitude),
-                longitude: Number(data.data.place.place_longitude),
-            };
+            if (res.ok && data.data) {
+                const newItem = {
+                    id: `item-${data.data.dayPlace.dayplace_id}`,
+                    dayPlaceId: data.data.dayPlace.dayplace_id,
+                    type: "place",
+                    name: data.data.place.place_name,
+                    placeType: "관광명소",
+                    latitude: data.data.place.place_latitude,
+                    longitude: data.data.place.place_longitude,
+                };
 
-            // 불변 업데이트
-            const newDays = days.map((d, idx) =>
-                idx === dayIndex
-                  ? { ...d, items: [...d.items, newItem] } // 새 items 배열 생성
-                  : d
-            );
+                const newDays = days.map((d, idx) =>
+                    idx === dayIndex ? { ...d, items: [...d.items, newItem] } : d
+                );
 
-        setDays(newDays);
-        setIsModalOpen(false);
-        }
+                setDays(newDays);
+                setIsModalOpen(false);
+            } else {
+                console.error("서버 오류:", data.message);
+                alert(data.message || "장소 추가에 실패했습니다.");
+            }
         } catch (err) {
             console.error("장소 추가 실패:", err);
+            alert("장소 추가 중 오류가 발생했습니다.");
         }
     };
 
