@@ -286,7 +286,7 @@ const Home = () => {
             )}
           </div>
           <div className="search-field" onClick={(e) => openModal("people", e)}>
-            <span className="placeholder-text">동행 인원</span>
+            <span className="placeholder-text">동행 유형</span>
             {selectedPeople.length > 0 && (
               <span className="selected-text">
                 {selectedPeople.join(", ")}
