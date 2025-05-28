@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import "./InviteModal.css";
 import search2 from "../../assets/images/search2.svg";
+import AlertModal from "./AlertModal";
 
 // Axios 기본 설정
 const api = axios.create({
@@ -22,6 +23,26 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  //알람창
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+  const [alertType, setAlertType] = useState("warn"); // success / error
+  const alertShownRef = useRef(false);
+
+  const showAlert = (message, type = "error", duration = 1500) => {
+    if (alertShownRef.current) return;
+
+    alertShownRef.current = true;
+    setAlertText(message);
+    setAlertType(type);
+    setAlertOpen(true);
+
+    setTimeout(() => {
+      alertOpen && setAlertOpen(false);
+      alertShownRef.current = false;
+    }, duration);
+  };
+
   const modalStyle ={
     position: "absolute",
     top:position.top,
@@ -37,33 +58,35 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
       console.error("친구 목록 조회 실패:", error);
     }
   };
-
-  // 데이터 가져오기
+  
+  const fetchPendingRequests = async () => {
+    try {
+      const response = await api.get("/friendship/pending");
+      setRequestListState(response.data.pendingRequests || []);
+    } catch (error) {
+      console.error("요청 목록 조회 실패:", error);
+    }
+  };
+  
+  const fetchPendingInvites = async () => {
+    try {
+      const response = await api.get("/trip/invite/pending");
+      setInviteListState(response.data.pendingInvitations || []);
+    } catch (error) {
+      console.error("초대 목록 조회 실패:", error.response ? error.response.data : error.message);
+      setInviteListState([]);
+    }
+  };
+ 
   useEffect(() => {
-
-    const fetchPendingRequests = async () => {
-      try {
-        const response = await api.get("/friendship/pending");
-        setRequestListState(response.data.pendingRequests || []);
-      } catch (error) {
-        console.error("요청 목록 조회 실패:", error);
-      }
-    };
-
-    const fetchPendingInvites = async () => {
-      try {
-        const response = await api.get("/trip/invite/pending");
-        setInviteListState(response.data.pendingInvitations || []);
-      } catch (error) {
-        console.error("초대 목록 조회 실패:", error.response ? error.response.data : error.message);
-        setInviteListState([]);
-      }
-    };
-
+  if (activeTab === "friend") {
     fetchFriendList();
-    fetchPendingRequests();
-    fetchPendingInvites();
-  }, []);
+    } else if (activeTab === "request") {
+      fetchPendingRequests();
+    } else if (activeTab === "invite") {
+      fetchPendingInvites();
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -73,7 +96,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
   }, [searchTerm]);
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) return alert("닉네임을 입력해주세요.");
+    if (!searchTerm.trim()) return showAlert("닉네임을 입력해주세요.", "warn");
     
     setIsLoading(true);
     setHasSearched(true);
@@ -92,7 +115,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     } catch (err) {
       console.error("검색 실패:", err);
       setSearchResults([]);
-      alert("검색에 실패했습니다.");
+      showAlert("검색에 실패했습니다.", "warn");
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +125,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     try {
       await api.post("/friendship/request", { recipient_nickname: nickname });
       setPendingAdds((prev) => [...prev, nickname]);
-      alert("친구 요청을 보냈습니다.");
+      showAlert("친구 요청을 보냈습니다.", "success");
     } catch (err) {
       console.error("친구 요청 실패:", err);
       alert(err.response?.data?.message || "요청에 실패했습니다.");
@@ -113,7 +136,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
   const handleInvite = async (friend) => {
     if (!tripId) {
       console.error("tripId가 정의되지 않았습니다.");
-      alert("여행 ID가 누락되었습니다. 올바른 여행을 선택해주세요.");
+      showAlert("여행 ID가 누락되었습니다. 올바른 여행을 선택해주세요.", "warn");
       return;
     }
 
@@ -123,7 +146,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
         invited_nickname: friend.nickname,
       });
       setPendingInvites([...pendingInvites, friend.user_id]);
-      alert("초대가 성공적으로 전송되었습니다!");
+      showAlert("초대가 성공적으로 전송되었습니다!", "success");
     } catch (error) {
       console.error("초대 전송 실패:", error.response ? error.response.data : error.message);
       alert(error.response?.data?.message || "초대 전송에 실패했습니다.");
@@ -135,7 +158,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     try {
       await api.put("/friendship/accept", { friendship_id: friendshipId });
       setRequestListState(requestListState.filter((req) => req.friendship_id !== friendshipId));
-      alert("친구 요청이 수락되었습니다!");
+      showAlert("친구 요청이 수락되었습니다!", "success");
     } catch (error) {
       console.error("요청 수락 실패:", error);
       alert(error.response?.data?.message || "요청 수락에 실패했습니다.");
@@ -147,7 +170,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     try {
       await api.put("/friendship/reject", { friendship_id: friendshipId });
       setRequestListState(requestListState.filter((req) => req.friendship_id !== friendshipId));
-      alert("친구 요청이 거절되었습니다.");
+      showAlert("친구 요청이 거절되었습니다.", "success");
     } catch (error) {
       console.error("요청 거절 실패:", error);
       alert(error.response?.data?.message || "요청 거절에 실패했습니다.");
@@ -160,7 +183,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
       await api.put("/trip/invite/accept", { invitation_id: invitationId });
       setInviteListState(inviteListState.filter((inv) => inv.invitation_id !== invitationId));
       fetchFriendList();
-      alert("초대가 수락되었습니다!");
+      showAlert("초대가 수락되었습니다!", "success");
     } catch (error) {
       console.error("초대 수락 실패:", error);
       alert(error.response?.data?.message || "초대 수락에 실패했습니다.");
@@ -172,7 +195,7 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
     try {
       await api.put("/trip/invite/reject", { invitation_id: invitationId });
       setInviteListState(inviteListState.filter((inv) => inv.invitation_id !== invitationId));
-      alert("초대가 거절되었습니다.");
+      showAlert("초대가 거절되었습니다.", "success");
     } catch (error) {
       console.error("초대 거절 실패:", error);
       alert(error.response?.data?.message || "초대 거절에 실패했습니다.");
@@ -195,7 +218,8 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
                   <div className="frame" onClick={() => handleInvite(friend)}>초대</div>
                 )
               ) : null}
-              <div className="frame danger" onClick={() => alert("친구 삭제 기능은 준비 중입니다.")}>삭제</div>
+
+              <div className="frame danger" onClick={() => showAlert("친구 삭제 기능은 준비 중입니다.", "warn")}>삭제</div>
             </div>
           </div>
           {index !== friendListState.length - 1 && <div className="gray-line" />}
@@ -314,7 +338,9 @@ const InviteModal = ({ onClose, modalRef, tripId, position ={} }) => {
       {/* 리스트 출력 영역: 탭에 따른 친구 목록 */}
       <div className="invite-modal-scroll">{getListByTab()}</div>
 
-        
+      {alertOpen && (
+        <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
+      )}
 
     </div>
   );

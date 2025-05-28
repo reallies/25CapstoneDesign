@@ -11,6 +11,7 @@ import { ReactComponent as Sightseeing } from "../../assets/images/sightseeing.s
 import { ReactComponent as Activity } from "../../assets/images/activity.svg";
 import { ReactComponent as Shopping } from "../../assets/images/shopping.svg";
 import { ReactComponent as Etc } from "../../assets/images/etc.svg";
+import AlertModal from "../components/AlertModal";
 
 export const Expenses = () => {
   const { trip_id } = useParams();
@@ -64,6 +65,26 @@ export const Expenses = () => {
     SHOPPING: "shopping",
     OTHER: "etc",
   };
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+  const [alertType, setAlertType] = useState("warn"); // success / error
+  const alertShownRef = useRef(false);
+
+  const showAlert = (message, type = "error", duration = 1500) => {
+    if (alertShownRef.current) return;
+
+    alertShownRef.current = true;
+    setAlertText(message);
+    setAlertType(type);
+    setAlertOpen(true);
+
+    setTimeout(() => {
+      alertOpen && setAlertOpen(false);
+      alertShownRef.current = false;
+    }, duration);
+  };
+
 
   // 사용자 프로필 정보 가져오기
   const fetchUserProfiles = async (nicknames) => {
@@ -172,7 +193,7 @@ export const Expenses = () => {
 
   const handleAddExpense = async () => {
     if (!cost || !description || !category) {
-      alert("모든 필드를 입력해주세요.");
+      showAlert("모든 필드를 입력해주세요.", "warn");
       return;
     }
     const selectedDay = dayTabs.find((tab) => tab.label === activeDay);
@@ -256,7 +277,6 @@ export const Expenses = () => {
             <div className="expense-menu">
               <Link to={`/schedule/${trip_id}`} className="expense-menu-item">일정</Link>
               <div className="expense-menu-item" onClick={() => setIsInviteOpen(true)}>초대</div>
-              <div className="expense-menu-item">내 기록</div>
             </div>
           </div>
 
@@ -468,6 +488,11 @@ export const Expenses = () => {
             </div>
             <button className="add-expense-btn" onClick={handleAddExpense}>추가하기</button>
           </div>
+
+          {alertOpen && (
+            <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
+          )}
+
         </div>
       </div>
     </div>

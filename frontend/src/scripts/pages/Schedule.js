@@ -202,9 +202,6 @@ const Schedule = () => {
                         <div className="menu-item" onClick={() => setIsInviteOpen(true)} ref={inviteButtonRef}>
                             <div className="menu-text">초대</div>
                         </div>
-                        <div className="menu-item">
-                            <div className="menu-text">여행 일정</div>
-                        </div>
                     </div>
                 </div>
 

@@ -27,7 +27,7 @@ const Home = () => {
   const alertShownRef = useRef(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState("");
-
+  const [alertType, setAlertType] = useState("warn"); 
 
   const themeMap = {
     "모험·액티비티": "ADVENTURE",
@@ -104,6 +104,7 @@ const Home = () => {
           alertShownRef.current = true;
           setAlertText("여행지는 최대 3개까지만 선택 가능합니다.");
           setAlertOpen(true);
+          setAlertType("warn");
           setTimeout(() => {
             alertShownRef.current = false;
           }, 1000);
@@ -606,7 +607,7 @@ const Home = () => {
 
       {/* 경고 모달 */}
       {alertOpen && (
-        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+        <AlertModal text={alertText} type={alertType} onClose={() => setAlertOpen(false)} />
       )}
     </div>
   );
