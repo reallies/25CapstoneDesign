@@ -387,45 +387,54 @@ const Home = () => {
           <div className="records-title">내 기록</div>
           <div className="records-container">
             {visibleRecords.length === 0 ? (
+              // 1) 리뷰가 하나도 없을 때
               <div className="myrecord-empty-msg">
-                내가 쓴 리뷰가 없습니다. 
+                내가 쓴 리뷰가 없습니다. <br />
+                리뷰를 작성해주세요.
               </div>
             ) : (
-              visibleRecords.map((post) => {
-                const imgUrl =
-                  Array.isArray(post.image_urls) && post.image_urls[0];
-                const dateText = new Date(post.created_at).toLocaleDateString(
-                  'ko-KR',
-                  { year: 'numeric', month: '2-digit', day: '2-digit' }
-                );
-                return (
-                  <div
-                    key={post.post_id}
-                    className="record-card"
-                    style={
-                      imgUrl
-                        ? { backgroundImage: `url(${imgUrl})` }
-                        : { backgroundColor: '#e0e0e0' }
-                    }
-                    onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
-                  >
-                    <div className="record-text">{dateText}</div>
-                  </div>
-                );
-              })
-            )}
+              // 2) 리뷰가 있을 때만 이 부분을 렌더
+              <>
+                {visibleRecords.map((post) => {
+                  const imgUrl =
+                    Array.isArray(post.image_urls) && post.image_urls[0];
+                  const dateText = new Date(post.created_at).toLocaleDateString(
+                    'ko-KR',
+                    { year: 'numeric', month: '2-digit', day: '2-digit' }
+                  );
+                  return (
+                    <div
+                      key={post.post_id}
+                      className="record-card"
+                      style={
+                        imgUrl
+                          ? { backgroundImage: `url(${imgUrl})` }
+                          : { backgroundColor: '#e0e0e0' }
+                      }
+                      onClick={() => navigate(`/gallery-detail/${post.post_id}`)}
+                    >
+                      <div className="record-text">{dateText}</div>
+                    </div>
+                  );
+                })}
 
-            {/* 더보기 카드 */}
-            {hasMore && (
-              <div
-                className="record-card last-rcard"
-                onClick={() => navigate('/gallery')}
-              >
-                <img className="plus-icon" src={plusIcon} alt="추가" />
-              </div>
+                {/* 더보기 카드 (리뷰가 하나라도 있을 때만) */}
+                {hasMore && (
+                  <div
+                    className="record-card last-rcard"
+                    onClick={() => navigate('/gallery')}
+                  >
+                    <img className="plus-icon" src={plusIcon} alt="추가" />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
+
+
+
+
       </div>
 
       {/* 모달 구현 */}
