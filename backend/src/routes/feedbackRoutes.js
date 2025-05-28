@@ -269,14 +269,14 @@ async function getOperatingHoursFeedback(day, places, plannedTimes, tripStartDat
         if (plannedTimes[index] && operatingHours[index]) {
             const check = isWithinOperatingHours(operatingHours[index], plannedTimes[index], visitDay);
             if (!check.within) {
-                warning = `\n⚠️ ${check.message}`;
+                warning = ` ⚠️${place.place_name}은 ${plannedTimes[index]}에 방문 예정인데, 운영시간이 벗어납니다!`;
             }
         }
 
-        return `- 📍 ${place.place_name}: 🕙 ${hours}, 방문 예정: ${plannedTime}${warning}`;
+        return `- 📍 ${place.place_name}: 🕙 ${hours}${warning}`;
     }).join("\n");
 
-    const prompt = `DAY ${day.day_order} (${visitDay})의 장소 운영시간 및 방문 예정 시간:\n${placeDetails}\n\n친근하고 간결한 대화체로 피드백을 제공하세요. 항상 존대말을 사용하세요. 다음 형식으로 출력:\n${places.map(p => `📍 ${p.place_name}: 🕙 운영시간\n`).join("")}\n👉 방문 시간을 미리 확인해 원활한 일정을 준비하세요!\n\n각 장소의 운영시간을 '🕙 HH:MM-HH:MM' 형식으로 나열하고, 늦게 열거나 일찍 닫는 곳을 강조하세요. 방문 예정 시간이 운영시간을 벗어나는 경우 경고 메시지를 포함하세요. 150자 이내.`;
+    const prompt = `DAY ${day.day_order} (${visitDay})의 장소 운영시간 및 방문 예정 시간:\n${placeDetails}\n\n친근하고 간결한 대화체로 피드백을 제공하세요. 항상 존대말을 사용하세요. 다음 형식으로 출력:\n${places.map(p => `📍 ${p.place_name}: 🕙 운영시간\n`).join("")}\n👉 방문 시간을 미리 확인해 원활한 일정을 준비하세요!\n\n각 장소의 운영시간을 '🕙 HH:MM-HH:MM' 형식으로 나열하고, 방문 예정 시간이 운영시간을 벗어나면 해당 장소 옆에 경고 메시지(⚠️)를 반드시 포함하세요. 150자 이내로 작성하세요.`;
 
     const feedback = await gptRes(prompt);
     console.log(`DAY ${day.day_order} 운영시간 GPT 응답: ${feedback}`);
