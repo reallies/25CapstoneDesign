@@ -302,8 +302,8 @@ const Home = () => {
         <div className="popular-title">인기 여행지</div>
         <div className="destination-list">
           {[
-            { name: "서울", subtext: "서울특별시", places: "경복궁, 인사동, 명동, 남산, 광화문, 성수동, 잠실", image: `${process.env.PUBLIC_URL}/images/Seoul_Scenery.webp` },
-            { name: "경주", subtext: "경상북도 경주시", places: "불국사, 첨성대, 동궁과 월지, 경주월드, 황리단길", image: `${process.env.PUBLIC_URL}/images/Gyeongju_Scenery.webp` },
+            { name: "서울", subtext: "서울특별시", places: "경복궁, 인사동, 명동, 남산, 광화문, 성수동, 잠실", image: `${process.env.PUBLIC_URL}/images/Seoul_Scenery.jpg` },
+            { name: "경주", subtext: "경상북도 경주시", places: "불국사, 첨성대, 동궁과 월지, 경주월드, 황리단길", image: `${process.env.PUBLIC_URL}/images/Gyeongju_Scenery.jpg` },
             { name: "부산", subtext: "부산광역시", places: "해운대, 광안리, 감천문화마을, 태종대, 자갈치시장", image: `${process.env.PUBLIC_URL}/images/Busan_Scenery.jpg` },
             { name: "제주도", subtext: "제주특별자치도", places: "성산일출봉, 우도, 협재해변, 천지연폭포, 한라산", image: `${process.env.PUBLIC_URL}/images/Jeju_Scenery.jpg` },
           ].map((city, index) => (
