@@ -40,5 +40,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://13.124.77.88:8080 " //수정!!!
+  "proxy": "http://localhost:8080" //수정!!!
 }
