@@ -263,6 +263,14 @@ async function deleteTripService(trip_id) {
       where: { day_id: { in: dayIds } },
     });
 
+    // 2-2. day_id 없는 Expense도 삭제
+    await tx.expense.deleteMany({
+      where: {
+        trip_id,
+        day_id: null,
+      },
+    });
+    
     // 3. Day 삭제
     await tx.day.deleteMany({
       where: { trip_id },
@@ -273,7 +281,12 @@ async function deleteTripService(trip_id) {
       where: { trip_id },
     });
 
-    // 5. Trip 삭제
+    // 5. post 삭제
+    await tx.post.deleteMany({
+      where: { trip_id },
+    });
+
+    // 6. Trip 삭제
     return await tx.trip.delete({
       where: { trip_id },
     });
