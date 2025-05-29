@@ -268,7 +268,12 @@ async function deleteTripService(trip_id) {
       where: { trip_id },
     });
 
-    // 4. Trip 삭제
+    // 4. tripInvitation 삭제
+    await tx.tripInvitation.deleteMany({
+      where: { trip_id },
+    });
+
+    // 5. Trip 삭제
     return await tx.trip.delete({
       where: { trip_id },
     });

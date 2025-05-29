@@ -1,12 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./MySchedule.css";
 import { useNavigate } from "react-router-dom";
+import { AlertDeleteModal } from "../components/AlertModal";
 
 const MySchedule = () => {
   const [sortOrder, setSortOrder] = useState("recent"); // Uncommented and added
   const [trips, setTrips] = useState([]); // 사용자가 생성한 일정
   const [acceptedInvitations, setAcceptedInvitations] = useState([]); // 초대받아 수락한 일정
   const navigate = useNavigate();
+
+  const alertShownRef = useRef(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertText, setAlertText] = useState("");
+  const [targetTripId, setTargetTripId] = useState(null);
+
+  //삭제 모달 생길때 trip title 저장
+  const handleOpenDeleteModal = (tripId, title) => {
+    setAlertText(`'${title}' 일정을 삭제하시겠습니까?`);
+    setTargetTripId(tripId);
+    setAlertOpen(true);
+  };
 
   // 날짜 형식 변환 함수
   const formatDate = (dateStr) => {
@@ -92,15 +105,17 @@ const MySchedule = () => {
   };
 
   // 여행 삭제 버튼
-  const handleDeleteTrip = async (tripId) => {
+  const handleDeleteTrip = async () => {
     try {
-      await fetch(`http://localhost:8080/schedule/${tripId}`, {
+      await fetch(`http://localhost:8080/schedule/${targetTripId}`, {
         method: "DELETE",
         credentials: "include",
       });
-      setTrips((prev) => prev.filter((trip) => trip.trip_id !== tripId));
+      setTrips((prev) => prev.filter((trip) => trip.trip_id !== targetTripId));
     } catch (err) {
       console.error("여행 삭제 중 에러:", err);
+    } finally {
+      setAlertOpen(false);
     }
   };
 
@@ -177,13 +192,17 @@ const MySchedule = () => {
                 <button className="view-btn" onClick={() => handleViewTrip(trip.trip_id)}>
                   자세히 보기
                 </button>
-                <button className="delete-btn" onClick={() => handleDeleteTrip(trip.trip_id)}>
+                <button className="delete-btn" onClick={() => handleOpenDeleteModal(trip.trip_id, trip.title)}>
                   삭제하기
                 </button>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {alertOpen && (
+              <AlertDeleteModal text={alertText} onConfirm={handleDeleteTrip} onClose={() => setAlertOpen(false)} />
       )}
     </div>
   );

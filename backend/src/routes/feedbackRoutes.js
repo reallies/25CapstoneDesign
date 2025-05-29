@@ -200,14 +200,40 @@ function getVisitDay(startDate, dayOrder) {
   return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
 }
 
+function parsePlannedTime(plannedTime) {
+    if (!plannedTime) return null;
+    const match = plannedTime.match(/(오전|오후)\s(\d{1,2}):(\d{2})/);
+    if (!match) {
+        console.warn(`Invalid plannedTime format: ${plannedTime}`);
+        return null;
+    }
+    const [, period, hourStr, minStr] = match;
+    let hour = parseInt(hourStr);
+    const min = parseInt(minStr);
+    if (period === "오전") {
+        if (hour === 12) {
+            hour = 0; // 오전 12시는 00시
+        }
+    } else if (period === "오후") {
+        if (hour !== 12) {
+            hour += 12; // 오후 1시~11시는 +12, 오후 12시는 12시 유지
+        }
+    }
+    return { hour, min };
+}
+
 // 운영시간과 방문 예정 시간 비교 함수
 function isWithinOperatingHours(operatingHours, plannedTime, visitDay) {
     if (!operatingHours || !operatingHours[visitDay] || !plannedTime) {
         return { within: false, message: "운영시간 정보가 없거나 방문 예정 시간이 없습니다." };
     }
 
-    const plannedHour = parseInt(plannedTime.split(":")[0]);
-    const plannedMin = parseInt(plannedTime.split(":")[1]);
+    const parsedTime = parsePlannedTime(plannedTime);
+    if (!parsedTime) {
+        return { within: false, message: "방문 예정 시간 형식이 올바르지 않습니다." };
+    }
+    const { hour: plannedHour, min: plannedMin } = parsedTime;
+    const plannedTimeMin = plannedHour * 60 + plannedMin;
 
     for (const period of operatingHours[visitDay]) {
         const [open, close] = period.split("-");
@@ -216,7 +242,6 @@ function isWithinOperatingHours(operatingHours, plannedTime, visitDay) {
 
         const openTime = openHour * 60 + openMin;
         const closeTime = closeHour * 60 + closeMin;
-        const plannedTimeMin = plannedHour * 60 + plannedMin;
 
         if (plannedTimeMin >= openTime && plannedTimeMin <= closeTime) {
             return { within: true };
@@ -241,20 +266,20 @@ async function getOperatingHoursFeedback(day, places, plannedTimes, tripStartDat
         const plannedTime = plannedTimes[index] || "미정";
         let warning = "";
 
+        // 운영시간과 방문 예정 시간을 비교
         if (plannedTimes[index] && operatingHours[index]) {
             const check = isWithinOperatingHours(operatingHours[index], plannedTimes[index], visitDay);
             if (!check.within) {
-                warning = `\n⚠️ ${check.message}`;
+                warning = ` ⚠️ ${check.message}`; // 경고 메시지를 명시적으로 추가
             }
         }
 
-        return `- 📍 ${place.place_name}: 🕙 ${hours}, 방문 예정: ${plannedTime}${warning}`;
+        return `- 📍 ${place.place_name}: 🕙 ${hours}${warning}`;
     }).join("\n");
 
-    const prompt = `DAY ${day.day_order} (${visitDay})의 장소 운영시간 및 방문 예정 시간:\n${placeDetails}\n\n친근하고 간결한 대화체로 피드백을 제공하세요. 항상 존대말을 사용하세요. 다음 형식으로 출력:\n${places.map(p => `📍 ${p.place_name}: 🕙 운영시간\n`).join("")}\n👉 방문 시간을 미리 확인해 원활한 일정을 준비하세요!\n\n각 장소의 운영시간을 '🕙 HH:MM-HH:MM' 형식으로 나열하고, 늦게 열거나 일찍 닫는 곳을 강조하세요. 방문 예정 시간이 운영시간을 벗어나는 경우 경고 메시지를 포함하세요. 150자 이내.`;
+    const prompt = `DAY ${day.day_order} (${visitDay})의 장소 운영시간 및 방문 예정 시간:\n${placeDetails}\n\n친근하고 간결한 대화체로 피드백을 제공하세요. 항상 존대말을 사용하세요. 다음 형식으로 출력:\n${places.map(p => `📍 ${p.place_name}: 🕙 운영시간\n`).join("")}\n👉 방문 시간을 미리 확인해 원활한 일정을 준비하세요!\n\n각 장소의 운영시간을 '🕙 HH:MM-HH:MM' 형식으로 나열하고, 방문 예정 시간이 운영시간을 벗어나면 해당 장소 옆에 경고 메시지(⚠️)와 함께 구체적인 이유를 반드시 포함하세요. 150자 이내로 작성하세요.`;
 
     const feedback = await gptRes(prompt);
-    console.log(`DAY ${day.day_order} 운영시간 GPT 응답: ${feedback}`);
     return feedback || "운영시간 피드백 생성에 실패했습니다.";
 }
 
@@ -504,12 +529,25 @@ async function getWeatherFeedbackFromOpen(day, visitDate) {
 }
 
 async function getWeatherFeedback(day, tripStartDate) {
-    const visitDate = new Date(tripStartDate.getTime() + (day.day_order - 1) * 86400000);
-    const daysDiff = Math.ceil((visitDate - new Date()) / (1000 * 60 * 60 * 24));
+  const visitDate = new Date(tripStartDate.getTime() + (day.day_order - 1) * 86400000);
+  const daysDiff = Math.ceil((visitDate - new Date()) / (1000 * 60 * 60 * 24));
+  console.log(`DAY ${day.day_order} - daysDiff: ${daysDiff}, visitDate: ${visitDate}`);
 
-    return daysDiff >= 8
-        ? await getWeatherFeedbackFromKMA(day, visitDate)
-        : await getWeatherFeedbackFromOpen(day, visitDate);
+  try {
+    if (visitDate < new Date()) {
+      console.log("과거 날짜 감지, KMA 호출");
+      return await getWeatherFeedbackFromKMA(day, visitDate);
+    } else if (daysDiff >= 8) {
+      console.log("8일 이상 미래, KMA 호출");
+      return await getWeatherFeedbackFromKMA(day, visitDate);
+    } else {
+      console.log("8일 미만 미래, OpenWeather 호출");
+      return await getWeatherFeedbackFromOpen(day, visitDate);
+    }
+  } catch (error) {
+    console.error("날씨 피드백 오류:", error.message);
+    return { weather_info: [], weather_feedback: "날씨 정보를 가져오지 못했습니다." };
+  }
 }
 
 

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌트
 import photoIcon from '../../assets/images/camera.svg';
-import AlertModal from "../components/AlertModal";
+import {AlertModal} from "../components/AlertModal";
 import './Record.css';
 import ChatBot from "../components/ChatBot";
 

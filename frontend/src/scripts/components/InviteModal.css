@@ -135,6 +135,11 @@
     cursor: default;
 }
   
+.frame.already {
+    background-color: #daeaff;
+    color: #2e89ff;
+    cursor: default;
+}
   
 .user-name {
     color: #000000;
