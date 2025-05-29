@@ -27,7 +27,7 @@ const Home = () => {
   const alertShownRef = useRef(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState("");
-  const [alertType, setAlertType] = useState("warn"); 
+  const [alertType, setAlertType] = useState("warn");
 
   const themeMap = {
     "모험·액티비티": "ADVENTURE",
@@ -329,19 +329,15 @@ const Home = () => {
               const [subtitle, ...rest] = post.content.split(/\r?\n\r?\n/);
               const mainContent = rest.join('\n\n');
 
-              // 이미지 URL이 없으면 placeholder
-              const imgUrl =
-                Array.isArray(post.image_urls) && post.image_urls[0]
-                  ? post.image_urls[0]
-                  : PlaceHolder;
-
               return (
                 <div key={post.post_id} className="gallery-card">
                   <div className="gallery-card-inner">
-                    <img
-                      className="gallery-image"
-                      src={imgUrl}
-                      alt={post.title || '여행 이미지'}
+                    <img className="gallery-image" src={post.image_urls?.[0] || PlaceHolder}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = PlaceHolder;
+                      }}
+                      alt="img"
                     />
                     <div className="gallery-subtitle">{post.title || '제목 없음'}</div>
                     <p className="gallery-description">

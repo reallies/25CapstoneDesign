@@ -23,7 +23,9 @@ const Record = () => {
   const alertShownRef = useRef(false);
 
   // 상태 관리
-  const [trips, setTrips] = useState(null); // 여행 데이터
+  const [trips, setTrips] = useState([]); // 여행 데이터
+  const [invitedTrips, setInvitedTrips] = useState([]); // 내가 수락한 초대 여정
+
   const [selectedTripId, setSelectedTripId] = useState(null); // 선택된 여행 ID
   const [selectedTripData, setSelectedTripData] = useState(null); //선택된 여행 데이터
   const [isTripModalOpen, setIsTripModalOpen] = useState(false); // 여행 선택 모달 열림 여부
@@ -48,20 +50,28 @@ const Record = () => {
 
   // 여행 리스트 불러오기
   useEffect(() => {
-    async function fetchTrips() {
-      try {
-        const res = await fetch('http://localhost:8080/schedule/myTrips', { credentials: 'include' });
-        const data = await res.json();
-        // 최신 순 정렬
-        const sorted = [...data.trips].sort(
-          (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
-        );
+    fetch('http://localhost:8080/schedule/myTrips', {
+      credentials: 'include'
+    })
+      .then(r => r.json())
+      .then(data => {
+        // 최신순 정렬
+        const sorted = [...(data.trips || [])]
+          .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
         setTrips(sorted);
-      } catch (err) {
-        console.error('여행 목록 불러오기 실패:', err);
-      }
-    };
-    fetchTrips();
+      })
+      .catch(console.error);
+
+    // 내가 수락한 초대 일정
+    fetch('http://localhost:8080/trip/invitations/accepted', {
+      credentials: 'include'
+    })
+      .then(r => r.json())
+      .then(data => {
+        // { invitations: [ { trip_id, trip_title, start_date, end_date, destinations,... } ] }
+        setInvitedTrips(data.invitations || []);
+      })
+      .catch(console.error);
   }, []);
 
   // 1) 여정 선택 시 days 로드 
@@ -110,6 +120,33 @@ const Record = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isModalOpen, isFocused]);
+
+  // 2) “합쳐진” 여정 리스트 만들기
+  const allTrips = React.useMemo(() => {
+    // 내가 만든 것
+    const own = trips.map(t => ({
+      ...t,
+      type: 'CREATOR'
+    }));
+
+    // 초대한 사람: API 스펙에 맞춰 필드 이름 재가공
+    const inv = invitedTrips.map(inv => ({
+      trip_id: inv.trip_id,
+      title: inv.trip_title,
+      start_date: inv.start_date,
+      end_date: inv.end_date,
+      days: inv.days,                 
+      type: 'INVITED',
+      inviterNickname: inv.inviter_nickname,
+      // …필요시 더 넣기
+    }));
+
+    // 중복 제거 후 병합
+    const merged = [...own, ...inv];
+    return merged.filter((t, i) =>
+      merged.findIndex(x => x.trip_id === t.trip_id) === i
+    );
+  }, [trips, invitedTrips]);
 
   const filteredDays =
     activeDay === 'ALL'
@@ -299,12 +336,19 @@ const Record = () => {
           <div className="record-modal-box" onClick={e => e.stopPropagation()}>
             <h2>여정 선택</h2>
             <div className="record-trip-list">
-              {trips.map(trip => (
+
+
+              {allTrips.map(trip => (
                 <div key={trip.trip_id} className="record-trip-item">
                   <div className="trip-info">
-                    <strong style={{ fontSize: 18 }}>{trip.title}</strong>
-                    <div style={{ margin: "5px 0" }}>
-                      {trip.start_date.split('T')[0]} – {trip.end_date.split('T')[0]}
+                    <strong>{trip.title}</strong>
+                    {trip.type === 'INVITED' && (
+                      <span className="inviter-label">
+                        {trip.inviterNickname}
+                      </span>
+                    )}
+                    <div>
+                      {trip.start_date.split('T')[0]} - {trip.end_date.split('T')[0]}
                     </div>
                   </div>
                   <button
@@ -315,7 +359,11 @@ const Record = () => {
                   </button>
                 </div>
               ))}
-              {trips.length === 0 && <p>등록된 여정이 없습니다.</p>}
+              {allTrips.length === 0 && <p>선택 가능한 여정이 없습니다.</p>}
+
+
+
+
             </div>
             <button className="modal-close-btn" onClick={toggleTripModal}>
               닫기
@@ -326,33 +374,35 @@ const Record = () => {
       }
 
       {/* 여정 선택 뒤에만 DAY 탭과 지도 */}
-      {selectedTripData && days.length > 0 && (
-        <>
-          {/* DAY 탭 */}
-          <div className="record-day-tabs">
-            <button
-              className={`record-day-tab ${activeDay === 'ALL' ? 'active' : ''}`}
-              onClick={() => setActiveDay('ALL')}
-            >
-              전체 보기
-            </button>
-            {days.map((_, idx) => (
+      {
+        selectedTripData && days.length > 0 && (
+          <>
+            {/* DAY 탭 */}
+            <div className="record-day-tabs">
               <button
-                key={idx}
-                className={`record-day-tab ${activeDay === idx ? 'active' : ''}`}
-                onClick={() => setActiveDay(idx)}
+                className={`record-day-tab ${activeDay === 'ALL' ? 'active' : ''}`}
+                onClick={() => setActiveDay('ALL')}
               >
-                DAY {idx + 1}
+                전체 보기
               </button>
-            ))}
-          </div>
+              {days.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`record-day-tab ${activeDay === idx ? 'active' : ''}`}
+                  onClick={() => setActiveDay(idx)}
+                >
+                  DAY {idx + 1}
+                </button>
+              ))}
+            </div>
 
-          {/* KakaoMap 렌더링 */}
-          <div className='record-map-wrapper'>
-            <KakaoMap days={filteredDays} />
-          </div>
-        </>
-      )}
+            {/* KakaoMap 렌더링 */}
+            <div className='record-map-wrapper'>
+              <KakaoMap days={filteredDays} />
+            </div>
+          </>
+        )
+      }
 
       {/* 이미지 추가 시 미리보기와 추가 입력창 표시 */}
       {
@@ -391,9 +441,11 @@ const Record = () => {
 
       />
       {/* 경고 모달 */}
-      {alertOpen && (
-        <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
-      )}
+      {
+        alertOpen && (
+          <AlertModal text={alertText} onClose={() => setAlertOpen(false)} />
+        )
+      }
 
       {/* 하단 챗봇 컴포넌트 */}
       <ChatBot />

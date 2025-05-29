@@ -155,6 +155,20 @@
     margin-bottom: 10px;
 }
 
+.trip-info {
+    margin-bottom: 10px;
+}
+
+.inviter-label {
+    margin-left: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #206cde98;
+    font-size: 12px;
+    font-weight: 500;
+    color: #000;
+}
+
 /* ===== 구분선 ===== */
 .record-divider {
     border: none;
