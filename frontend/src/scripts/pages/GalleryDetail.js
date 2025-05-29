@@ -1,16 +1,21 @@
 // GalleryDetail.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext.js';
 import './GalleryDetail.css';
 import DetailKakaoMap from '../components/DetailKakaoMap.js';
 
 export default function GalleryDetail() {
     const { post_id } = useParams();
+
+    const { user: me } = useContext(AuthContext);
+
     const navigate = useNavigate();
 
     const [post, setPost] = useState(null);
     const [showSchedule, setShowSchedule] = useState(false);
     const [activeDay, setActiveDay] = useState('ALL');
+
 
     useEffect(() => {
         fetch(`http://localhost:8080/posts/${post_id}/detail`, {
@@ -29,6 +34,8 @@ export default function GalleryDetail() {
         );
     }
     const days = post.trip?.days || [];
+    const isMine = post.user.user_id === me.user_id;
+
 
     const filteredDays =
         activeDay === "ALL"
@@ -42,6 +49,35 @@ export default function GalleryDetail() {
         if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
         if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
         return `${Math.floor(diff / 86400)}일 전`;
+    };
+
+    const handleEdit = () => {
+        navigate("/record", {
+            state: {
+                mode: "edit",
+                post: {
+                    post_id: post.post_id,
+                    trip_id: post.trip_id,
+                    title: post.title,
+                    subtitle: post.content.split(/\r?\n\r?\n/)[0],
+                    content: post.content.split(/\r?\n\r?\n/)[1] || "",
+                    image_urls: post.image_urls,
+                    visibility: post.visibility,
+                }
+            }
+        });
+    };
+
+    const handleDelete = async () => {
+        const res = await fetch(`http://localhost:8080/posts/${post.post_id}`, {
+            method: "DELETE",
+            credentials: "include",
+        });
+        if (res.ok) {
+            navigate("/gallery");
+        } else {
+            alert("게시글 삭제에 실패했습니다.");
+        }
     };
 
     return (
@@ -101,7 +137,7 @@ export default function GalleryDetail() {
                                 <div key={day.day_id} className="day-card">
                                     <div className="day-header">
                                         <div className="day-title">DAY {day.day_order}</div>
-                                        <div className="day-date">| {day.date /* 만약 date 속성이 있다면 */}</div>
+                                        <div className="day-date">| {day.date}</div>
                                     </div>
                                     <ul className="schedule-ul">
                                         {day.places.map((p, i) => (
@@ -138,7 +174,23 @@ export default function GalleryDetail() {
                     </div>
                 ))
             )}
-
+            {isMine && (
+                <div className="meta-buttons">
+                    <button className="meta-btn edit" onClick={handleEdit}>
+                        수정하기
+                    </button>
+                    <button
+                        className="meta-btn delete"
+                        onClick={() => {
+                            if (window.confirm("정말 삭제하시겠습니까?")) {
+                                handleDelete();
+                            }
+                        }}
+                    >
+                        삭제하기
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

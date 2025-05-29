@@ -1,16 +1,21 @@
 //Record.js
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import KakaoMap from '../components/RecordKakaoMap'; // 카카오 맵 컴포넌트
 import photoIcon from '../../assets/images/camera.svg';
-import {AlertModal} from "../components/AlertModal";
+import { AlertModal } from "../components/AlertModal";
 import './Record.css';
 import ChatBot from "../components/ChatBot";
 
 const Record = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext); //유저 데이터
+
+  const location = useLocation();
+  const editState = location.state;
+  const isEditMode = editState?.mode === "edit";
+  const existing = editState?.post;
 
   const pinRef = useRef(null);         // 핀 아이콘 위치 참조
   const modalRef = useRef(null);       // 모달 감지용 참조
@@ -19,6 +24,7 @@ const Record = () => {
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
   const contentRef = useRef(null);
+  const [recordImageList, setRecordImageList] = useState([]); // 업로드된 이미지 목록
 
   const alertShownRef = useRef(false);
 
@@ -26,18 +32,15 @@ const Record = () => {
   const [trips, setTrips] = useState([]); // 여행 데이터
   const [invitedTrips, setInvitedTrips] = useState([]); // 내가 수락한 초대 여정
 
-  const [selectedTripId, setSelectedTripId] = useState(null); // 선택된 여행 ID
+  const [selectedTripId, setSelectedTripId] = useState(existing?.trip_id || null); // 선택된 여행 ID
   const [selectedTripData, setSelectedTripData] = useState(null); //선택된 여행 데이터
   const [isTripModalOpen, setIsTripModalOpen] = useState(false); // 여행 선택 모달 열림 여부
-  const [recordImageList, setRecordImageList] = useState([]); // 업로드된 이미지 목록
   const [isModalOpen, setIsModalOpen] = useState(false);      // 모달 열림 여부
   const [isFocused, setIsFocused] = useState(false);          // 검색창 포커스 상태
   const [days, setDays] = useState([]);                       // day 데이터 상태
   const [activeDay, setActiveDay] = useState('ALL');          // 전체 or 인덱스
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertText, setAlertText] = useState("");
-
-
 
   // 현재 시간 포맷팅 (예: "2025. 05. 19 PM 09:03")
   const now = new Date();
@@ -47,6 +50,23 @@ const Record = () => {
   const formattedTime =
     `${now.getFullYear()}. ${pad2(now.getMonth() + 1)}. ${pad2(now.getDate())} ` +
     `${ampm} ${pad2(hour12)}:${pad2(now.getMinutes())}`;
+
+
+  // mount 시 한번만
+  useEffect(() => {
+    if (!isEditMode) return;
+    // 1) input 기본값 직접 세팅
+    if (titleRef.current) titleRef.current.value = existing.title;
+    if (subtitleRef.current) subtitleRef.current.value = existing.subtitle;
+    if (contentRef.current) contentRef.current.value = existing.content;
+
+    // 2) 이미지 URL 세팅
+    setRecordImageList(existing.image_urls || []);
+
+    // 3) selectedTripId 초기화
+    setSelectedTripId(existing.trip_id);
+  }, []);
+
 
   // 여행 리스트 불러오기
   useEffect(() => {
@@ -135,7 +155,7 @@ const Record = () => {
       title: inv.trip_title,
       start_date: inv.start_date,
       end_date: inv.end_date,
-      days: inv.days,                 
+      days: inv.days,
       type: 'INVITED',
       inviterNickname: inv.inviter_nickname,
       // …필요시 더 넣기
@@ -223,29 +243,33 @@ const Record = () => {
 
     // 백엔드가 받도록 하는 json 데이터
     const body = {
-      trip_id,
-      title,
-      content: subtitle
-        ? `${subtitle}\n\n${content}`      // 부제목과 본문 합치기
-        : content,
-      visibility: "PUBLIC",                  // 필요에 따라 선택지도 추가
-      image_urls: recordImageList,           // 실제 서버 URL이 담긴 배열
+      trip_id: selectedTripId,
+      title: titleRef.current.value,
+      content: subtitleRef.current.value
+        ? `${subtitleRef.current.value}\n\n${contentRef.current.value}`
+        : contentRef.current.value,
+      image_urls: recordImageList,
+      visibility: "PUBLIC",
     };
 
+    const url = isEditMode
+      ? `http://localhost:8080/posts/${existing.post_id}`  // 수정용 엔드포인트
+      : "http://localhost:8080/posts";
+    const method = isEditMode ? "PUT" : "POST";
+
     try {
-      const res = await fetch("http://localhost:8080/posts", {
-        method: "POST",
+      const res = await fetch(url, {
+        method,
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
+      // const data = await res.json();
 
-      if (res.ok && data.post) {
-        // 성공하면 이전 페이지(혹은 상세 페이지)로
-        navigate(-1);
+      if (res.ok) {
+        navigate(isEditMode ? `/gallery-detail/${existing.post_id}` : -1);
       } else {
-        alert(data.message || "업로드에 실패했습니다.");
+        alert("업로드에 실패했습니다.");
       }
     } catch (err) {
       console.error("업로드 오류:", err);
