@@ -62,7 +62,7 @@ const Home = () => {
 
   //갤러리 렌더링 요청
   useEffect(() => {
-    fetch('http://localhost:8080/posts/gallery', {
+    fetch(`${process.env.REACT_APP_API_URL}/posts/gallery`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -74,7 +74,7 @@ const Home = () => {
 
   // 내 기록 렌더링 요청
   useEffect(() => {
-    fetch('http://localhost:8080/posts/me', { credentials: 'include' })
+    fetch(`${process.env.REACT_APP_API_URL}/posts/me`, { credentials: 'include' })
       .then(res => res.json())
       .then(({ posts }) => {
 
@@ -224,7 +224,7 @@ const Home = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/schedule", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/schedule`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(tripData),

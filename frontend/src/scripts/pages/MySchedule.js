@@ -33,7 +33,7 @@ const MySchedule = () => {
   // 여행 목록 불러오기
   const fetchMyTrips = async () => {
     try {
-      const res = await fetch("http://localhost:8080/schedule/myTrips", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/schedule/myTrips`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -51,7 +51,7 @@ const MySchedule = () => {
   // 초대받아 수락한 여행 목록 불러오기
   const fetchAcceptedInvitations = async () => {
     try {
-      const res = await fetch("http://localhost:8080/trip/invitations/accepted", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/trip/invitations/accepted`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -107,7 +107,7 @@ const MySchedule = () => {
   // 여행 삭제 버튼
   const handleDeleteTrip = async () => {
     try {
-      await fetch(`http://localhost:8080/schedule/${targetTripId}`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/schedule/${targetTripId}`, {
         method: "DELETE",
         credentials: "include",
       });

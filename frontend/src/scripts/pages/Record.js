@@ -50,7 +50,7 @@ const Record = () => {
   useEffect(() => {
     async function fetchTrips() {
       try {
-        const res = await fetch('http://localhost:8080/schedule/myTrips', { credentials: 'include' });
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/schedule/myTrips`, { credentials: 'include' });
         const data = await res.json();
         // 최신 순 정렬
         const sorted = [...data.trips].sort(
@@ -67,7 +67,7 @@ const Record = () => {
   // 1) 여정 선택 시 days 로드 
   useEffect(() => {
     if (!selectedTripId) return;
-    fetch(`http://localhost:8080/schedule/${selectedTripId}`, { credentials: 'include' })
+    fetch(`${process.env.REACT_APP_API_URL}/schedule/${selectedTripId}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setDays(data.trip.days);
@@ -134,7 +134,7 @@ const Record = () => {
 
     try {
       // 2) 서버로 multipart/form-data POST
-      const res = await fetch("http://localhost:8080/posts/upload", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/upload`, {
         method: "POST",
         credentials: "include",
         body: form,
@@ -196,7 +196,7 @@ const Record = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/posts", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

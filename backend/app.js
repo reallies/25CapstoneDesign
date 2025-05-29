@@ -12,7 +12,7 @@ const { authenticateJWT } = require("./src/middleware/authMiddleware");
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:3000", // React 개발 서버
+  origin: `${process.env.FRONTEND_URL}`, // React 개발 서버
   credentials: true, // 쿠키 포함 허용
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["Authorization"] //헤더 노출

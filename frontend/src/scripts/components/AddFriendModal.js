@@ -31,8 +31,8 @@ const AddFriendModal = ({ onClose, modalRef }) => {
 
     try {
       console.log("검색 시작: 검색어 =", searchTerm);
-      console.log("요청 URL: http://localhost:8080/friendship/search");
-      const response = await axios.get(`http://localhost:8080/friendship/search?nickname=${searchTerm}`, {
+      console.log(`요청 URL: ${process.env.REACT_APP_API_URL}/friendship/search`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/friendship/search?nickname=${searchTerm}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true, // 쿠키 전송
       });
@@ -70,7 +70,7 @@ const AddFriendModal = ({ onClose, modalRef }) => {
     try {
       console.log("친구 요청 시작: 닉네임 =", nickname);
       const response = await axios.post(
-        "http://localhost:8080/friendship/request",
+        `${process.env.REACT_APP_API_URL}/friendship/request`,
         { recipient_nickname: nickname },
         {
           headers: { "Content-Type": "application/json" },

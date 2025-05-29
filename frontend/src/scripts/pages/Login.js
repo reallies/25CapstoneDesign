@@ -8,7 +8,7 @@ import naver from "../../assets/images/naver.svg";
 
 const Login = () => {
   const handleLogin = (provider) => {
-    window.location.href = `http://localhost:8080/auth/${provider}`;
+    window.location.href = `${process.env.REACT_APP_API_URL}/auth/${provider}`;
   };
 
   return (

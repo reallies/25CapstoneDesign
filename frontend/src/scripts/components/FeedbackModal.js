@@ -14,7 +14,7 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
     // 재정렬 요청 함수
   const handleReorder = async (day, distanceFeedback) => {
     try {
-      const response = await fetch(`http://localhost:8080/schedule/${tripId}/reorder`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/schedule/${tripId}/reorder`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -46,7 +46,7 @@ const FeedbackModal = ({ onClose,tripId,feedbacks, loading, setFeedbacks, setLoa
     const regeneratefeedback = async ()=>{
         setLoadingFeedbacks(true);
         try {
-            const res = await fetch(`http://localhost:8080/feedback/${tripId}`);
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/feedback/${tripId}`);
             const data = await res.json();
             
             setFeedbacks(data.feedbacks);

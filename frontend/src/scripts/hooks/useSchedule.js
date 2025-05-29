@@ -8,7 +8,7 @@ export const useSchedule = (trip_id) => {
     // 여행 정보 불러오기
     const fetchTrip = useCallback(async () => {
         try {
-            const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/schedule/${trip_id}`, {
                 credentials: "include",
             });
             const data = await res.json();
@@ -53,7 +53,7 @@ export const useSchedule = (trip_id) => {
         const dayId = Number(day.id.replace("day-", ""));
 
         try {
-            const res = await fetch(`http://localhost:8080/schedule/${trip_id}/day/${dayId}/place`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/schedule/${trip_id}/day/${dayId}/place`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -107,7 +107,7 @@ export const useSchedule = (trip_id) => {
         setDays(newDays);
 
         try {
-            await fetch(`http://localhost:8080/schedule/${trip_id}/reorderDay`, {
+            await fetch(`${process.env.REACT_APP_API_URL}/schedule/${trip_id}/reorderDay`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -136,7 +136,7 @@ export const useSchedule = (trip_id) => {
         setDays(newDays);
 
         try {
-            await fetch(`http://localhost:8080/schedule/${trip_id}/reorderPlace`, {
+            await fetch(`${process.env.REACT_APP_API_URL}/schedule/${trip_id}/reorderPlace`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -190,7 +190,7 @@ export const useSchedule = (trip_id) => {
         });
 
         try {
-            await fetch(`http://localhost:8080/schedule/${trip_id}/day/${numericDayId}/dayplace/${dayPlaceId}`, {
+            await fetch(`${process.env.REACT_APP_API_URL}/schedule/${trip_id}/day/${numericDayId}/dayplace/${dayPlaceId}`, {
                 method: "DELETE",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -202,7 +202,7 @@ export const useSchedule = (trip_id) => {
 
     const handleUpdateTitle = async (newTitle) => {
         try {
-            const res = await fetch(`http://localhost:8080/schedule/${trip_id}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/schedule/${trip_id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

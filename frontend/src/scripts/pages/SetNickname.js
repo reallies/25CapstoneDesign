@@ -42,7 +42,7 @@ const SetNickname = () => {
   
     try {
       // 2. 중복 검사 (백엔드)
-      const res = await axios.post("http://localhost:8080/auth/check-nickname", 
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/check-nickname`, 
         { nickname: trimmed }, 
         { withCredentials: true }
       );
@@ -65,7 +65,7 @@ const SetNickname = () => {
   
     setIsSubmitting(true);
     try {
-      await axios.post("http://localhost:8080/auth/set-nickname", 
+      await axios.post(`${process.env.REACT_APP_API_URL}/auth/set-nickname`, 
         { nickname: trimmed },
         { withCredentials: true }
       );

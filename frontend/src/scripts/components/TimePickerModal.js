@@ -89,7 +89,7 @@ const TimePickerModal = ({ dayId, dayPlaceId, onClose, onTimeConfirm, initialTim
         const selectedTime = `${period} ${hour}:${minute}`;
     
         try {
-            await axios.patch(`http://localhost:8080/schedule/day/${dayId}/dayplace/${dayPlaceId}/time`, {
+            await axios.patch(`${process.env.REACT_APP_API_URL}/schedule/day/${dayId}/dayplace/${dayPlaceId}/time`, {
             dayplace_time: selectedTime,
         });
         

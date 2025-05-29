@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     setIsRefreshing(true);
 
     try {
-      const res = await fetch("http://localhost:8080/auth/refresh", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",
       });
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   // 로그인 상태 확인
   const checkLoginStatus = async () => {
     try {
-      const res = await fetch("http://localhost:8080/profile", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/profile`, {
         method: "GET",
         credentials: "include",
       });

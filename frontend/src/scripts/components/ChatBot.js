@@ -7,7 +7,7 @@ import "./ChatBot.css";
 
 // Axios 기본 설정
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: `${process.env.REACT_APP_API_URL}`,
   withCredentials: true,
 });
 

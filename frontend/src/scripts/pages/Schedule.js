@@ -116,7 +116,7 @@ const Schedule = () => {
                 setShowFeedback(true);
                 setLoadingFeedbacks(true);
                 try {
-                    const res = await fetch(`http://localhost:8080/feedback/${trip_id}`);
+                    const res = await fetch(`${process.env.REACT_APP_API_URL}/feedback/${trip_id}`);
                     const data = await res.json();
                     setFeedbacks(data.feedbacks);
                 } catch (err) {
