@@ -1,25 +1,28 @@
 {
-    "name": "capstone-project",
-    "version": "1.0.0",
-    "private": true,
-    "workspaces": [
-        "frontend",
-        "backend"
-    ],
-    "scripts": {
-        "setup": "npm install",
-        "dev": "concurrently \"npm start --workspace=frontend\" \"npm run dev --workspace=backend\"",
-        "build": "cd frontend && npm run build",
-        "server": "cd backend && npm start",
-        "start": "concurrently \"npm run build\" \"npm run server\""
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.0"
-    },
-    "dependencies": {
-        "axios": "^1.8.3",
-        "iconv-lite": "^0.6.3",
-        "marked": "^15.0.12",
-        "short-uuid": "^5.2.0"
-    }
+  "name": "capstone-project",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "setup": "npm install",
+    "dev": "concurrently \"npm start --workspace=frontend\" \"npm run dev --workspace=backend\"",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "cd backend && zip -r slay-backend.zip . -x \".git/*\" \"node_modules/*\"",
+    "server": "npm start --workspace=backend",
+    "start": "concurrently \"npm run build:frontend\" \"npm run server\"",
+    "deploy:frontend": "aws amplify start-job --app-id your-amplify-app-id --branch-name main --job-type RELEASE",
+    "deploy:backend": "aws elasticbeanstalk create-application-version --application-name slay-backend --version-label v1 --source-bundle S3Bucket=\"elasticbeanstalk-us-east-1-xxxx\",S3Key=\"slay-backend.zip\" && aws elasticbeanstalk update-environment --environment-name slay-backend-env --version-label v1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "axios": "^1.8.3",
+    "iconv-lite": "^0.6.3",
+    "marked": "^15.0.12",
+    "short-uuid": "^5.2.0"
+  }
 }
