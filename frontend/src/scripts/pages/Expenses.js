@@ -144,7 +144,7 @@ export const Expenses = () => {
           setActiveDay(preparationTab.label);
         }
 
-        const settlementRes = await fetch(`/trip/${trip_id}/settle`, {
+        const settlementRes = await fetch(`${process.env.REACT_APP_API_URL}/trip/${trip_id}/settle`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!settlementRes.ok) throw new Error("Failed to fetch settlement");
@@ -161,7 +161,7 @@ export const Expenses = () => {
         
         const selectedDay = dayTabs.find((tab) => tab.label === "여행 준비");
         const day_id = selectedDay ? selectedDay.day_id : null;
-        const url = `/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
+        const url = `${process.env.REACT_APP_API_URL}/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
         const expensesRes = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -191,7 +191,7 @@ export const Expenses = () => {
       const selectedDay = dayTabs.find((tab) => tab.label === activeDay);
       const day_id = selectedDay ? selectedDay.day_id : null;
       try {
-        const url = `/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
+        const url = `${process.env.REACT_APP_API_URL}/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
         const response = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
