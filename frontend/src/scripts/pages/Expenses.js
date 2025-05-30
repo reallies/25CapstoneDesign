@@ -224,7 +224,6 @@ export const Expenses = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          credentials: "include",
         },
         body: JSON.stringify({
           trip_id,
@@ -233,6 +232,7 @@ export const Expenses = () => {
           title: description,
           price: parseFloat(cost),
         }),
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Failed to add expense");
       const data = await response.json();
