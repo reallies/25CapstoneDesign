@@ -165,6 +165,7 @@ export const Expenses = () => {
         const url = `${process.env.REACT_APP_API_URL}/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
         const expensesRes = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         if (!expensesRes.ok) throw new Error("Failed to fetch expenses");
         const expensesData = await expensesRes.json();
@@ -223,6 +224,7 @@ export const Expenses = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          credentials: "include",
         },
         body: JSON.stringify({
           trip_id,
@@ -241,6 +243,7 @@ export const Expenses = () => {
 
       const settlementRes = await fetch(`${process.env.REACT_APP_API_URL}/trip/${trip_id}/settle`, {
         headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (!settlementRes.ok) throw new Error("Failed to fetch settlement");
       const settlementData = await settlementRes.json();
