@@ -40,5 +40,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://3.35.112.123.nip.io"
+  "proxy": "http://localhost:8080"
 }
