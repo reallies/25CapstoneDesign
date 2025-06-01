@@ -144,8 +144,9 @@ export const Expenses = () => {
           setActiveDay(preparationTab.label);
         }
 
-        const settlementRes = await fetch(`/trip/${trip_id}/settle`, {
+        const settlementRes = await fetch(`${process.env.REACT_APP_API_URL}/trip/${trip_id}/settle`, {
           headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         if (!settlementRes.ok) throw new Error("Failed to fetch settlement");
         const settlementData = await settlementRes.json();
@@ -161,9 +162,10 @@ export const Expenses = () => {
         
         const selectedDay = dayTabs.find((tab) => tab.label === "여행 준비");
         const day_id = selectedDay ? selectedDay.day_id : null;
-        const url = `/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
+        const url = `${process.env.REACT_APP_API_URL}/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
         const expensesRes = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         if (!expensesRes.ok) throw new Error("Failed to fetch expenses");
         const expensesData = await expensesRes.json();
@@ -191,9 +193,10 @@ export const Expenses = () => {
       const selectedDay = dayTabs.find((tab) => tab.label === activeDay);
       const day_id = selectedDay ? selectedDay.day_id : null;
       try {
-        const url = `/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
+        const url = `${process.env.REACT_APP_API_URL}/trip/${trip_id}/expenses?day_id=${day_id === null ? "null" : day_id}`;
         const response = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to fetch expenses");
         const data = await response.json();
@@ -216,7 +219,7 @@ export const Expenses = () => {
     const selectedDay = dayTabs.find((tab) => tab.label === activeDay);
     const day_id = selectedDay ? selectedDay.day_id : null;
     try {
-      const response = await fetch("/trip/expense/create", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/trip/expense/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -229,6 +232,7 @@ export const Expenses = () => {
           title: description,
           price: parseFloat(cost),
         }),
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Failed to add expense");
       const data = await response.json();
@@ -237,8 +241,9 @@ export const Expenses = () => {
       setDescription("");
       setCategory("");
 
-      const settlementRes = await fetch(`/trip/${trip_id}/settle`, {
+      const settlementRes = await fetch(`${process.env.REACT_APP_API_URL}/trip/${trip_id}/settle`, {
         headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (!settlementRes.ok) throw new Error("Failed to fetch settlement");
       const settlementData = await settlementRes.json();
