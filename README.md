@@ -2,7 +2,7 @@
 
 ### ⚔️ Team SLAY
 
-> AI 기반 맞춤형 여행 일정 추천 및 관리 · 공유 플랫폼
+> AI 기반 여행 일정 추천 및 관리 · 공유 플랫폼
 
 ![Thumbnail](docs/Thumbnail.png)
 
@@ -25,7 +25,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 
 | 기능                  | 설명                |
 | ------------------- | ----------------- |
-| 🧠 **AI 추천**        | 여행 성향 기반 장소 자동 추천 |
+| 🧠 **AI 추천·피드백**    | 여행 전반 동선 및 방향성 점검 |
 | 📆 **일정 구성**        | 드래그 앤 드롭으로 간편 편집  |
 | 🗺️ **지도·날씨 통합**    | 위치·기상 정보 한눈에 확인   |
 | 👁️ **Street View** | 방문 전 장소 미리보기 지원   |
@@ -117,44 +117,49 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 ### 🔐 환경 변수 설정
 #### 📁 `/backend/.env`
 ```c
-//데이터베이스
+//프론트엔드 URL (CORS 설정용)
+FRONTEND_URL=${APP_DOMAIN:-http://localhost}:3000 "개발: localhost:3000, 배포: https://your-app.com"
+
+//데이터베이스 (Supabase 사용 시)
 DATABASE_URL="supabase에서 생성"
 DIRECT_URL="supabase에서 생성"
 
-//JWT & 세션
+//JWT & 세션 (인증 관련)
 SESSION_SECRET=your-api-key
 JWT_SECRET=your-api-key
 JWT_REFRESH_SECRET=your-api-key
 
-//구글 로그인
+//구글 로그인 (OAuth)
 GOOGLE_CLIENT_ID=your-api-key
 GOOGLE_CLIENT_SECRET=your-api-key
 
-//네이버 로그인
+//네이버 로그인 (OAuth)
 NAVER_CLIENT_ID=your-api-key
 NAVER_CLIENT_SECRET=your-api-key
 
-//카카오 로그인
+//카카오 로그인 (OAuth)
 KAKAO_CLIENT_ID=your-api-key
-//openai
+
+//OpenAI API
 OPENAI_API_KEY=your-api-key
 
-//날씨
+//날씨 API (외부 서비스)
 WEATHER_API_KEY=your-api-key
-
-//기상청 날씨
 WEATHER_API_KEY2=your-api-key
 
-//구글맵
+//구글 맵스 API
 GOOGLE_MAPS_API_KEY=your-api-key
 ```
 
 #### 📁 `/frontend/.env`
 ```c
-//카카오맵 REST API KEY
+//백엔드 API URL
+REACT_APP_API_URL=${API_DOMAIN:-http://localhost}:8080 "개발: localhost:8080, 배포: https://api.your-app.com"
+
+//카카오맵 REST API 키
 REACT_APP_KAKAO_REST_API_KEY=your-api-key
 
-//카카오맵 JAVASCRIPT KEY
+//카카오맵 JavaScript 키
 REACT_APP_KAKAO_JAVASCRIPT_KEY=your-api-key
 
 //날씨 API
@@ -165,8 +170,8 @@ REACT_APP_WEATHER_API_KEY=your-api-key
 
 #### 1. 레포지토리 클론
 ```bash
-git clone https://github.com/TeamSLAY/SLAY.git
-cd SLAY
+git clone https://github.com/25CapstoneDesign
+cd 25CapstoneDesign
 ```
 
 #### 2. 백엔드 실행
