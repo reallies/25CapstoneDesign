@@ -26,10 +26,10 @@ const handleAuthCallback = async (req, res) => {
 
     if (isNewUser) {
       // 신규 회원이면 강제로 닉네임 설정 페이지로 이동
-      res.redirect("http://localhost:3000/set-nickname");
+      res.redirect(`${process.env.FRONTEND_URL}/set-nickname`);
     } else {
       // 기존 회원이면 홈으로 이동
-      res.redirect("http://localhost:3000/");
+      res.redirect(`${process.env.FRONTEND_URL}/`);
     }
   } catch (error) {
     console.error("콜백 처리 중 오류:", error);
