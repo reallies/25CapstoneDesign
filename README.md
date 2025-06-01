@@ -118,7 +118,7 @@ AI 여행지 추천부터 일정 · 지출 관리까지,
 #### 📁 `/backend/.env`
 ```c
 //프론트엔드 URL (CORS 설정용)
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=${APP_DOMAIN:-http://localhost}:3000 "개발: localhost:3000, 배포: https://your-app.com"
 
 //데이터베이스 (Supabase 사용 시)
 DATABASE_URL="supabase에서 생성"
@@ -154,7 +154,7 @@ GOOGLE_MAPS_API_KEY=your-api-key
 #### 📁 `/frontend/.env`
 ```c
 //백엔드 API URL
-REACT_APP_API_URL=http://localhost:8080
+REACT_APP_API_URL=${API_DOMAIN:-http://localhost}:8080 "개발: localhost:8080, 배포: https://api.your-app.com"
 
 //카카오맵 REST API 키
 REACT_APP_KAKAO_REST_API_KEY=your-api-key
