@@ -193,6 +193,43 @@ router.get("/:post_id/detail", authenticateJWT, async (req, res) => {
   }
 });
 
+// 기존 import 아래에 추가
+// DELETE /posts/:post_id
+router.delete(
+  "/:post_id",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const postId = parseInt(req.params.post_id, 10);
+      const userId = req.user.user_id;
+
+      // 1) 게시물이 존재하는지 확인
+      const post = await prisma.post.findUnique({
+        where: { post_id: postId },
+      });
+      if (!post) {
+        return res.status(404).json({ message: "삭제할 게시글을 찾을 수 없습니다." });
+      }
+
+      // 2) 본인 글인지 확인
+      if (post.user_id !== userId) {
+        return res.status(403).json({ message: "해당 게시글을 삭제할 권한이 없습니다." });
+      }
+
+      // 3) 삭제
+      await prisma.post.delete({
+        where: { post_id: postId },
+      });
+
+      return res.json({ message: "게시글이 성공적으로 삭제되었습니다." });
+    } catch (error) {
+      console.error("게시글 삭제 오류:", error);
+      return res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    }
+  }
+);
+
+
 
 // 친구 관계 확인 함수
 async function checkFriendship(userId, postUserId) {

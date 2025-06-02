@@ -74,6 +74,7 @@
 .meta-buttons {
     display: flex;
     gap: 8px;
+    justify-content: flex-end;
 }
 
 .meta-btn {
@@ -93,6 +94,16 @@
     border: 1px solid #00ADB5;
     background-color: white;
     color: #00ADB5;
+}
+
+.meta-btn.edit {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.meta-btn.delete {
+    background-color: #ff4d4d;
+    color: white;
 }
 
 /* ===== 구분선 ===== */
