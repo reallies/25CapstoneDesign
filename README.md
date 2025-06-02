@@ -170,8 +170,8 @@ REACT_APP_WEATHER_API_KEY=your-api-key
 
 #### 1. 레포지토리 클론
 ```bash
-git clone https://github.com/25CapstoneDesign
-cd 25CapstoneDesign
+git clone https://github.com/SLAY
+cd SLAY
 ```
 
 #### 2. 백엔드 실행
